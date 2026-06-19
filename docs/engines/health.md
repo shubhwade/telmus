@@ -1,61 +1,99 @@
-# Health Engine
+# Health Engine Reference
+
+The health engine combines earnings quality, leverage, liquidity, and bankruptcy risk into a single review.
 
 ## Piotroski F-score
 
-The Piotroski F-score is a nine-point score that measures a company's financial strength.
+The Piotroski F-score is a nine-point score that measures financial strength.
 
-| Signal | Formula | What it measures |
-|---|---|---|
-| ROA positive | Net Income / Total Assets > 0 | Profitability |
-| CFO positive | Cash flow from operations > 0 | Cash generation |
-| ROA increasing | Current ROA > Prior ROA | Improving profitability |
-| Accruals | Net Income - CFO < 0 | Quality of earnings |
-| Leverage decreasing | D/E current < D/E prior | Lower financial risk |
-| Liquidity increasing | Current ratio current > prior | Better short-term coverage |
-| No dilution | Shares outstanding not increased | Shareholder value preservation |
-| Gross margin increasing | Current gross margin > prior | Margin improvement |
-| Asset turnover increasing | Sales / Assets current > prior | Efficiency gain |
+| Signal | What it measures | Formula | Pass condition |
+|---|---|---|---|
+| ROA positive | Profitability | Net income / Total assets | > 0 |
+| CFO positive | Cash generation | Operating cash flow > 0 | true |
+| ROA increasing | Improving profitability | Current ROA > Prior ROA | true |
+| Accruals | Quality of earnings | Net income - CFO < 0 | true |
+| Leverage decreasing | Lower financial risk | Current D/E < Prior D/E | true |
+| Liquidity increasing | Short-term coverage | Current current ratio > Prior current ratio | true |
+| No dilution | Shareholder preservation | Shares outstanding not increased | true |
+| Gross margin increasing | Margin improvement | Current gross margin > Prior gross margin | true |
+| Asset turnover increasing | Efficiency gain | Current asset turnover > Prior asset turnover | true |
+
+### Score interpretation
+
+| Score | Interpretation |
+|---|---|
+| 0-2 | Distressed |
+| 3�4 | Weak |
+| 5�6 | Adequate |
+| 7�9 | Strong |
 
 ## Altman Z-score
 
-The Altman Z-score estimates bankruptcy risk using five factors.
+The Altman Z-score uses five weighted factors to estimate bankruptcy risk.
 
-| Factor | Formula | Interpretation |
-|---|---|---|
-| X1 | (Current Assets - Current Liabilities) / Total Assets | Working capital ratio |
-| X2 | Retained Earnings / Total Assets | Cumulative profitability |
-| X3 | EBIT / Total Assets | Operating earnings |
-| X4 | Market Cap / Total Liabilities | Market leverage |
-| X5 | Revenue / Total Assets | Asset efficiency |
+| Factor | Formula | Weight | What it measures |
+|---|---|---|---|
+| X1 | (Current assets � Current liabilities) / Total assets | 1.2 | Working capital efficiency |
+| X2 | Retained earnings / Total assets | 1.4 | Cumulative profitability |
+| X3 | EBIT / Total assets | 3.3 | Operating earnings |
+| X4 | Market value of equity / Total liabilities | 0.6 | Market leverage |
+| X5 | Revenue / Total assets | 1.0 | Asset turnover |
 
-### Interpretation
+### Zone interpretation
 
-- `Z > 2.99` — Safe zone
-- `1.81 <= Z <= 2.99` — Grey zone
-- `Z < 1.81` — Distress zone
+- `Z > 2.99` � safe zone
+- `1.81 <= Z <= 2.99` � grey zone
+- `Z < 1.81` � distress zone
 
-## Examples
+## Debt/Equity interpretation
 
-Healthy company output:
+- `< 0.5` � low leverage, conservative balance sheet
+- `0.5�1.5` � moderate leverage
+- `> 1.5` � high leverage, higher risk
+
+Debt/equity is a core indicator of capital structure risk and should be interpreted with sector context.
+
+## Current ratio interpretation
+
+- `> 1.5` � healthy short-term liquidity
+- `1.0�1.5` � adequate but watch working capital
+- `< 1.0` � liquidity stress
+
+The current ratio shows whether current assets are sufficient to cover current liabilities.
+
+## Interest coverage interpretation
+
+- `> 10` � strong coverage
+- `3�10` � moderate coverage
+- `< 3` � weak coverage
+- `< 1` � potential distress
+
+Interest coverage measures the ability to pay interest from operating profits.
+
+## Real example
+
+### Healthy company
 
 ```json
 {
-  "piotroski_f": 7,
-  "altman_z": 4.2,
-  "debt_to_equity": 0.08,
-  "current_ratio": 2.1,
-  "interest_coverage": 48.3
+  "ticker": "TCS",
+  "piotroski_f": 8,
+  "altman_z": 4.5,
+  "debt_to_equity": 0.14,
+  "current_ratio": 2.2,
+  "interest_coverage": 45.0
 }
 ```
 
-Distressed company output:
+### Distressed company
 
 ```json
 {
-  "piotroski_f": 3,
-  "altman_z": 1.5,
-  "debt_to_equity": 3.5,
+  "ticker": "EXAMPLE",
+  "piotroski_f": 2,
+  "altman_z": 1.3,
+  "debt_to_equity": 3.8,
   "current_ratio": 0.8,
-  "interest_coverage": 1.2
+  "interest_coverage": 1.1
 }
 ```

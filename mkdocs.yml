@@ -52,9 +52,10 @@ plugins:
 nav:
   - Home: index.md
   - Quick start: quickstart.md
-  - CLI reference: cli.md
-  - MCP server: mcp.md
-  - SDK: sdk.md
+  - Reference:
+    - CLI: cli.md
+    - MCP server: mcp.md
+    - SDK: sdk.md
   - Engines:
     - Health: engines/health.md
   - Changelog: changelog.md
