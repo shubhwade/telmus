@@ -9,8 +9,8 @@ extra_css:
 
 theme:
   custom_dir: docs/overrides
-  logo: null
-  favicon: null
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
   name: material
   palette:
     - scheme: slate
