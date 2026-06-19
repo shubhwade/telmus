@@ -1,10 +1,9 @@
 # valkit
 
-[![PyPI version](https://img.shields.io/pypi/v/valkit.svg)](https://pypi.org/project/valkit/)
-[![Python version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/YOURUSERNAME/valkit/.github/workflows/ci.yml?branch=main)](https://github.com/YOURUSERNAME/valkit/actions)
-[![Downloads](https://img.shields.io/pypi/dm/valkit.svg)](https://pypi.org/project/valkit/)
+[![PyPI version](https://img.shields.io/pypi/v/valkit)](https://pypi.org/project/valkit/)
+[![Downloads](https://img.shields.io/pypi/dm/valkit)](https://pypi.org/project/valkit/)
+[![Python](https://img.shields.io/pypi/pyversions/valkit)](https://pypi.org/project/valkit/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 Financial statement analysis for AI IDEs and coding agents.
 
