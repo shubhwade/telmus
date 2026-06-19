@@ -10,7 +10,7 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.9"
 authors = [{name = "Shubh Wade", email = "shubhwade@gmail.com"}]
-keywords = ["finance", "mcp", "financial-analysis", "piotroski", "altman", "beneish", "yfinance", "ai-agent"]
+keywords = ["finance", "mcp", "financial-analysis", "piotroski", "altman", "beneish", "yfinance", "ai-agent", "mcp-server", "claude"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -23,24 +23,6 @@ classifiers = [
     "Topic :: Office/Business :: Financial",
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
-dependencies = [
-    "typer>=0.9.0",
-    "rich>=13.0.0",
-    "yfinance>=0.2.0",
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "mcp>=1.0.0",
-    "requests>=2.28.0",
-    "beautifulsoup4>=4.12.0",
-]
-
-[project.optional-dependencies]
-dev = ["pytest", "pytest-cov", "ruff", "hatch"]
-docs = ["mkdocs-material", "mkdocstrings[python]"]
-dashboard = ["streamlit", "plotly"]
-
-[project.scripts]
-valkit = "valkit.cli.app:app"
 
 [project.urls]
 Homepage = "https://shubhwade.github.io/valkit"
@@ -48,10 +30,17 @@ Documentation = "https://shubhwade.github.io/valkit"
 Repository = "https://github.com/shubhwade/valkit"
 Changelog = "https://shubhwade.github.io/valkit/changelog/"
 
-[tool.ruff]
-line-length = 88
-target-version = "py39"
+[project.scripts]
+valkit = "valkit.cli.app:app"
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-addopts = "--cov=valkit --cov-report=term-missing"
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "ruff",
+    "bandit",
+    "twine",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+    "streamlit",
+]
