@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
-from valkit.core.engines.growth import GrowthEngine, _cagr
+from tellus.core.engines.growth import GrowthEngine, _cagr
 
 
 def test_cagr_formula_accuracy() -> None:

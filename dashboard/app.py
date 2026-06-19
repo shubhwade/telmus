@@ -2,18 +2,18 @@ from __future__ import annotations
 
 import streamlit as st
 
-from valkit.core.scanner import ValkitScanner
+from tellus.core.scanner import TellusScanner
 
 
 def main() -> None:
-    st.title("valkit")
+    st.title("tellus")
     st.caption("financial statement analysis · real data · no API key")
 
     ticker = st.text_input("Ticker", placeholder="INFY, TCS, AAPL, MSFT")
     if st.button("Analyse") and ticker:
         try:
             with st.spinner("scanning..."):
-                result = ValkitScanner().scan(ticker.strip().upper())
+                result = TellusScanner().scan(ticker.strip().upper())
 
             cols = st.columns(3)
             cols[0].metric("Piotroski F-score", result.health.piotroski_f)
@@ -36,7 +36,7 @@ def main() -> None:
         except Exception:
             st.error("Could not fetch data for ticker. Check the symbol and try again.")
 
-    st.caption("Data via yfinance · valkit v0.1.0 · MIT License")
+    st.caption("Data via yfinance · tellus v0.1.0 · MIT License")
 
 
 if __name__ == "__main__":

@@ -2,11 +2,11 @@
 template: home.html
 ---
 
-# valkit
+# tellus
 
 Financial statement analysis for AI IDEs and coding agents.
 
-## Why valkit?
+## Why tellus?
 
 | Engine | What it catches |
 |---|---|
@@ -26,19 +26,19 @@ The `analyst_brief` is a deterministic summary generated from financial metrics 
 
 ## Quick start
 
-1. Install: `pip install valkit`
-2. Run `valkit scan INFY`
+1. Install: `pip install tellus`
+2. Run `tellus scan INFY`
 3. Read the summary, ratios, and red flags
 
 ## MCP Server
 
-Use valkit as an MCP tool for Claude, Cursor, or any MCP-aware IDE.
+Use tellus as an MCP tool for Claude, Cursor, or any MCP-aware IDE.
 
 ```json
 {
   "mcpServers": {
-    "valkit": {
-      "command": "valkit",
+    "tellus": {
+      "command": "tellus",
       "args": ["serve"],
       "description": "Financial statement analysis - real ratios for any ticker"
     }

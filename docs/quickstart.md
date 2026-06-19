@@ -1,13 +1,13 @@
 # Quickstart
 
-This quickstart guide walks you through installing valkit, scanning your first stock, understanding every field in the output, exporting JSON, and comparing two tickers.
+This quickstart guide walks you through installing tellus, scanning your first stock, understanding every field in the output, exporting JSON, and comparing two tickers.
 
 ## 1. Install
 
-valkit requires Python 3.9 or newer.
+tellus requires Python 3.9 or newer.
 
 ```bash
-pip install valkit
+pip install tellus
 ```
 
 If you use a virtual environment, activate it before installing.
@@ -17,7 +17,7 @@ If you use a virtual environment, activate it before installing.
 Run the first scan for Infosys:
 
 ```bash
-valkit scan INFY
+tellus scan INFY
 ```
 
 Expected output example:
@@ -53,10 +53,10 @@ The output includes three tables:
 ## 3. Understand the output
 
 ### P/E ratio
-The price-to-earnings ratio compares a company’s market price to its earnings per share. A lower P/E can indicate value or earnings risk; a higher P/E can indicate strong growth expectations or an expensive stock.
+The price-to-earnings ratio compares a company's market price to its earnings per share. A lower P/E can indicate value or earnings risk; a higher P/E can indicate strong growth expectations or an expensive stock.
 
 ### P/B ratio
-Price-to-book compares the stock price to the company�s book value per share. Values below 1.0 may signal that the market values the company below its accounting assets, while values above 3.0 suggest investors are paying a premium for intangible assets or future growth.
+Price-to-book compares the stock price to the company's book value per share. Values below 1.0 may signal that the market values the company below its accounting assets, while values above 3.0 suggest investors are paying a premium for intangible assets or future growth.
 
 ### EV/EBITDA
 Enterprise value divided by EBITDA measures how expensive the company is relative to its operating cash profit. Lower EV/EBITDA is generally more attractive, while values above 15-20 can indicate a richly valued company.
@@ -101,11 +101,11 @@ Margin trend describes how profitability is moving over time:
 Use `--json` to print structured output and `--export` to save a report file.
 
 ```bash
-valkit scan INFY --json
+tellus scan INFY --json
 ```
 
 ```bash
-valkit scan INFY --export report.json
+tellus scan INFY --export report.json
 ```
 
 The generated JSON contains `valuation`, `health`, `growth`, `flags`, and `analyst_brief` sections, making it easy to load into analytics pipelines.
@@ -115,7 +115,7 @@ The generated JSON contains `valuation`, `health`, `growth`, `flags`, and `analy
 Compare INFY with TCS:
 
 ```bash
-valkit compare INFY TCS
+tellus compare INFY TCS
 ```
 
 Expected comparison output:

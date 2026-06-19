@@ -1,4 +1,4 @@
-## v0.1.0 — Initial Release
+## v0.1.0 - Initial Release
 
 ### Added
 
@@ -9,6 +9,6 @@
 - CLI: scan, compare, screen, check, serve, info commands
 - MCP server with 5 tools: scan, scan_ticker, compare, screen, info
 - Streamlit dashboard
-- Python SDK with ValkitScanner class
+- Python SDK with TellusScanner class
 - Full MkDocs documentation site
 - 18-test suite covering all engines and CLI

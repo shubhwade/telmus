@@ -1,9 +1,9 @@
-site_name: valkit
+site_name: tellus
 site_description: Financial statement analysis MCP server for AI IDEs
 docs_dir: docs
-site_url: https://shubhwade.github.io/valkit
-repo_url: https://github.com/shubhwade/valkit
-repo_name: shubhwade/valkit
+site_url: https://shubhwade.github.io/tellus
+repo_url: https://github.com/shubhwade/tellus
+repo_name: shubhwade/tellus
 extra_css:
   - stylesheets/extra.css
 

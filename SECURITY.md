@@ -1,10 +1,10 @@
 # Security Policy
 
 ## Data Privacy
-valkit does not collect, store, or transmit any user data.
+tellus does not collect, store, or transmit any user data.
 All financial data is fetched directly from Yahoo Finance via yfinance.
 No API keys, credentials, or personal information are ever required or stored.
-valkit runs entirely on your local machine.
+tellus runs entirely on your local machine.
 
 ## Supported Versions
 | Version | Supported |
@@ -13,7 +13,7 @@ valkit runs entirely on your local machine.
 
 ## Reporting a Vulnerability
 To report a security vulnerability, open a GitHub issue at
-https://github.com/shubhwade/valkit/issues
+https://github.com/shubhwade/tellus/issues
 or email shubhwade@gmail.com
 
 Response within 48 hours guaranteed.

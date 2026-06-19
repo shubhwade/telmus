@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import json
-from valkit.mcp.server import handle_tool_call, TOOL_DEFINITIONS
+from tellus.mcp.server import handle_tool_call, TOOL_DEFINITIONS
 
 async def test_all_tools() -> None:
     """Test all 5 MCP tools."""
     print("=" * 80)
-    print("TESTING VALKIT MCP SERVER - ALL 5 TOOLS")
+    print("TESTING TELLUS MCP SERVER - ALL 5 TOOLS")
     print("=" * 80)
     
     # Test 1: info

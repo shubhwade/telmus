@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "valkit"
+name = "tellus"
 version = "0.1.0"
 description = "Financial statement analysis for AI IDEs and coding agents"
 readme = "README.md"
@@ -25,13 +25,13 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://shubhwade.github.io/valkit"
-Documentation = "https://shubhwade.github.io/valkit"
-Repository = "https://github.com/shubhwade/valkit"
-Changelog = "https://shubhwade.github.io/valkit/changelog/"
+Homepage = "https://shubhwade.github.io/tellus"
+Documentation = "https://shubhwade.github.io/tellus"
+Repository = "https://github.com/shubhwade/tellus"
+Changelog = "https://shubhwade.github.io/tellus/changelog/"
 
 [project.scripts]
-valkit = "valkit.cli.app:app"
+tellus = "tellus.cli.app:app"
 
 [project.optional-dependencies]
 dev = [
@@ -44,3 +44,6 @@ dev = [
     "mkdocstrings[python]",
     "streamlit",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["tellus"]

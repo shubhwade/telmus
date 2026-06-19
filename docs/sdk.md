@@ -1,18 +1,18 @@
 # Python SDK Reference
 
-Use the valkit Python SDK to embed financial analysis directly into notebooks, scripting workflows, and automated data pipelines.
+Use the tellus Python SDK to embed financial analysis directly into notebooks, scripting workflows, and automated data pipelines.
 
 ## Install
 
 ```bash
-pip install valkit
+pip install tellus
 ```
 
 ## Import examples
 
 ```python
-from valkit import ValkitScanner, scan, compare
-from valkit.models import ScanResult, HealthResult, ValuationResult, GrowthResult, FlagsResult
+from tellus import TellusScanner, scan, compare
+from tellus.models import ScanResult, HealthResult, ValuationResult, GrowthResult, FlagsResult
 ```
 
 ## When to use the SDK
@@ -21,9 +21,9 @@ from valkit.models import ScanResult, HealthResult, ValuationResult, GrowthResul
 - You are building a data pipeline, Jupyter notebook, or analytics dashboard.
 - You need structured objects that can be inspected, transformed, and exported.
 
-## ValkitScanner class
+## TellusScanner class
 
-`ValkitScanner` is the primary programmatic interface for valkit.
+`TellusScanner` is the primary programmatic interface for tellus.
 
 ### Methods
 
@@ -91,7 +91,7 @@ from valkit.models import ScanResult, HealthResult, ValuationResult, GrowthResul
 ### Basic scan
 
 ```python
-from valkit import scan
+from tellus import scan
 
 result = scan("INFY")
 print(result.analyst_brief)
@@ -100,7 +100,7 @@ print(result.analyst_brief)
 ### Compare two tickers
 
 ```python
-from valkit import compare
+from tellus import compare
 
 result_a, result_b = compare("INFY", "TCS")
 print(result_a.valuation.pe_ratio, result_b.valuation.pe_ratio)
@@ -109,7 +109,7 @@ print(result_a.valuation.pe_ratio, result_b.valuation.pe_ratio)
 ### Loop over a list of tickers
 
 ```python
-from valkit import scan
+from tellus import scan
 
 tickers = ["INFY", "TCS", "WIPRO"]
 for symbol in tickers:
@@ -120,7 +120,7 @@ for symbol in tickers:
 ### Access specific fields
 
 ```python
-from valkit import scan
+from tellus import scan
 
 result = scan("INFY")
 print("Altman Z:", result.health.altman_z)
@@ -132,7 +132,7 @@ print("Beneish M:", result.flags.beneish_m)
 
 ```python
 import pandas as pd
-from valkit import scan
+from tellus import scan
 
 result = scan("INFY")
 rows = [{
@@ -150,7 +150,7 @@ print(df)
 
 ```python
 import json
-from valkit import scan
+from tellus import scan
 
 result = scan("INFY")
 with open("infy_report.json", "w", encoding="utf-8") as f:

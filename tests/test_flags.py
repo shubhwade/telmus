@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from valkit.core.engines.flags import FlagsEngine
+from tellus.core.engines.flags import FlagsEngine
 
 
 def test_beneish_m_returns_float() -> None:

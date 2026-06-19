@@ -1,20 +1,20 @@
-# valkit
+# tellus
 
-[![PyPI version](https://img.shields.io/pypi/v/valkit)](https://pypi.org/project/valkit/)
-[![Downloads](https://img.shields.io/pypi/dm/valkit)](https://pypi.org/project/valkit/)
-[![Python](https://img.shields.io/pypi/pyversions/valkit)](https://pypi.org/project/valkit/)
+[![PyPI version](https://img.shields.io/pypi/v/tellus)](https://pypi.org/project/tellus/)
+[![Downloads](https://img.shields.io/pypi/dm/tellus)](https://pypi.org/project/tellus/)
+[![Python](https://img.shields.io/pypi/pyversions/tellus)](https://pypi.org/project/tellus/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 Financial statement analysis for AI IDEs and coding agents.
 
 ```bash
-pip install valkit
-valkit scan INFY
+pip install tellus
+tellus scan INFY
 ```
 
-## What is valkit?
+## What is tellus?
 
-valkit is a Python package and CLI for parsing financial statements, computing key valuation and health ratios, and exposing them through an MCP server for AI tools. Just as mustel gives AI IDEs ground truth about your code, valkit gives AI IDEs ground truth about financial statements.
+tellus is a Python package and CLI for parsing financial statements, computing key valuation and health ratios, and exposing them through an MCP server for AI tools. Just as mustel gives AI IDEs ground truth about your code, tellus gives AI IDEs ground truth about financial statements.
 
 ## Engines
 
@@ -41,13 +41,13 @@ Example output:
 1. Install:
 
 ```bash
-pip install valkit
+pip install tellus
 ```
 
 2. Scan a ticker:
 
 ```bash
-valkit scan INFY
+tellus scan INFY
 ```
 
 3. Read the summary and analyst brief, or export JSON for automation.
@@ -57,8 +57,8 @@ valkit scan INFY
 ```json
 {
   "mcpServers": {
-    "valkit": {
-      "command": "valkit",
+    "tellus": {
+      "command": "tellus",
       "args": ["serve"],
       "description": "Financial statement analysis — real ratios for any ticker"
     }
@@ -66,22 +66,22 @@ valkit scan INFY
 }
 ```
 
-- Claude Desktop: use the config to register valkit as an MCP tool.
-- Cursor: same config loads valkit as a tool for market research.
+- Claude Desktop: use the config to register tellus as an MCP tool.
+- Cursor: same config loads tellus as a tool for market research.
 - Windsurf: connect the MCP server to get real financial metrics.
 
 ## Other commands
 
 | Command | Description |
 |---|---|
-| `valkit scan TICKER` | Run a full financial scan |
-| `valkit scan TICKER --json` | Print raw JSON |
-| `valkit scan TICKER --export FILE.json` | Save JSON to a file |
-| `valkit compare A B` | Compare two tickers |
-| `valkit screen` | Run a simple sector screener |
-| `valkit serve` | Start the MCP server |
-| `valkit info` | Print package info |
-| `valkit check TICKER` | Quick health check |
+| `tellus scan TICKER` | Run a full financial scan |
+| `tellus scan TICKER --json` | Print raw JSON |
+| `tellus scan TICKER --export FILE.json` | Save JSON to a file |
+| `tellus compare A B` | Compare two tickers |
+| `tellus screen` | Run a simple sector screener |
+| `tellus serve` | Start the MCP server |
+| `tellus info` | Print package info |
+| `tellus check TICKER` | Quick health check |
 
 ## Benchmark
 

@@ -1,8 +1,8 @@
 # CLI Reference
 
-The `valkit` command-line interface gives you fast access to financial scans, comparisons, screens, health checks, and MCP server mode. Use these commands to analyze companies, compare peers, filter investment candidates, and serve results to AI assistants.
+The `tellus` command-line interface gives you fast access to financial scans, comparisons, screens, health checks, and MCP server mode. Use these commands to analyze companies, compare peers, filter investment candidates, and serve results to AI assistants.
 
-## `valkit scan TICKER [--json] [--export PATH]`
+## `tellus scan TICKER [--json] [--export PATH]`
 
 **What it does**
 Performs a complete financial scan for a single ticker and returns valuation, health, growth, red-flag metrics, and a deterministic analyst brief.
@@ -14,14 +14,14 @@ Performs a complete financial scan for a single ticker and returns valuation, he
 
 **Syntax**
 ```bash
-valkit scan TICKER [--json] [--export PATH]
+tellus scan TICKER [--json] [--export PATH]
 ```
 
 **Examples**
 ```bash
-valkit scan INFY
-valkit scan INFY --json
-valkit scan INFY --export infy-report.json
+tellus scan INFY
+tellus scan INFY --json
+tellus scan INFY --export infy-report.json
 ```
 
 **Output**
@@ -33,7 +33,7 @@ The default output includes sections for `Valuation`, `Health`, `Growth`, and `A
 
 ---
 
-## `valkit compare TICKER_A TICKER_B`
+## `tellus compare TICKER_A TICKER_B`
 
 **What it does**
 Compares two tickers side by side across their financial metrics, making it easy to spot valuation, health, and growth differences.
@@ -45,12 +45,12 @@ Compares two tickers side by side across their financial metrics, making it easy
 
 **Syntax**
 ```bash
-valkit compare TICKER_A TICKER_B
+tellus compare TICKER_A TICKER_B
 ```
 
 **Example**
 ```bash
-valkit compare INFY TCS
+tellus compare INFY TCS
 ```
 
 **Output**
@@ -58,7 +58,7 @@ The comparison table shows metrics such as `P/E`, `P/B`, `EV/EBITDA`, `Piotroski
 
 ---
 
-## `valkit screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT]`
+## `tellus screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT]`
 
 **What it does**
 Filters the ticker universe by sector, Piotroski score, and leverage, returning only companies that match the selected quality criteria.
@@ -70,12 +70,12 @@ Filters the ticker universe by sector, Piotroski score, and leverage, returning 
 
 **Syntax**
 ```bash
-valkit screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT]
+tellus screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT]
 ```
 
 **Example**
 ```bash
-valkit screen --sector IT --min-piotroski 6 --max-de 1.5
+tellus screen --sector IT --min-piotroski 6 --max-de 1.5
 ```
 
 **Available flags**
@@ -85,7 +85,7 @@ valkit screen --sector IT --min-piotroski 6 --max-de 1.5
 
 ---
 
-## `valkit check TICKER`
+## `tellus check TICKER`
 
 **What it does**
 Runs a compact health check for a ticker and returns the most important balance sheet and earnings quality indicators.
@@ -97,12 +97,12 @@ Runs a compact health check for a ticker and returns the most important balance 
 
 **Syntax**
 ```bash
-valkit check TICKER
+tellus check TICKER
 ```
 
 **Example**
 ```bash
-valkit check INFY
+tellus check INFY
 ```
 
 **Output**
@@ -110,35 +110,35 @@ The check output focuses on `Piotroski F`, `Altman Z`, `D/E`, `Current Ratio`, a
 
 ---
 
-## `valkit serve`
+## `tellus serve`
 
 **What it does**
-Starts valkit in MCP server mode so connected AI tools and assistants can call it as a structured external tool.
+Starts tellus in MCP server mode so connected AI tools and assistants can call it as a structured external tool.
 
 **When to use it**
 - You want an AI assistant to query real financial metrics automatically.
-- You are integrating valkit with an MCP-compatible client such as Claude Desktop, Cursor, or Windsurf.
+- You are integrating tellus with an MCP-compatible client such as Claude Desktop, Cursor, or Windsurf.
 - You need a live, local tool endpoint for your agent workflows.
 
 **Syntax**
 ```bash
-valkit serve
+tellus serve
 ```
 
 **Example**
 ```bash
-valkit serve
+tellus serve
 ```
 
 **Expected output**
 ```text
-valkit MCP server listening on port 8080
+tellus MCP server listening on port 8080
 Available tools: scan, scan_ticker, compare, screen, info
 ```
 
 ---
 
-## `valkit info`
+## `tellus info`
 
 **What it does**
 Displays server metadata, package version, tool availability, and data source details.
@@ -150,17 +150,17 @@ Displays server metadata, package version, tool availability, and data source de
 
 **Syntax**
 ```bash
-valkit info
+tellus info
 ```
 
 **Example**
 ```bash
-valkit info
+tellus info
 ```
 
 **Sample output**
 ```text
-valkit version: 0.1.0
+tellus version: 0.1.0
 data source: public financial statements
 available tools: scan, scan_ticker, compare, screen, info
 ```
@@ -171,20 +171,20 @@ available tools: scan, scan_ticker, compare, screen, info
 
 ### Perform a scan and save the result
 ```bash
-valkit scan INFY --export infy.json
+tellus scan INFY --export infy.json
 ```
 
 ### Compare two investment candidates
 ```bash
-valkit compare INFY TCS
+tellus compare INFY TCS
 ```
 
 ### Start the MCP server for AI integration
 ```bash
-valkit serve
+tellus serve
 ```
 
 ### Screen for stronger companies in a sector
 ```bash
-valkit screen --sector IT --min-piotroski 7 --max-de 1.2
+tellus screen --sector IT --min-piotroski 7 --max-de 1.2
 ```

@@ -4,7 +4,7 @@ import logging
 
 import pytest
 
-from valkit.core.engines.health import HealthEngine
+from tellus.core.engines.health import HealthEngine
 from tests.fixtures.infy_mock import infy_financials
 
 

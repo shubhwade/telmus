@@ -6,9 +6,9 @@ from unittest.mock import patch
 import pytest
 from typer.testing import CliRunner
 
-from valkit.cli.app import app
-from valkit.core.result import ScanResult
-from valkit.core.result import ValuationResult, HealthResult, GrowthResult, RedFlag
+from tellus.cli.app import app
+from tellus.core.result import ScanResult
+from tellus.core.result import ValuationResult, HealthResult, GrowthResult, RedFlag
 
 runner = CliRunner()
 
@@ -34,7 +34,7 @@ def test_info_exits_zero() -> None:
     assert "Version" in result.output
 
 
-@patch("valkit.cli.app.ValkitScanner.scan")
+@patch("tellus.cli.app.TellusScanner.scan")
 def test_scan_json_outputs_json(mock_scan) -> None:
     mock_scan.return_value = fake_scan_result()
     result = runner.invoke(app, ["scan", "INFY", "--json"])
@@ -43,7 +43,7 @@ def test_scan_json_outputs_json(mock_scan) -> None:
     assert parsed["ticker"] == "INFY"
 
 
-@patch("valkit.cli.app.ValkitScanner.scan")
+@patch("tellus.cli.app.TellusScanner.scan")
 def test_check_exits_zero(mock_scan) -> None:
     mock_scan.return_value = fake_scan_result()
     result = runner.invoke(app, ["check", "INFY"])
@@ -51,7 +51,7 @@ def test_check_exits_zero(mock_scan) -> None:
     assert "Piotroski F-score" in result.output
 
 
-@patch("valkit.cli.app.ValkitScanner.scan")
+@patch("tellus.cli.app.TellusScanner.scan")
 def test_scan_bad_ticker_handles_error(mock_scan) -> None:
     mock_scan.side_effect = ValueError("Unable to load financials")
     result = runner.invoke(app, ["scan", "BADTICKER"])
