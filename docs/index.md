@@ -10,7 +10,7 @@ Financial statement analysis for AI IDEs and coding agents.
 | Health | Balance sheet stress, leverage, and credit risk |
 | Flags | Earnings manipulation risk and cash flow trouble |
 
-## The analyst_brief — The Key Innovation
+## The analyst_brief - The Key Innovation
 
 The `analyst_brief` is a deterministic summary generated from financial metrics and red flags. Designed for AI IDEs to consume without relying on generative models.
 

@@ -23,9 +23,9 @@ The Piotroski F-score is a nine-point score that measures financial strength.
 | Score | Interpretation |
 |---|---|
 | 0-2 | Distressed |
-| 3�4 | Weak |
-| 5�6 | Adequate |
-| 7�9 | Strong |
+| 3-4 | Weak |
+| 5-6 | Adequate |
+| 7-9 | Strong |
 
 ## Altman Z-score
 
@@ -33,7 +33,7 @@ The Altman Z-score uses five weighted factors to estimate bankruptcy risk.
 
 | Factor | Formula | Weight | What it measures |
 |---|---|---|---|
-| X1 | (Current assets � Current liabilities) / Total assets | 1.2 | Working capital efficiency |
+| X1 | (Current assets - Current liabilities) / Total assets | 1.2 | Working capital efficiency |
 | X2 | Retained earnings / Total assets | 1.4 | Cumulative profitability |
 | X3 | EBIT / Total assets | 3.3 | Operating earnings |
 | X4 | Market value of equity / Total liabilities | 0.6 | Market leverage |
@@ -47,26 +47,26 @@ The Altman Z-score uses five weighted factors to estimate bankruptcy risk.
 
 ## Debt/Equity interpretation
 
-- `< 0.5` � low leverage, conservative balance sheet
-- `0.5�1.5` � moderate leverage
-- `> 1.5` � high leverage, higher risk
+- `< 0.5` low leverage, conservative balance sheet
+- `0.5-1.5` moderate leverage
+- `> 1.5` high leverage, higher risk
 
 Debt/equity is a core indicator of capital structure risk and should be interpreted with sector context.
 
 ## Current ratio interpretation
 
-- `> 1.5` � healthy short-term liquidity
-- `1.0�1.5` � adequate but watch working capital
-- `< 1.0` � liquidity stress
+- `> 1.5` healthy short-term liquidity
+- `1.0-1.5` adequate but watch working capital
+- `< 1.0` liquidity stress
 
 The current ratio shows whether current assets are sufficient to cover current liabilities.
 
 ## Interest coverage interpretation
 
-- `> 10` � strong coverage
-- `3�10` � moderate coverage
-- `< 3` � weak coverage
-- `< 1` � potential distress
+- `> 10` strong coverage
+- `3-10` moderate coverage
+- `< 3` weak coverage
+- `< 1` potential distress
 
 Interest coverage measures the ability to pay interest from operating profits.
 

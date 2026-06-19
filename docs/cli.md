@@ -28,8 +28,8 @@ valkit scan INFY --export infy-report.json
 The default output includes sections for `Valuation`, `Health`, `Growth`, and `Analyst brief`. When you use `--json`, the CLI returns a JSON object with nested sections like `valuation`, `health`, `growth`, `flags`, and `analyst_brief`.
 
 **Flags**
-- `--json` � return the full structured result as JSON.
-- `--export PATH` � save the scan result to a JSON file at the specified path.
+- `--json` return the full structured result as JSON.
+- `--export PATH` save the scan result to a JSON file at the specified path.
 
 ---
 
@@ -79,9 +79,9 @@ valkit screen --sector IT --min-piotroski 6 --max-de 1.5
 ```
 
 **Available flags**
-- `--sector TEXT` � filter by industry sector.
-- `--min-piotroski INT` � require a minimum Piotroski F-score.
-- `--max-de FLOAT` � require a maximum debt-to-equity ratio.
+- `--sector TEXT` filter by industry sector.
+- `--min-piotroski INT` require a minimum Piotroski F-score.
+- `--max-de FLOAT` require a maximum debt-to-equity ratio.
 
 ---
 

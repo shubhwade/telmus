@@ -46,45 +46,45 @@ from valkit.models import ScanResult, HealthResult, ValuationResult, GrowthResul
 
 ### Fields
 
-- `ticker: str` � the stock symbol.
-- `valuation: ValuationResult` � valuation multiples and comparison metrics.
-- `health: HealthResult` � balance sheet and earnings health metrics.
-- `growth: GrowthResult` � revenue and margin momentum metrics.
-- `flags: FlagsResult` � risk flags and fraud indicators.
-- `analyst_brief: str` � deterministic summary text.
-- `generated_at: str` � timestamp when the scan was produced.
+- `ticker: str` the stock symbol.
+- `valuation: ValuationResult` valuation multiples and comparison metrics.
+- `health: HealthResult` balance sheet and earnings health metrics.
+- `growth: GrowthResult` revenue and margin momentum metrics.
+- `flags: FlagsResult` risk flags and fraud indicators.
+- `analyst_brief: str` deterministic summary text.
+- `generated_at: str` timestamp when the scan was produced.
 
 ## Result models
 
 ### ValuationResult
 
-- `pe_ratio: float` � price-to-earnings ratio.
-- `pb_ratio: float` � price-to-book ratio.
-- `ev_ebitda: float` � enterprise value to EBITDA.
-- `sector: str` � the company sector.
-- `peer_rank: str` � valuation ranking relative to peers.
+- `pe_ratio: float` price-to-earnings ratio.
+- `pb_ratio: float` price-to-book ratio.
+- `ev_ebitda: float` enterprise value to EBITDA.
+- `sector: str` the company sector.
+- `peer_rank: str` valuation ranking relative to peers.
 
 ### HealthResult
 
-- `piotroski_f: int` � Piotroski F-score, 0 to 9.
-- `altman_z: float` � Altman Z-score.
-- `debt_to_equity: float` � debt-to-equity ratio.
-- `current_ratio: float` � current assets divided by current liabilities.
-- `interest_coverage: float` � EBIT divided by interest expense.
+- `piotroski_f: int` Piotroski F-score, 0 to 9.
+- `altman_z: float` Altman Z-score.
+- `debt_to_equity: float` debt-to-equity ratio.
+- `current_ratio: float` current assets divided by current liabilities.
+- `interest_coverage: float` EBIT divided by interest expense.
 
 ### GrowthResult
 
-- `revenue_cagr_3y: float` � three-year revenue CAGR.
-- `pat_cagr_3y: float` � three-year PAT CAGR.
-- `margin_trend: str` � `improving`, `stable`, or `declining`.
-- `fcf_yield: float` � free cash flow yield.
+- `revenue_cagr_3y: float` three-year revenue CAGR.
+- `pat_cagr_3y: float` three-year PAT CAGR.
+- `margin_trend: str` `improving`, `stable`, or `declining`.
+- `fcf_yield: float` free cash flow yield.
 
 ### FlagsResult
 
-- `beneish_m: float` � Beneish M-score.
-- `high_de_flag: bool` � high leverage warning.
-- `negative_fcf_flag: bool` � negative free cash flow warning.
-- `value_warning: str | None` � value concern note.
+- `beneish_m: float` Beneish M-score.
+- `high_de_flag: bool` high leverage warning.
+- `negative_fcf_flag: bool` negative free cash flow warning.
+- `value_warning: str | None` value concern note.
 
 ## Quick examples
 

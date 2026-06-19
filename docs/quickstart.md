@@ -59,15 +59,15 @@ The price-to-earnings ratio compares a company’s market price to its earnings 
 Price-to-book compares the stock price to the company�s book value per share. Values below 1.0 may signal that the market values the company below its accounting assets, while values above 3.0 suggest investors are paying a premium for intangible assets or future growth.
 
 ### EV/EBITDA
-Enterprise value divided by EBITDA measures how expensive the company is relative to its operating cash profit. Lower EV/EBITDA is generally more attractive, while values above 15�20 can indicate a richly valued company.
+Enterprise value divided by EBITDA measures how expensive the company is relative to its operating cash profit. Lower EV/EBITDA is generally more attractive, while values above 15-20 can indicate a richly valued company.
 
 ### Piotroski F-score
 The Piotroski F-score is a nine-point score that measures financial strength.
 
-- `0�2`: distressed
-- `3�4`: weak
-- `5�6`: adequate
-- `7�9`: strong
+- `0-2`: distressed
+- `3-4`: weak
+- `5-6`: adequate
+- `7-9`: strong
 
 A higher score means stronger profitability, cash flow, leverage, liquidity, and earnings quality.
 
@@ -92,9 +92,9 @@ Revenue compound annual growth rate measures how quickly sales have grown over t
 ### Margin trend
 Margin trend describes how profitability is moving over time:
 
-- `improving` � margins are expanding.
-- `stable` � margins are holding steady.
-- `declining` � margins are contracting.
+- `improving` margins are expanding.
+- `stable` margins are holding steady.
+- `declining` margins are contracting.
 
 ## 4. Export to JSON
 
