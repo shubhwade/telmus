@@ -14,35 +14,9 @@ MCP is a protocol for AI tools to call external tools over a structured interfac
 | `screen` | `sector`, `min_piotroski`, `max_de` | List of matching scan results |
 | `info` | none | Version and data source metadata |
 
-## Claude Desktop config
+## Configuration
 
-```json
-{
-  "mcpServers": {
-    "valkit": {
-      "command": "valkit",
-      "args": ["serve"],
-      "description": "Financial statement analysis — real ratios for any ticker"
-    }
-  }
-}
-```
-
-## Cursor config
-
-```json
-{
-  "mcpServers": {
-    "valkit": {
-      "command": "valkit",
-      "args": ["serve"],
-      "description": "Financial statement analysis for Cursor"
-    }
-  }
-}
-```
-
-## Windsurf config
+Use the same MCP server configuration for Claude Desktop, Cursor, Windsurf, or any MCP-aware client.
 
 ```json
 {

@@ -1,3 +1,6 @@
+---
+template: home.html
+---
 # valkit
 
 Financial statement analysis for AI IDEs and coding agents.

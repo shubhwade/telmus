@@ -1,25 +1,30 @@
 site_name: valkit
 site_description: Financial statement analysis MCP server for AI IDEs
 docs_dir: docs
-site_url: https://YOURUSERNAME.github.io/valkit
-repo_url: https://github.com/YOURUSERNAME/valkit
-repo_name: YOURUSERNAME/valkit
+site_url: https://shubhwade.github.io/valkit
+repo_url: https://github.com/shubhwade/valkit
+repo_name: shubhwade/valkit
+extra_css:
+  - stylesheets/extra.css
 
 theme:
+  custom_dir: docs/overrides
+  logo: null
+  favicon: null
   name: material
   palette:
-    - scheme: default
-      primary: indigo
-      accent: indigo
+    - scheme: slate
+      primary: black
+      accent: teal
       toggle:
         icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate
-      primary: indigo
-      accent: indigo
+        name: Switch to light mode
+    - scheme: default
+      primary: black
+      accent: teal
       toggle:
         icon: material/brightness-4
-        name: Switch to light mode
+        name: Switch to dark mode
   font:
     text: Inter
     code: JetBrains Mono
@@ -30,6 +35,10 @@ theme:
     - content.code.copy
     - content.code.annotate
     - search.highlight
+    - toc.integrate
+    - navigation.indexes
+  icon:
+    repo: fontawesome/brands/github
 
 plugins:
   - search
