@@ -46,8 +46,8 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=JetBrains+Mono:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"JetBrains Mono";--md-code-font:"JetBrains Mono"}</style>
       
     
     
@@ -761,12 +761,142 @@
               
               <article class="md-content__inner md-typeset">
                 
-                  
+<style>
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+  padding: 4rem 2rem 3rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.hero-left {
+  flex: 1;
+  min-width: 280px;
+}
+.hero-left h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 0 1rem 0;
+  line-height: 1.1;
+}
+.hero-left p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  opacity: 0.8;
+  margin-bottom: 2rem;
+}
+.hero-install {
+  background: #1e1e1e;
+  color: #a8ff78;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.95rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 6px;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+}
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 0.6rem 1.4rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-primary {
+  background: teal;
+  color: white;
+}
+.btn-secondary {
+  border: 1px solid #ccc;
+  color: inherit;
+}
+.hero-right {
+  flex: 1.2;
+  min-width: 320px;
+}
+.terminal {
+  background: #0d0d0d;
+  border-radius: 10px;
+  overflow: hidden;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+}
+.terminal-bar {
+  background: #1e1e1e;
+  padding: 0.5rem 1rem;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.dot-red { background: #ff5f57; }
+.dot-yellow { background: #febc2e; }
+.dot-green { background: #28c840; }
+.terminal-body { padding: 1.2rem 1.4rem; color: #ccc; }
+.t-cmd { color: #a8ff78; }
+.t-head { color: #ff79c6; font-weight: bold; }
+.t-ok { color: #50fa7b; }
+.t-warn { color: #ff5555; }
+.t-val { color: #f1fa8c; }
+.t-dim { color: #666; }
+.t-white { color: #f8f8f2; }
+.divider { display: flex; align-items: center; gap: 1rem; margin: 0.6rem 0; }
+.divider-line { flex: 1; height: 1px; background: #333; }
 
+@media (max-width: 768px) {
+  .hero { flex-direction: column; }
+}
+</style>
 
-  
-  
+<div class="hero">
+  <div class="hero-left">
+    <h1>valkit</h1>
+    <p>Financial statement analysis for AI IDEs and coding agents. Scan any ticker, get Piotroski, Altman Z, Beneish M — in one command.</p>
+    <div class="hero-install">$ pip install valkit</div>
+    <div class="hero-buttons">
+      <a class="btn btn-primary" href="quickstart/">Get started</a>
+      <a class="btn btn-secondary" href="https://github.com/shubhwade/valkit">GitHub</a>
+    </div>
+  </div>
 
+  <div class="hero-right">
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-dim">$</span> <span class="t-cmd">valkit scan INFY</span></div>
+        <br>
+        <div class="divider"><div class="divider-line"></div><span class="t-white">Infosys Limited — INFY — NYSE</span><div class="divider-line"></div></div>
+        <div class="t-dim">Scan duration: 2446 ms</div>
+        <br>
+        <div><span class="t-head">Engine &nbsp;&nbsp;&nbsp;</span> <span class="t-head">Metric &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="t-head">Value &nbsp;</span> <span class="t-head">Status</span></div>
+        <div>Valuation &nbsp;P/E ratio &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="t-val">12.92 &nbsp;</span> <span class="t-ok">ok</span></div>
+        <div>Valuation &nbsp;EV/EBITDA &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="t-val">8.11 &nbsp;&nbsp;</span> <span class="t-ok">ok</span></div>
+        <div>Health &nbsp;&nbsp;&nbsp;&nbsp;Piotroski F &nbsp;&nbsp;&nbsp;&nbsp; <span class="t-val">4 &nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="t-warn">weak</span></div>
+        <div>Health &nbsp;&nbsp;&nbsp;&nbsp;Interest coverage <span class="t-val">87.00 &nbsp;</span> <span class="t-ok">ok</span></div>
+        <div>Growth &nbsp;&nbsp;&nbsp;&nbsp;Revenue CAGR 3y &nbsp; <span class="t-val">3.4% &nbsp;&nbsp;</span> <span class="t-ok">ok</span></div>
+        <div>Growth &nbsp;&nbsp;&nbsp;&nbsp;Margin trend &nbsp;&nbsp;&nbsp;&nbsp; <span class="t-val">stable </span> <span class="t-ok">ok</span></div>
+        <br>
+        <div class="divider"><div class="divider-line"></div><span class="t-white">Analyst brief</span><div class="divider-line"></div></div>
+        <div style="color:#ccc; font-style:italic;">Weak fundamentals (Piotroski F of 4). Revenue growth<br>3.4% over three years, margins stable. No red flags.<br>Suitable for DCF or comparable company analysis.</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <h1 id="valkit">valkit</h1>
 <p>Financial statement analysis for AI IDEs and coding agents.</p>
@@ -822,18 +952,6 @@
 }
 </code></pre>
 
-
-
-
-
-
-
-
-
-
-
-
-                
               </article>
             </div>
           
