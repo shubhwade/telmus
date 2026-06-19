@@ -913,8 +913,8 @@ valkit scan INFY --export infy-report.json
 <p><strong>Output</strong>
 The default output includes sections for <code>Valuation</code>, <code>Health</code>, <code>Growth</code>, and <code>Analyst brief</code>. When you use <code>--json</code>, the CLI returns a JSON object with nested sections like <code>valuation</code>, <code>health</code>, <code>growth</code>, <code>flags</code>, and <code>analyst_brief</code>.</p>
 <p><strong>Flags</strong>
-- <code>--json</code> � return the full structured result as JSON.
-- <code>--export PATH</code> � save the scan result to a JSON file at the specified path.</p>
+- <code>--json</code> return the full structured result as JSON.
+- <code>--export PATH</code> save the scan result to a JSON file at the specified path.</p>
 <hr />
 <h2 id="valkit-compare-ticker_a-ticker_b"><code>valkit compare TICKER_A TICKER_B</code></h2>
 <p><strong>What it does</strong>
@@ -946,9 +946,9 @@ Filters the ticker universe by sector, Piotroski score, and leverage, returning 
 <pre><code class="language-bash">valkit screen --sector IT --min-piotroski 6 --max-de 1.5
 </code></pre>
 <p><strong>Available flags</strong>
-- <code>--sector TEXT</code> � filter by industry sector.
-- <code>--min-piotroski INT</code> � require a minimum Piotroski F-score.
-- <code>--max-de FLOAT</code> � require a maximum debt-to-equity ratio.</p>
+- <code>--sector TEXT</code> filter by industry sector.
+- <code>--min-piotroski INT</code> require a minimum Piotroski F-score.
+- <code>--max-de FLOAT</code> require a maximum debt-to-equity ratio.</p>
 <hr />
 <h2 id="valkit-check-ticker"><code>valkit check TICKER</code></h2>
 <p><strong>What it does</strong>

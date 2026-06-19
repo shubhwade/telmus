@@ -1057,44 +1057,44 @@ from valkit.models import ScanResult, HealthResult, ValuationResult, GrowthResul
 <p><code>ScanResult</code> contains the full result of a scan.</p>
 <h3 id="fields">Fields</h3>
 <ul>
-<li><code>ticker: str</code> � the stock symbol.</li>
-<li><code>valuation: ValuationResult</code> � valuation multiples and comparison metrics.</li>
-<li><code>health: HealthResult</code> � balance sheet and earnings health metrics.</li>
-<li><code>growth: GrowthResult</code> � revenue and margin momentum metrics.</li>
-<li><code>flags: FlagsResult</code> � risk flags and fraud indicators.</li>
-<li><code>analyst_brief: str</code> � deterministic summary text.</li>
-<li><code>generated_at: str</code> � timestamp when the scan was produced.</li>
+<li><code>ticker: str</code> the stock symbol.</li>
+<li><code>valuation: ValuationResult</code> valuation multiples and comparison metrics.</li>
+<li><code>health: HealthResult</code> balance sheet and earnings health metrics.</li>
+<li><code>growth: GrowthResult</code> revenue and margin momentum metrics.</li>
+<li><code>flags: FlagsResult</code> risk flags and fraud indicators.</li>
+<li><code>analyst_brief: str</code> deterministic summary text.</li>
+<li><code>generated_at: str</code> timestamp when the scan was produced.</li>
 </ul>
 <h2 id="result-models">Result models</h2>
 <h3 id="valuationresult">ValuationResult</h3>
 <ul>
-<li><code>pe_ratio: float</code> � price-to-earnings ratio.</li>
-<li><code>pb_ratio: float</code> � price-to-book ratio.</li>
-<li><code>ev_ebitda: float</code> � enterprise value to EBITDA.</li>
-<li><code>sector: str</code> � the company sector.</li>
-<li><code>peer_rank: str</code> � valuation ranking relative to peers.</li>
+<li><code>pe_ratio: float</code> price-to-earnings ratio.</li>
+<li><code>pb_ratio: float</code> price-to-book ratio.</li>
+<li><code>ev_ebitda: float</code> enterprise value to EBITDA.</li>
+<li><code>sector: str</code> the company sector.</li>
+<li><code>peer_rank: str</code> valuation ranking relative to peers.</li>
 </ul>
 <h3 id="healthresult">HealthResult</h3>
 <ul>
-<li><code>piotroski_f: int</code> � Piotroski F-score, 0 to 9.</li>
-<li><code>altman_z: float</code> � Altman Z-score.</li>
-<li><code>debt_to_equity: float</code> � debt-to-equity ratio.</li>
-<li><code>current_ratio: float</code> � current assets divided by current liabilities.</li>
-<li><code>interest_coverage: float</code> � EBIT divided by interest expense.</li>
+<li><code>piotroski_f: int</code> Piotroski F-score, 0 to 9.</li>
+<li><code>altman_z: float</code> Altman Z-score.</li>
+<li><code>debt_to_equity: float</code> debt-to-equity ratio.</li>
+<li><code>current_ratio: float</code> current assets divided by current liabilities.</li>
+<li><code>interest_coverage: float</code> EBIT divided by interest expense.</li>
 </ul>
 <h3 id="growthresult">GrowthResult</h3>
 <ul>
-<li><code>revenue_cagr_3y: float</code> � three-year revenue CAGR.</li>
-<li><code>pat_cagr_3y: float</code> � three-year PAT CAGR.</li>
-<li><code>margin_trend: str</code> � <code>improving</code>, <code>stable</code>, or <code>declining</code>.</li>
-<li><code>fcf_yield: float</code> � free cash flow yield.</li>
+<li><code>revenue_cagr_3y: float</code> three-year revenue CAGR.</li>
+<li><code>pat_cagr_3y: float</code> three-year PAT CAGR.</li>
+<li><code>margin_trend: str</code> <code>improving</code>, <code>stable</code>, or <code>declining</code>.</li>
+<li><code>fcf_yield: float</code> free cash flow yield.</li>
 </ul>
 <h3 id="flagsresult">FlagsResult</h3>
 <ul>
-<li><code>beneish_m: float</code> � Beneish M-score.</li>
-<li><code>high_de_flag: bool</code> � high leverage warning.</li>
-<li><code>negative_fcf_flag: bool</code> � negative free cash flow warning.</li>
-<li><code>value_warning: str | None</code> � value concern note.</li>
+<li><code>beneish_m: float</code> Beneish M-score.</li>
+<li><code>high_de_flag: bool</code> high leverage warning.</li>
+<li><code>negative_fcf_flag: bool</code> negative free cash flow warning.</li>
+<li><code>value_warning: str | None</code> value concern note.</li>
 </ul>
 <h2 id="quick-examples">Quick examples</h2>
 <h3 id="basic-scan">Basic scan</h3>
