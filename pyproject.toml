@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "valkit"
+version = "0.1.0"
+description = "Financial statement analysis MCP server for AI IDEs and coding agents"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+authors = [{ name = "GitHub Copilot", email = "noreply@example.com" }]
+keywords = ["finance", "mcp", "financial-analysis", "piotroski", "altman", "cli"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Office/Business :: Financial",
+]
+dependencies = [
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "yfinance>=0.2.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "mcp>=1.0.0",
+    "requests>=2.28.0",
+    "beautifulsoup4>=4.12.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "ruff", "hatch"]
+docs = ["mkdocs-material", "mkdocstrings[python]"]
+dashboard = ["streamlit", "plotly"]
+
+[project.scripts]
+valkit = "valkit.cli.app:app"
+
+[project.urls]
+Homepage = "https://github.com/YOURUSERNAME/valkit"
+Documentation = "https://YOURUSERNAME.github.io/valkit"
+Repository = "https://github.com/YOURUSERNAME/valkit"
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=valkit --cov-report=term-missing"

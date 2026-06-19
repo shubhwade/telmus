@@ -1,0 +1,51 @@
+site_name: valkit
+site_description: Financial statement analysis MCP server for AI IDEs
+docs_dir: docs
+site_url: https://YOURUSERNAME.github.io/valkit
+repo_url: https://github.com/YOURUSERNAME/valkit
+repo_name: YOURUSERNAME/valkit
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - content.code.annotate
+    - search.highlight
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: true
+            show_root_heading: true
+
+nav:
+  - Home: index.md
+  - Quick start: quickstart.md
+  - CLI reference: cli.md
+  - MCP server: mcp.md
+  - SDK: sdk.md
+  - Engines:
+    - Health: engines/health.md
+  - Changelog: changelog.md
