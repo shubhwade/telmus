@@ -14,7 +14,7 @@ telmus scan INFY
 
 ## What is telmus?
 
-telmus is a Python package and CLI for parsing financial statements, computing key valuation and health ratios, and exposing them through an MCP server for AI tools. Just as mustel gives AI IDEs ground truth about your code, telmus gives AI IDEs ground truth about financial statements.
+telmus is a Python package and CLI for parsing financial statements, computing key valuation and health ratios, and exposing them through an MCP server for AI tools.
 
 ## Engines
 
