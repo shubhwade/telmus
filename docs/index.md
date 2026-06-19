@@ -2,11 +2,11 @@
 template: home.html
 ---
 
-# tellus
+# telmus
 
 Financial statement analysis for AI IDEs and coding agents.
 
-## Why tellus?
+## Why telmus?
 
 | Engine | What it catches |
 |---|---|
@@ -26,19 +26,19 @@ The `analyst_brief` is a deterministic summary generated from financial metrics 
 
 ## Quick start
 
-1. Install: `pip install tellus`
-2. Run `tellus scan INFY`
+1. Install: `pip install telmus`
+2. Run `telmus scan INFY`
 3. Read the summary, ratios, and red flags
 
 ## MCP Server
 
-Use tellus as an MCP tool for Claude, Cursor, or any MCP-aware IDE.
+Use telmus as an MCP tool for Claude, Cursor, or any MCP-aware IDE.
 
 ```json
 {
   "mcpServers": {
-    "tellus": {
-      "command": "tellus",
+    "telmus": {
+      "command": "telmus",
       "args": ["serve"],
       "description": "Financial statement analysis - real ratios for any ticker"
     }

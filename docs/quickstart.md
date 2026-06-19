@@ -1,13 +1,13 @@
 # Quickstart
 
-This quickstart guide walks you through installing tellus, scanning your first stock, understanding every field in the output, exporting JSON, and comparing two tickers.
+This quickstart guide walks you through installing telmus, scanning your first stock, understanding every field in the output, exporting JSON, and comparing two tickers.
 
 ## 1. Install
 
-tellus requires Python 3.9 or newer.
+telmus requires Python 3.9 or newer.
 
 ```bash
-pip install tellus
+pip install telmus
 ```
 
 If you use a virtual environment, activate it before installing.
@@ -17,7 +17,7 @@ If you use a virtual environment, activate it before installing.
 Run the first scan for Infosys:
 
 ```bash
-tellus scan INFY
+telmus scan INFY
 ```
 
 Expected output example:
@@ -101,11 +101,11 @@ Margin trend describes how profitability is moving over time:
 Use `--json` to print structured output and `--export` to save a report file.
 
 ```bash
-tellus scan INFY --json
+telmus scan INFY --json
 ```
 
 ```bash
-tellus scan INFY --export report.json
+telmus scan INFY --export report.json
 ```
 
 The generated JSON contains `valuation`, `health`, `growth`, `flags`, and `analyst_brief` sections, making it easy to load into analytics pipelines.
@@ -115,7 +115,7 @@ The generated JSON contains `valuation`, `health`, `growth`, `flags`, and `analy
 Compare INFY with TCS:
 
 ```bash
-tellus compare INFY TCS
+telmus compare INFY TCS
 ```
 
 Expected comparison output:

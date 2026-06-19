@@ -1,8 +1,8 @@
 # CLI Reference
 
-The `tellus` command-line interface gives you fast access to financial scans, comparisons, screens, health checks, and MCP server mode. Use these commands to analyze companies, compare peers, filter investment candidates, and serve results to AI assistants.
+The `telmus` command-line interface gives you fast access to financial scans, comparisons, screens, health checks, and MCP server mode. Use these commands to analyze companies, compare peers, filter investment candidates, and serve results to AI assistants.
 
-## `tellus scan TICKER [--json] [--export PATH]`
+## `telmus scan TICKER [--json] [--export PATH]`
 
 **What it does**
 Performs a complete financial scan for a single ticker and returns valuation, health, growth, red-flag metrics, and a deterministic analyst brief.
@@ -14,14 +14,14 @@ Performs a complete financial scan for a single ticker and returns valuation, he
 
 **Syntax**
 ```bash
-tellus scan TICKER [--json] [--export PATH]
+telmus scan TICKER [--json] [--export PATH]
 ```
 
 **Examples**
 ```bash
-tellus scan INFY
-tellus scan INFY --json
-tellus scan INFY --export infy-report.json
+telmus scan INFY
+telmus scan INFY --json
+telmus scan INFY --export infy-report.json
 ```
 
 **Output**
@@ -33,7 +33,7 @@ The default output includes sections for `Valuation`, `Health`, `Growth`, and `A
 
 ---
 
-## `tellus compare TICKER_A TICKER_B`
+## `telmus compare TICKER_A TICKER_B`
 
 **What it does**
 Compares two tickers side by side across their financial metrics, making it easy to spot valuation, health, and growth differences.
@@ -45,12 +45,12 @@ Compares two tickers side by side across their financial metrics, making it easy
 
 **Syntax**
 ```bash
-tellus compare TICKER_A TICKER_B
+telmus compare TICKER_A TICKER_B
 ```
 
 **Example**
 ```bash
-tellus compare INFY TCS
+telmus compare INFY TCS
 ```
 
 **Output**
@@ -58,7 +58,7 @@ The comparison table shows metrics such as `P/E`, `P/B`, `EV/EBITDA`, `Piotroski
 
 ---
 
-## `tellus screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT]`
+## `telmus screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT]`
 
 **What it does**
 Filters the ticker universe by sector, Piotroski score, and leverage, returning only companies that match the selected quality criteria.
@@ -70,12 +70,12 @@ Filters the ticker universe by sector, Piotroski score, and leverage, returning 
 
 **Syntax**
 ```bash
-tellus screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT]
+telmus screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT]
 ```
 
 **Example**
 ```bash
-tellus screen --sector IT --min-piotroski 6 --max-de 1.5
+telmus screen --sector IT --min-piotroski 6 --max-de 1.5
 ```
 
 **Available flags**
@@ -85,7 +85,7 @@ tellus screen --sector IT --min-piotroski 6 --max-de 1.5
 
 ---
 
-## `tellus check TICKER`
+## `telmus check TICKER`
 
 **What it does**
 Runs a compact health check for a ticker and returns the most important balance sheet and earnings quality indicators.
@@ -97,12 +97,12 @@ Runs a compact health check for a ticker and returns the most important balance 
 
 **Syntax**
 ```bash
-tellus check TICKER
+telmus check TICKER
 ```
 
 **Example**
 ```bash
-tellus check INFY
+telmus check INFY
 ```
 
 **Output**
@@ -110,35 +110,35 @@ The check output focuses on `Piotroski F`, `Altman Z`, `D/E`, `Current Ratio`, a
 
 ---
 
-## `tellus serve`
+## `telmus serve`
 
 **What it does**
-Starts tellus in MCP server mode so connected AI tools and assistants can call it as a structured external tool.
+Starts telmus in MCP server mode so connected AI tools and assistants can call it as a structured external tool.
 
 **When to use it**
 - You want an AI assistant to query real financial metrics automatically.
-- You are integrating tellus with an MCP-compatible client such as Claude Desktop, Cursor, or Windsurf.
+- You are integrating telmus with an MCP-compatible client such as Claude Desktop, Cursor, or Windsurf.
 - You need a live, local tool endpoint for your agent workflows.
 
 **Syntax**
 ```bash
-tellus serve
+telmus serve
 ```
 
 **Example**
 ```bash
-tellus serve
+telmus serve
 ```
 
 **Expected output**
 ```text
-tellus MCP server listening on port 8080
+telmus MCP server listening on port 8080
 Available tools: scan, scan_ticker, compare, screen, info
 ```
 
 ---
 
-## `tellus info`
+## `telmus info`
 
 **What it does**
 Displays server metadata, package version, tool availability, and data source details.
@@ -150,17 +150,17 @@ Displays server metadata, package version, tool availability, and data source de
 
 **Syntax**
 ```bash
-tellus info
+telmus info
 ```
 
 **Example**
 ```bash
-tellus info
+telmus info
 ```
 
 **Sample output**
 ```text
-tellus version: 0.1.0
+telmus version: 0.1.0
 data source: public financial statements
 available tools: scan, scan_ticker, compare, screen, info
 ```
@@ -171,20 +171,20 @@ available tools: scan, scan_ticker, compare, screen, info
 
 ### Perform a scan and save the result
 ```bash
-tellus scan INFY --export infy.json
+telmus scan INFY --export infy.json
 ```
 
 ### Compare two investment candidates
 ```bash
-tellus compare INFY TCS
+telmus compare INFY TCS
 ```
 
 ### Start the MCP server for AI integration
 ```bash
-tellus serve
+telmus serve
 ```
 
 ### Screen for stronger companies in a sector
 ```bash
-tellus screen --sector IT --min-piotroski 7 --max-de 1.2
+telmus screen --sector IT --min-piotroski 7 --max-de 1.2
 ```

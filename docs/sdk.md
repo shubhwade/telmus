@@ -1,18 +1,18 @@
 # Python SDK Reference
 
-Use the tellus Python SDK to embed financial analysis directly into notebooks, scripting workflows, and automated data pipelines.
+Use the telmus Python SDK to embed financial analysis directly into notebooks, scripting workflows, and automated data pipelines.
 
 ## Install
 
 ```bash
-pip install tellus
+pip install telmus
 ```
 
 ## Import examples
 
 ```python
-from tellus import TellusScanner, scan, compare
-from tellus.models import ScanResult, HealthResult, ValuationResult, GrowthResult, FlagsResult
+from telmus import TelmusScanner, scan, compare
+from telmus.models import ScanResult, HealthResult, ValuationResult, GrowthResult, FlagsResult
 ```
 
 ## When to use the SDK
@@ -21,9 +21,9 @@ from tellus.models import ScanResult, HealthResult, ValuationResult, GrowthResul
 - You are building a data pipeline, Jupyter notebook, or analytics dashboard.
 - You need structured objects that can be inspected, transformed, and exported.
 
-## TellusScanner class
+## TelmusScanner class
 
-`TellusScanner` is the primary programmatic interface for tellus.
+`TelmusScanner` is the primary programmatic interface for telmus.
 
 ### Methods
 
@@ -91,7 +91,7 @@ from tellus.models import ScanResult, HealthResult, ValuationResult, GrowthResul
 ### Basic scan
 
 ```python
-from tellus import scan
+from telmus import scan
 
 result = scan("INFY")
 print(result.analyst_brief)
@@ -100,7 +100,7 @@ print(result.analyst_brief)
 ### Compare two tickers
 
 ```python
-from tellus import compare
+from telmus import compare
 
 result_a, result_b = compare("INFY", "TCS")
 print(result_a.valuation.pe_ratio, result_b.valuation.pe_ratio)
@@ -109,7 +109,7 @@ print(result_a.valuation.pe_ratio, result_b.valuation.pe_ratio)
 ### Loop over a list of tickers
 
 ```python
-from tellus import scan
+from telmus import scan
 
 tickers = ["INFY", "TCS", "WIPRO"]
 for symbol in tickers:
@@ -120,7 +120,7 @@ for symbol in tickers:
 ### Access specific fields
 
 ```python
-from tellus import scan
+from telmus import scan
 
 result = scan("INFY")
 print("Altman Z:", result.health.altman_z)
@@ -132,7 +132,7 @@ print("Beneish M:", result.flags.beneish_m)
 
 ```python
 import pandas as pd
-from tellus import scan
+from telmus import scan
 
 result = scan("INFY")
 rows = [{
@@ -150,7 +150,7 @@ print(df)
 
 ```python
 import json
-from tellus import scan
+from telmus import scan
 
 result = scan("INFY")
 with open("infy_report.json", "w", encoding="utf-8") as f:

@@ -6,7 +6,7 @@ Detailed output from direct Python execution
 
 import json
 import asyncio
-from tellus.mcp.server import handle_tool_call
+from telmus.mcp.server import handle_tool_call
 
 async def show_raw_scan_response():
     """Display the raw JSON response from scan("INFY")."""

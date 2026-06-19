@@ -9,6 +9,6 @@
 - CLI: scan, compare, screen, check, serve, info commands
 - MCP server with 5 tools: scan, scan_ticker, compare, screen, info
 - Streamlit dashboard
-- Python SDK with TellusScanner class
+- Python SDK with TelmusScanner class
 - Full MkDocs documentation site
 - 18-test suite covering all engines and CLI

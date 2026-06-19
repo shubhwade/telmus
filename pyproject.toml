@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "tellus"
+name = "telmus"
 version = "0.1.0"
 description = "Financial statement analysis for AI IDEs and coding agents"
 readme = "README.md"
@@ -25,13 +25,13 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://shubhwade.github.io/tellus"
-Documentation = "https://shubhwade.github.io/tellus"
-Repository = "https://github.com/shubhwade/tellus"
-Changelog = "https://shubhwade.github.io/tellus/changelog/"
+Homepage = "https://shubhwade.github.io/telmus"
+Documentation = "https://shubhwade.github.io/telmus"
+Repository = "https://github.com/shubhwade/telmus"
+Changelog = "https://shubhwade.github.io/telmus/changelog/"
 
 [project.scripts]
-tellus = "tellus.cli.app:app"
+telmus = "telmus.cli.app:app"
 
 [project.optional-dependencies]
 dev = [
@@ -46,4 +46,4 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["tellus"]
+packages = ["telmus"]

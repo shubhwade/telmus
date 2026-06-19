@@ -1,8 +1,8 @@
 # MCP Server Guide
 
-tellus can run as an MCP server so AI assistants and agents can call financial analytics tools directly. This makes valuation, health, growth, and red-flag metrics available to Claude, Cursor, Windsurf, and other MCP-compatible clients.
+telmus can run as an MCP server so AI assistants and agents can call financial analytics tools directly. This makes valuation, health, growth, and red-flag metrics available to Claude, Cursor, Windsurf, and other MCP-compatible clients.
 
-## Why use tellus as an MCP server
+## Why use telmus as an MCP server
 
 - Get deterministic financial metrics from real data, not guesses.
 - Let AI agents fetch company analysis automatically during conversations.
@@ -12,13 +12,13 @@ tellus can run as an MCP server so AI assistants and agents can call financial a
 ## Start the server
 
 ```bash
-tellus serve
+telmus serve
 ```
 
 When the server starts, you should see:
 
 ```text
-tellus MCP server listening on port 8080
+telmus MCP server listening on port 8080
 Available tools: scan, scan_ticker, compare, screen, info
 ```
 
@@ -74,8 +74,8 @@ Use this to verify the server is running and to check available tools.
 ```json
 {
   "mcpServers": {
-    "tellus": {
-      "command": "tellus",
+    "telmus": {
+      "command": "telmus",
       "args": ["serve"],
       "description": "Financial statement analysis - real ratios for any ticker"
     }
@@ -88,8 +88,8 @@ Use this to verify the server is running and to check available tools.
 ```json
 {
   "mcpServers": {
-    "tellus": {
-      "command": "tellus",
+    "telmus": {
+      "command": "telmus",
       "args": ["serve"],
       "description": "Financial statement analysis - real ratios for any ticker"
     }
@@ -102,8 +102,8 @@ Use this to verify the server is running and to check available tools.
 ```json
 {
   "mcpServers": {
-    "tellus": {
-      "command": "tellus",
+    "telmus": {
+      "command": "telmus",
       "args": ["serve"],
       "description": "Financial statement analysis - real ratios for any ticker"
     }
@@ -145,6 +145,6 @@ Ask the assistant to:
 
 ## Troubleshooting
 
-- If the server does not start, verify that `tellus` is installed and the `serve` command is available.
-- If the assistant cannot connect, confirm that the MCP client is configured to launch `tellus serve` and that the local port is open.
+- If the server does not start, verify that `telmus` is installed and the `serve` command is available.
+- If the assistant cannot connect, confirm that the MCP client is configured to launch `telmus serve` and that the local port is open.
 - If a ticker cannot be resolved, use `scan_ticker()` with the exchange hint.

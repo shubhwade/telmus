@@ -4,7 +4,7 @@ import logging
 
 import pytest
 
-from tellus.core.engines.health import HealthEngine
+from telmus.core.engines.health import HealthEngine
 from tests.fixtures.infy_mock import infy_financials
 
 

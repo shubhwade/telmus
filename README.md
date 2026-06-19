@@ -1,20 +1,20 @@
-# tellus
+# telmus
 
-[![PyPI version](https://img.shields.io/pypi/v/tellus)](https://pypi.org/project/tellus/)
-[![Downloads](https://img.shields.io/pypi/dm/tellus)](https://pypi.org/project/tellus/)
-[![Python](https://img.shields.io/pypi/pyversions/tellus)](https://pypi.org/project/tellus/)
+[![PyPI version](https://img.shields.io/pypi/v/telmus)](https://pypi.org/project/telmus/)
+[![Downloads](https://img.shields.io/pypi/dm/telmus)](https://pypi.org/project/telmus/)
+[![Python](https://img.shields.io/pypi/pyversions/telmus)](https://pypi.org/project/telmus/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 Financial statement analysis for AI IDEs and coding agents.
 
 ```bash
-pip install tellus
-tellus scan INFY
+pip install telmus
+telmus scan INFY
 ```
 
-## What is tellus?
+## What is telmus?
 
-tellus is a Python package and CLI for parsing financial statements, computing key valuation and health ratios, and exposing them through an MCP server for AI tools. Just as mustel gives AI IDEs ground truth about your code, tellus gives AI IDEs ground truth about financial statements.
+telmus is a Python package and CLI for parsing financial statements, computing key valuation and health ratios, and exposing them through an MCP server for AI tools. Just as mustel gives AI IDEs ground truth about your code, telmus gives AI IDEs ground truth about financial statements.
 
 ## Engines
 
@@ -41,13 +41,13 @@ Example output:
 1. Install:
 
 ```bash
-pip install tellus
+pip install telmus
 ```
 
 2. Scan a ticker:
 
 ```bash
-tellus scan INFY
+telmus scan INFY
 ```
 
 3. Read the summary and analyst brief, or export JSON for automation.
@@ -57,8 +57,8 @@ tellus scan INFY
 ```json
 {
   "mcpServers": {
-    "tellus": {
-      "command": "tellus",
+    "telmus": {
+      "command": "telmus",
       "args": ["serve"],
       "description": "Financial statement analysis — real ratios for any ticker"
     }
@@ -66,22 +66,22 @@ tellus scan INFY
 }
 ```
 
-- Claude Desktop: use the config to register tellus as an MCP tool.
-- Cursor: same config loads tellus as a tool for market research.
+- Claude Desktop: use the config to register telmus as an MCP tool.
+- Cursor: same config loads telmus as a tool for market research.
 - Windsurf: connect the MCP server to get real financial metrics.
 
 ## Other commands
 
 | Command | Description |
 |---|---|
-| `tellus scan TICKER` | Run a full financial scan |
-| `tellus scan TICKER --json` | Print raw JSON |
-| `tellus scan TICKER --export FILE.json` | Save JSON to a file |
-| `tellus compare A B` | Compare two tickers |
-| `tellus screen` | Run a simple sector screener |
-| `tellus serve` | Start the MCP server |
-| `tellus info` | Print package info |
-| `tellus check TICKER` | Quick health check |
+| `telmus scan TICKER` | Run a full financial scan |
+| `telmus scan TICKER --json` | Print raw JSON |
+| `telmus scan TICKER --export FILE.json` | Save JSON to a file |
+| `telmus compare A B` | Compare two tickers |
+| `telmus screen` | Run a simple sector screener |
+| `telmus serve` | Start the MCP server |
+| `telmus info` | Print package info |
+| `telmus check TICKER` | Quick health check |
 
 ## Benchmark
 

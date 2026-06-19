@@ -1,4 +1,4 @@
-# Tellus - Complete Implementation Summary
+# Telmus - Complete Implementation Summary
 
 ## ✅ MCP Server End-to-End Testing Results
 
@@ -63,7 +63,7 @@ INFO    -  Documentation built in 1.85 seconds
 ## ✅ Package Build
 
 ```
-Successfully built tellus-0.1.0.tar.gz and tellus-0.1.0-py3-none-any.whl
+Successfully built telmus-0.1.0.tar.gz and telmus-0.1.0-py3-none-any.whl
 ```
 
 **Distributions:**
@@ -72,7 +72,7 @@ Successfully built tellus-0.1.0.tar.gz and tellus-0.1.0-py3-none-any.whl
 
 **Installation Verification:**
 ```
-Successfully installed tellus-0.1.0
+Successfully installed telmus-0.1.0
 ✓ Import successful
 ✓ Scanner class available
 ✓ Version: 0.1.0
@@ -82,7 +82,7 @@ Successfully installed tellus-0.1.0
 
 ### Core Components
 - ✅ 4 Financial Engines (health, valuation, growth, flags)
-- ✅ TellusScanner Orchestrator
+- ✅ TelmusScanner Orchestrator
 - ✅ MCP Server with 5 tools
 - ✅ CLI with 6 commands
 - ✅ SDK with wrapper functions
@@ -109,20 +109,20 @@ Successfully installed tellus-0.1.0
 
 1. **Deploy MCP Server:**
    ```bash
-   python -m tellus.mcp.server
+   python -m telmus.mcp.server
    ```
 
 2. **Use CLI:**
    ```bash
-   tellus scan INFY
-   tellus compare INFY TCS
-   tellus screen IT --min-piotroski 5
+   telmus scan INFY
+   telmus compare INFY TCS
+   telmus screen IT --min-piotroski 5
    ```
 
 3. **Integrate with Codebase:**
    ```python
-   from tellus import TellusScanner
-   scanner = TellusScanner()
+   from telmus import TelmusScanner
+   scanner = TelmusScanner()
    result = scanner.scan("INFY")
    ```
 
@@ -132,7 +132,7 @@ Successfully installed tellus-0.1.0
 
 ## 📦 Distribution Summary
 
-- **Package Name:** tellus
+- **Package Name:** telmus
 - **Version:** 0.1.0
 - **Python Version:** 3.8+
 - **License:** MIT
