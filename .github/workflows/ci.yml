@@ -12,5 +12,5 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
-      - run: ruff check valkit/
-      - run: pytest tests/ --cov=valkit
+      - run: ruff check telmus/
+      - run: pytest tests/ --cov=telmus
