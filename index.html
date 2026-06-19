@@ -1,4 +1,4 @@
-﻿
+
 <!doctype html>
 <html lang="en" class="no-js">
   <head>
@@ -761,72 +761,15 @@
               
               <article class="md-content__inner md-typeset">
                 
-<style>
-.hero {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 5rem 4rem;
-  width: 100%;
-  margin: 0;
-  box-sizing: border-box;
-}
-.hero-left {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.hero-left h1 {
-  font-size: 4.4rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  margin: 0;
-  line-height: 1.02;
-}
-.hero-left p {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  opacity: 0.92;
-  margin: 1.8rem 0 0;
-  max-width: 720px;
-}
-.hero-install {
-  background: #0f1720;
-  color: #a8ff78;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.95rem;
-  padding: 1rem 1.35rem;
-  border-radius: 12px;
-  display: inline-flex;
-  align-items: center;
-  margin-top: 2rem;
-}
-.md-sidebar { display: none !important; }
-.md-content { margin: 0 !important; max-width: 100% !important; padding: 0 !important; }
-.md-main__inner { padding-top: 0 !important; }
-@media (max-width: 960px) {
-  .hero {
-    flex-direction: column;
-    padding: 3.5rem 2rem;
-  }
-}
-</style>
+                  
 
-<div class="hero">
-  <div class="hero-left">
-    <h1>valkit</h1>
-    <p>Financial statement analysis for AI IDEs and coding agents. Scan any ticker, get Piotroski, Altman Z, Beneish M, and a deterministic analyst brief in one command.</p>
-    <div class="hero-install">$ pip install valkit</div>
-  </div>
-</div>
+
+  
+  
+
 
 <h1 id="valkit">valkit</h1>
 <p>Financial statement analysis for AI IDEs and coding agents.</p>
-<p>valkit scans a ticker, builds financial ratios from income statements, balance sheets, and cash flows, and returns a deterministic analyst brief that is safe for AI tooling. Just as mustel gives AI IDEs ground truth about code, valkit gives AI IDEs ground truth about financial statements.</p>
-<pre><code class="language-bash">pip install valkit
-</code></pre>
 <h2 id="why-valkit">Why valkit?</h2>
 <table>
 <thead>
@@ -851,20 +794,19 @@
 </tbody>
 </table>
 <h2 id="the-analyst_brief-the-key-innovation">The analyst_brief — The Key Innovation</h2>
-<p>The <code>analyst_brief</code> is a deterministic summary generated from financial metrics and red flags. It is designed for AI IDEs to consume without relying on generative models.</p>
-<p>Example:</p>
+<p>The <code>analyst_brief</code> is a deterministic summary generated from financial metrics and red flags. Designed for AI IDEs to consume without relying on generative models.</p>
 <pre><code class="language-json">{
   &quot;analyst_brief&quot;: &quot;Strong fundamentals (Piotroski F-score of 7). Financially safe (Altman Z-score of 4.20). Revenue growth is 11.2% over three years and operating margins are stable. No significant red flags detected. Suitable for DCF or comparable company analysis.&quot;
 }
 </code></pre>
 <h2 id="quick-start">Quick start</h2>
 <ol>
-<li>Install.</li>
-<li>Run <code>valkit scan INFY</code>.</li>
-<li>Read the summary, ratios, and red flags.</li>
+<li>Install: <code>pip install valkit</code></li>
+<li>Run <code>valkit scan INFY</code></li>
+<li>Read the summary, ratios, and red flags</li>
 </ol>
 <h2 id="mcp-server">MCP Server</h2>
-<p>Use valkit as an MCP tool for Claude, Cursor, or any other MCP-aware IDE.</p>
+<p>Use valkit as an MCP tool for Claude, Cursor, or any MCP-aware IDE.</p>
 <pre><code class="language-json">{
   &quot;mcpServers&quot;: {
     &quot;valkit&quot;: {
@@ -876,6 +818,18 @@
 }
 </code></pre>
 
+
+
+
+
+
+
+
+
+
+
+
+                
               </article>
             </div>
           
