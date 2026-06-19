@@ -1,15 +1,6 @@
----
-template: home.html
----
 # valkit
 
 Financial statement analysis for AI IDEs and coding agents.
-
-valkit scans a ticker, builds financial ratios from income statements, balance sheets, and cash flows, and returns a deterministic analyst brief that is safe for AI tooling. Just as mustel gives AI IDEs ground truth about code, valkit gives AI IDEs ground truth about financial statements.
-
-```bash
-pip install valkit
-```
 
 ## Why valkit?
 
@@ -21,9 +12,7 @@ pip install valkit
 
 ## The analyst_brief — The Key Innovation
 
-The `analyst_brief` is a deterministic summary generated from financial metrics and red flags. It is designed for AI IDEs to consume without relying on generative models.
-
-Example:
+The `analyst_brief` is a deterministic summary generated from financial metrics and red flags. Designed for AI IDEs to consume without relying on generative models.
 
 ```json
 {
@@ -33,13 +22,13 @@ Example:
 
 ## Quick start
 
-1. Install.
-2. Run `valkit scan INFY`.
-3. Read the summary, ratios, and red flags.
+1. Install: `pip install valkit`
+2. Run `valkit scan INFY`
+3. Read the summary, ratios, and red flags
 
 ## MCP Server
 
-Use valkit as an MCP tool for Claude, Cursor, or any other MCP-aware IDE.
+Use valkit as an MCP tool for Claude, Cursor, or any MCP-aware IDE.
 
 ```json
 {
