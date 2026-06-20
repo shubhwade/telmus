@@ -1,4 +1,5 @@
 from __future__ import annotations
+import typing
 
 import logging
 
@@ -10,12 +11,12 @@ from telmus.core.result import GrowthResult
 logger = logging.getLogger(__name__)
 
 
-def _safe_value(value: object) -> float | None:
+def _safe_value(value: typing.Any) -> float | None:
     if value is None:
         return None
     try:
         value_float = float(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, Exception):
         return None
     if np.isnan(value_float):
         return None
@@ -28,7 +29,15 @@ def _safe_divide(numerator: float | None, denominator: float | None) -> float | 
     return numerator / denominator
 
 
-def _cagr(start: float, end: float, years: float) -> float | None:
+def _cagr(start: typing.Any, end: typing.Any, years: float) -> float | None:
+    if start is None or end is None:
+        return None
+    try:
+        start = float(start)
+        end = float(end)
+    except Exception:
+        return None
+
     if start <= 0 or years <= 0:
         return None
     try:
@@ -46,7 +55,7 @@ def _get_series(df: pd.DataFrame, label: str) -> pd.Series | None:
 
 
 class GrowthEngine:
-    def run(self, financials: dict[str, object]) -> GrowthResult:
+    def run(self, financials: dict[str, typing.Any]) -> GrowthResult:
         income_stmt = financials.get("income_stmt")
         if income_stmt is None:
             income_stmt = pd.DataFrame()
@@ -81,7 +90,8 @@ class GrowthEngine:
             return None
         start = _safe_value(revenue.iloc[3])
         end = _safe_value(revenue.iloc[0])
-        return _cagr(start, end, 3.0)
+        if start is None or end is None: return None
+        return _cagr(float(start), float(end), 3.0)
 
     def _pat_cagr(self, income_stmt: pd.DataFrame) -> float | None:
         net_income = _get_series(income_stmt, "Net Income")
@@ -90,7 +100,8 @@ class GrowthEngine:
             return None
         start = _safe_value(net_income.iloc[3])
         end = _safe_value(net_income.iloc[0])
-        return _cagr(start, end, 3.0)
+        if start is None or end is None: return None
+        return _cagr(float(start), float(end), 3.0)
 
     def _margin_trend(self, income_stmt: pd.DataFrame) -> str | None:
         revenue = _get_series(income_stmt, "Total Revenue")
@@ -122,7 +133,7 @@ class GrowthEngine:
         return "stable"
 
     def _fcf_yield(
-        self, cashflow: pd.DataFrame, info: dict[str, object]
+        self, cashflow: pd.DataFrame, info: dict[str, typing.Any]
     ) -> float | None:
         cash_from_ops_series = _get_series(
             cashflow, "Total Cash From Operating Activities"

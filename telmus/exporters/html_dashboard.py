@@ -1,4 +1,5 @@
 from __future__ import annotations
+import typing
 
 import json
 import datetime
@@ -7,14 +8,14 @@ from telmus import __version__ as telmus_version
 
 
 class HtmlDashboardExporter:
-    def _fmt(self, val: any) -> str:
+    def _fmt(self, val: typing.Any) -> str:
         if val is None:
             return "n/a"
         if isinstance(val, (int, float)):
             return f"{val:,.2f}"
         return str(val)
 
-    def _fmt_pct(self, val: any) -> str:
+    def _fmt_pct(self, val: typing.Any) -> str:
         if val is None:
             return "n/a"
         if isinstance(val, (int, float)):
@@ -22,7 +23,7 @@ class HtmlDashboardExporter:
         return str(val)
 
     def _get_winner_details(
-        self, metric_name: str, val_a: any, val_b: any, ticker_a: str, ticker_b: str
+        self, metric_name: str, val_a: typing.Any, val_b: typing.Any, ticker_a: str, ticker_b: str
     ) -> tuple[str | None, str]:
         if val_a is None and val_b is None:
             return None, "Draw"
@@ -408,12 +409,20 @@ class HtmlDashboardExporter:
     # SCAN DASHBOARD
     # ═══════════════════════════════════════════════════════════════════════════
     def export_scan(self, result: ScanResult, path: str) -> None:
+
+        def _safe_get(obj, attr, default=0.0):
+            try:
+                val = getattr(obj, attr)
+                return val if val is not None else default
+            except Exception:
+                return default
+
         scan_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        pe = result.valuation.pe_ratio or 0.0
-        pio = result.health.piotroski_f or 0
-        altman = result.health.altman_z or 0.0
-        rev_cagr = result.growth.revenue_cagr_3y or 0.0
-        fcf_yield = result.growth.fcf_yield or 0.0
+        pe = _safe_get(result.valuation, 'pe_ratio', 0.0)
+        pio = _safe_get(result.health, 'piotroski_f', 0)
+        altman = _safe_get(result.health, 'altman_z', 0.0)
+        rev_cagr = _safe_get(result.growth, 'revenue_cagr_3y', 0.0)
+        fcf_yield = _safe_get(result.growth, 'fcf_yield', 0.0)
         m_score = result.beneish_m if result.beneish_m is not None else 0.0
 
         # ── Color logic ──
@@ -504,6 +513,10 @@ class HtmlDashboardExporter:
         signal_names = list(signals_desc.keys())
         signal_values = [1 if piotroski_signals.get(s, False) else 0 for s in signal_names]
 
+        radar_labels = signal_names  # fallback alias
+        radar_data = signal_values  # fallback alias
+        chart_labels = signal_names  # fallback alias
+
 
         # Analyst brief badges
         val_status = (result.valuation.vs_sector or "FAIR").upper()
@@ -589,8 +602,8 @@ class HtmlDashboardExporter:
 
         # Chart values
         pe_val = pe if pe is not None else 0.0
-        pb_val = result.valuation.pb_ratio if result.valuation.pb_ratio is not None else 0.0
-        ev_val = result.valuation.ev_ebitda if result.valuation.ev_ebitda is not None else 0.0
+        pb_val = _safe_get(result.valuation, 'pb_ratio', 0.0)
+        ev_val = _safe_get(result.valuation, 'ev_ebitda', 0.0)
         rev_cagr_pct = (rev_cagr or 0.0) * 100.0
         pat_cagr_pct = (result.growth.pat_cagr_3y or 0.0) * 100.0
         fcf_yield_pct = (fcf_yield or 0.0) * 100.0

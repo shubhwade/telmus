@@ -15,7 +15,7 @@ def _safe_value(value: object) -> float | None:
         return None
     try:
         value_float = float(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, Exception):
         return None
     if np.isnan(value_float):
         return None
@@ -146,14 +146,14 @@ class FlagsEngine:
                 _safe_divide(rev0 - gp0 if rev0 and gp0 is not None else None, rev0),
             )
             aqi = _safe_divide(
-                _safe_divide(1 - _safe_divide(ca0, ta0), 1 - _safe_divide(ca1, ta1)),
+                _safe_divide((1 - (_safe_divide(ca0, ta0) or 0.0)), (1 - (_safe_divide(ca1, ta1) or 0.0))),
                 1,
             )
             sgi = _safe_divide(rev0, rev1)
             depi = _safe_divide(
                 _safe_divide(
-                    1 - _safe_divide(dep0, dep0 + gp0),
-                    1 - _safe_divide(dep1, dep1 + gp1),
+                    (1 - (_safe_divide(dep0, (dep0 or 0) + (gp0 or 0)) or 0.0)),
+                    (1 - (_safe_divide(dep1, (dep1 or 0) + (gp1 or 0)) or 0.0)),
                 ),
                 1,
             )
@@ -169,21 +169,11 @@ class FlagsEngine:
                 _safe_divide((rev1 - xi1) if rev1 and xi1 is not None else None, rev1),
             )
 
-            if None in (dsri, gmi, aqi, sgi, depi, sgai, tata, lvgi):
+            if dsri is None or gmi is None or aqi is None or sgi is None or depi is None or sgai is None or tata is None or lvgi is None:
                 logger.warning("Beneish score missing components")
                 return None
 
-            return float(
-                -4.84
-                + 0.92 * dsri
-                + 0.528 * gmi
-                + 0.404 * aqi
-                + 0.892 * sgi
-                + 0.115 * depi
-                - 0.172 * sgai
-                + 4.679 * tata
-                - 0.327 * lvgi
-            )
+            return float(-4.84 + 0.92 * float(dsri) + 0.528 * float(gmi) + 0.404 * float(aqi) + 0.892 * float(sgi) + 0.115 * float(depi) - 0.172 * float(sgai) + 4.679 * float(tata) - 0.327 * float(lvgi))
         except Exception:
             logger.exception("Failed to compute Beneish M-score")
             return None

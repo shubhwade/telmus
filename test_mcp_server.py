@@ -8,6 +8,10 @@ from telmus.mcp.server import handle_tool_call, TOOL_DEFINITIONS
 
 import pytest
 
+@pytest.fixture
+def anyio_backend():
+    return 'asyncio'
+
 @pytest.mark.anyio
 async def test_all_tools() -> None:
     """Test all 5 MCP tools."""

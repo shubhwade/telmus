@@ -1,4 +1,5 @@
 from __future__ import annotations
+import typing
 
 import logging
 import sys
@@ -41,7 +42,7 @@ logging.getLogger("curl_cffi").setLevel(logging.ERROR)
 logging.getLogger("urllib3").setLevel(logging.ERROR)
 
 
-def _format_metric(value: object | None) -> str:
+def _format_metric(value: typing.Any | None) -> str:
     if value is None:
         return "n/a"
     if isinstance(value, float):
@@ -64,7 +65,7 @@ def _severity_color(flag: str | None) -> str:
 
 
 def _render_section(
-    name: str, metrics: list[tuple[str, object | None, str | None]]
+    name: str, metrics: typing.Sequence[tuple[str, object | None, str | None]]
 ) -> Table:
     table = Table(show_header=True, header_style="bold magenta")
     table.add_column("Engine")
@@ -88,7 +89,7 @@ def _get_bar_char() -> str:
         pass
     return "X"
 
-def _render_bar_chart(title: str, metrics: list[tuple[str, object | None, str | None]], color: str = "cyan") -> Table:
+def _render_bar_chart(title: str, metrics: typing.Sequence[tuple[str, object | None, str | None]], color: str = "cyan") -> Table:
     table = Table(title=title, show_header=False, box=None)
     table.add_column("Label", style="bold")
     table.add_column("Value", justify="right")
@@ -238,13 +239,23 @@ def scan(
             HtmlDashboardExporter().export_scan(result, html_path)
             print(f"Saved: {excel_path} and {html_path}")
             
-            import subprocess
-            subprocess.Popen(["start", html_path], shell=True)
+            import webbrowser
+            webbrowser.open(html_path)
 
     except Exception as exc:
         console.print(f"[bold red]Error:[/] {exc}")
         raise typer.Exit(code=1)
 
+
+@app.command()
+def comp(
+    ticker_a: str,
+    ticker_b: str,
+    export: str | None = typer.Option(
+        None, "--export", help="Save comparison to file (.xlsx, .csv, or .json)."
+    ),
+) -> None:
+    compare(ticker_a, ticker_b, export)
 
 @app.command()
 def compare(
@@ -263,7 +274,7 @@ def compare(
         table.add_column(comparison.result_a.ticker)
         table.add_column(comparison.result_b.ticker)
 
-        def row(metric: str, a_value: object | None, b_value: object | None) -> None:
+        def row(metric: str, a_value: typing.Any | None, b_value: typing.Any | None) -> None:
             a_text = _format_metric(a_value)
             b_text = _format_metric(b_value)
             if a_value is None or b_value is None:
@@ -379,8 +390,8 @@ def compare(
         HtmlDashboardExporter().export_compare(comparison, f"{name}_dashboard.html")
         print(f"Saved: {name}_comparison.xlsx and {name}_dashboard.html")
         
-        import subprocess
-        subprocess.Popen(["start", f"{name}_dashboard.html"], shell=True)
+        import webbrowser
+        webbrowser.open(f"{name}_dashboard.html")
 
     except Exception as exc:
         console.print(f"[bold red]Error:[/] {exc}")
@@ -389,7 +400,7 @@ def compare(
 
 @app.command()
 def screen(
-    sector: str = typer.Option("IT", help="Sector to screen."),
+    sector: str = typer.Argument("IT", help="Sector to screen."),
     min_piotroski: int = typer.Option(6, help="Minimum Piotroski score."),
     max_de: float = typer.Option(1.0, help="Maximum debt-to-equity ratio."),
     export: str | None = typer.Option(
@@ -486,8 +497,8 @@ def screen(
     HtmlDashboardExporter().export_screen(results, "screen_dashboard.html")
     print(f"Saved: screen_results.xlsx and screen_dashboard.html")
     
-    import subprocess
-    subprocess.Popen(["start", "screen_dashboard.html"], shell=True)
+    import webbrowser
+    webbrowser.open("screen_dashboard.html")
 
 
 @app.command()

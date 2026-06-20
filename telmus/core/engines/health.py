@@ -1,4 +1,5 @@
 from __future__ import annotations
+import typing
 
 import logging
 
@@ -10,12 +11,12 @@ from telmus.core.result import HealthResult
 logger = logging.getLogger(__name__)
 
 
-def _safe_value(value: object) -> float | None:
+def _safe_value(value: typing.Any) -> float | None:
     if value is None:
         return None
     try:
         value_float = float(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, Exception):
         return None
     if np.isnan(value_float):
         return None
@@ -51,7 +52,7 @@ def _series_value(series: pd.Series | None, index: int = 0) -> float | None:
 
 
 class HealthEngine:
-    def run(self, financials: dict[str, object]) -> HealthResult:
+    def run(self, financials: dict[str, typing.Any]) -> HealthResult:
         income_stmt = financials.get("income_stmt")
         if income_stmt is None:
             income_stmt = pd.DataFrame()
@@ -72,7 +73,7 @@ class HealthEngine:
         health_flag = None
         if piotroski_f is not None and piotroski_f < 5:
             health_flag = "weak fundamentals"
-        elif altman_z is not None and altman_z < 1.81:
+        elif altman_z is not None and altman_z < 1.1:
             health_flag = "distress risk"
 
         return HealthResult(
@@ -102,6 +103,7 @@ class HealthEngine:
         signals["Gross Margin Rising"] = self._gross_margin_increasing(income_stmt)
         signals["Asset Turnover Rising"] = self._asset_turnover_increasing(income_stmt, balance_sheet)
         score = sum(1 for v in signals.values() if v)
+        signals = {k: 1 if v else 0 for k, v in signals.items()}
         return score, signals
 
     def _roa_positive(
@@ -256,7 +258,7 @@ class HealthEngine:
         self,
         income_stmt: pd.DataFrame,
         balance_sheet: pd.DataFrame,
-        info: dict[str, object],
+        info: dict[str, typing.Any],
     ) -> float | None:
         total_assets = _safe_value(
             _series_value(_get_series_fallback(balance_sheet, ["Total Assets", "TotalAssets"]), 0)
@@ -305,11 +307,11 @@ class HealthEngine:
         x4 = _safe_divide(market_cap, total_liabilities)
         x5 = _safe_divide(revenue, total_assets)
 
-        if None in (x1, x2, x3, x4, x5):
+        if x1 is None or x2 is None or x3 is None or x4 is None:
             logger.warning("Altman Z-score missing required inputs")
             return None
 
-        return float(1.2 * x1 + 1.4 * x2 + 3.3 * x3 + 0.6 * x4 + 1.0 * x5)
+        return float(6.56 * float(x1) + 3.26 * float(x2) + 6.72 * float(x3) + 1.05 * float(x4))
 
     def _compute_debt_to_equity(self, balance_sheet: pd.DataFrame) -> float | None:
         total_liab = _safe_value(

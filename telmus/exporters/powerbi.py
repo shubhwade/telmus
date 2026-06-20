@@ -1,4 +1,6 @@
 from __future__ import annotations
+import typing
+from telmus.core.result import ScanResult
 
 import csv
 import datetime
@@ -100,7 +102,7 @@ class PowerBIExporter:
                             flag.severity,
                         ])
 
-    def _csv_val(self, val: any) -> any:
+    def _csv_val(self, val: typing.Any) -> any:
         if val is None:
             return ""
         return val

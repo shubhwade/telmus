@@ -1,3 +1,10 @@
+## v0.2.0 - Final Boss Update
+- Cleaned codebase, performed security audit, and fixed typing issues
+- Added safe fallbacks for Valuation, Health, and Growth engines
+- Hardened HTML dashboard variables and added missing fallback mappings
+- Added P/E History and Revenue History charts to the Excel Exporter Dashboard
+- Fixed CLI commands: added `comp` alias and updated `screen` sector argument
+
 ## v0.1.14 - Terminal ASCII Charts
 - Added native ASCII bar charts directly in the terminal for `scan` and `compare` commands
 - Added Unicode fallback handling for legacy Windows terminals

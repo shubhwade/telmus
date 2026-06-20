@@ -1,4 +1,5 @@
 from __future__ import annotations
+import typing
 
 import contextlib
 import io
@@ -12,12 +13,12 @@ from telmus.core.result import ValuationResult
 logger = logging.getLogger(__name__)
 
 
-def _safe_value(value: object) -> float | None:
+def _safe_value(value: typing.Any) -> float | None:
     if value is None:
         return None
     try:
         value_float = float(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, Exception):
         return None
     if np.isnan(value_float):
         return None
@@ -39,7 +40,7 @@ def _get_series(df: pd.DataFrame, label: str) -> pd.Series | None:
 
 
 class ValuationEngine:
-    def run(self, financials: dict[str, object]) -> ValuationResult:
+    def run(self, financials: dict[str, typing.Any]) -> ValuationResult:
         info = financials.get("info") or {}
         balance_sheet = financials.get("balance_sheet")
         if balance_sheet is None:
@@ -71,7 +72,7 @@ class ValuationEngine:
                 and cash is not None
                 and ebitda is not None
             ):
-                ev = market_cap + total_debt - cash
+                ev = float(market_cap) + float(total_debt) - float(cash)
                 ev_ebitda = _safe_divide(ev, ebitda)
 
         vs_sector = "fair"
@@ -88,6 +89,10 @@ class ValuationEngine:
                 else:
                     vs_sector = "fair"
 
+        if pe_ratio is not None and pe_ratio < 0:
+            flag = 'negative earnings'
+        if ev_ebitda is not None and ev_ebitda < 0 and flag is None:
+            flag = 'negative ebitda'
         return ValuationResult(
             pe_ratio=pe_ratio,
             pb_ratio=pb_ratio,

@@ -20,11 +20,11 @@ def generate_brief(result: ScanResult) -> str:
                 f"weak fundamentals (Piotroski F-score of {result.health.piotroski_f})"
             )
     if result.health.altman_z is not None:
-        if result.health.altman_z > 2.99:
+        if result.health.altman_z > 2.6:
             health_phrases.append(
                 f"financially safe (Altman Z-score of {result.health.altman_z:.2f})"
             )
-        elif result.health.altman_z >= 1.81:
+        elif result.health.altman_z >= 1.1:
             health_phrases.append(
                 f"grey zone credit profile (Altman Z-score of {result.health.altman_z:.2f})"
             )
