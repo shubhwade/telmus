@@ -336,8 +336,8 @@ def screen(
 ) -> None:
     """Run a simple sector screener."""
     universe = {
-        "IT": ["INFY", "TCS", "WIPRO", "HCLTECH", "TECHM"],
-        "Banking": ["HDFCBANK", "ICICIBANK", "KOTAKBANK", "SBIN", "AXISBANK"],
+        "IT": ["INFY.NS", "TCS.NS", "WIPRO.NS", "HCLTECH.NS", "TECHM.NS"],
+        "Banking": ["HDFCBANK.NS", "ICICIBANK.NS", "KOTAKBANK.NS", "SBIN.NS", "AXISBANK.NS"],
     }
     tickers = universe.get(sector, universe["IT"])
     results: list[ScanResult] = []
