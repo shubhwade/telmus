@@ -1,3 +1,9 @@
+## v0.2.3
+### Fixed
+- Fixed print layout to fit exactly on one A4 landscape page using CSS transform
+- Fixed gauge alignment issues in print and screen layouts
+- Wrapped content in dashboard-wrapper for uniform scaling
+
 ## v0.2.2
 ### Fixed
 - Print report fits exactly one A4 landscape page (transform scale 0.85)

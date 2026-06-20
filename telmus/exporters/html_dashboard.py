@@ -413,36 +413,137 @@ class HtmlDashboardExporter:
         .metric-val {{ font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; font-weight: 600; }}
 
         @media print {{
-          @page {{ size: A4 landscape; margin: 0.5cm; }}
-          * {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; overflow: visible !important; }}
+          @page {{
+            size: A4 landscape;
+            margin: 0;
+          }}
+
+          html, body {{
+            width: 297mm;
+            height: 210mm;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }}
+
+          body * {{
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }}
+
           #printBtn {{ display: none !important; }}
-          html, body {{ height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; background: #050505 !important; color: #e5e5e5 !important; }}
-          h1 {{ font-size: 14px !important; }}
-          h2, h3 {{ font-size: 11px !important; }}
-          p, td, .brief-text {{ font-size: 9px !important; }}
-          .kpi-label, .check-name, .check-desc, .metric-key, .metric-val, .kpi-desc, small {{ font-size: 8px !important; }}
-          .kpi-value {{ font-size: 18px !important; }}
-          .section-label {{ font-size: 7px !important; }}
-          .card {{ padding: 6px !important; margin: 2px !important; }}
-          .stack {{ gap: 4px !important; }}
-          .container {{ padding: 8px !important; max-width: 100% !important; margin: 0 !important; }}
-          header {{ padding: 8px !important; }}
-          .letter-avatar, .company-avatar {{ width: 32px !important; height: 32px !important; font-size: 0.9rem !important; }}
-          .grid-4 {{ grid-template-columns: repeat(4,1fr) !important; gap: 4px !important; }}
-          .grid-3 {{ grid-template-columns: repeat(3,1fr) !important; gap: 4px !important; }}
-          .grid-2 {{ grid-template-columns: repeat(2,1fr) !important; gap: 4px !important; }}
-          .gauge-wrap {{ max-height: 80px !important; max-width: 120px !important; }}
-          .gauge-value {{ font-size: 14px !important; }}
-          .chart-box canvas {{ max-height: 120px !important; }}
-          .check-item {{ padding: 2px 4px !important; gap: 0.3rem !important; }}
-          .check-icon {{ font-size: 0.7rem !important; }}
-          .brief-card {{ padding: 6px 8px !important; max-height: 80px !important; overflow: hidden !important; }}
-          .flag-clean, .flag-table {{ font-size: 8px !important; padding: 4px 8px !important; }}
-          th, td {{ padding: 3px 5px !important; font-size: 8px !important; }}
-          .header-sub {{ font-size: 7px !important; }}
-          .header-quote {{ font-size: 8px !important; margin-top: 2px !important; }}
-          .kpi-row, .gauge-row, .charts-row, .checklist-section, .analyst-section, .flags-section {{ page-break-inside: avoid !important; break-inside: avoid !important; }}
-          body > div.container {{ transform: scale(0.85); transform-origin: top left; width: 117%; }}
+
+          .dashboard-wrapper {{
+            width: 1400px;
+            transform: scale(0.54);
+            transform-origin: top left;
+            height: 210mm;
+            overflow: hidden;
+          }}
+
+          .header-section {{
+            padding: 8px 16px !important;
+          }}
+
+          .kpi-row {{
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 6px !important;
+            padding: 6px !important;
+          }}
+
+          .kpi-card {{
+            padding: 8px !important;
+            min-height: 0 !important;
+          }}
+
+          .kpi-value {{ font-size: 20px !important; }}
+          .kpi-label {{ font-size: 8px !important; }}
+          .kpi-desc {{ font-size: 7px !important; }}
+
+          .gauge-row {{
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 6px !important;
+            padding: 6px !important;
+          }}
+
+          .gauge-card {{
+            padding: 8px !important;
+            height: 160px !important;
+            overflow: hidden !important;
+          }}
+
+          .gauge-wrap {{
+            height: 100px !important;
+          }}
+
+          .charts-row {{
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 6px !important;
+            padding: 6px !important;
+          }}
+
+          .chart-card {{
+            padding: 8px !important;
+            height: 180px !important;
+            overflow: hidden !important;
+          }}
+
+          .chart-card canvas {{
+            height: 130px !important;
+            max-height: 130px !important;
+          }}
+
+          .gauge-card canvas {{
+            height: 90px !important;
+            max-height: 90px !important;
+          }}
+
+          .analyst-section {{
+            padding: 8px 16px !important;
+            margin: 4px !important;
+          }}
+
+          .brief-text {{
+            font-size: 9px !important;
+            line-height: 1.4 !important;
+          }}
+
+          .piotroski-checklist, .grid-3 {{
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 2px !important;
+            padding: 6px !important;
+            font-size: 8px !important;
+          }}
+
+          .check-item {{
+            padding: 2px 4px !important;
+            font-size: 8px !important;
+          }}
+
+          .flags-section {{
+            padding: 6px 16px !important;
+            font-size: 8px !important;
+          }}
+
+          .section-title {{
+            font-size: 9px !important;
+            margin-bottom: 4px !important;
+          }}
+
+          .radar-section {{
+            height: 200px !important;
+            overflow: hidden !important;
+          }}
+
+          .radar-section canvas, .chart-box canvas {{
+            height: 160px !important;
+            max-height: 160px !important;
+          }}
         }}
     </style>
 </head>"""
@@ -677,6 +778,7 @@ class HtmlDashboardExporter:
         logo_url = get_company_logo_url(result.ticker)
         html_content = f"""{self._head_block(f"telmus — {result.company} ({result.ticker}) Analysis")}
 <body>
+<div class="dashboard-wrapper">
     <div class="container stack">
 
         <!-- ═══ HEADER ═══ -->
@@ -715,23 +817,23 @@ class HtmlDashboardExporter:
         <!-- ═══ KPI ROW ═══ -->
         <div>
             <div class="section-label">Key Metrics</div>
-            <div class="grid-4">
-                <div class="card">
+            <div class="grid-4 kpi-row">
+                <div class="card kpi-card">
                     <div class="kpi-value" style="color:{pe_color}">{pe_text}</div>
                     <div class="kpi-label">P/E Ratio</div>
                     <div class="kpi-desc">Price per unit of earnings</div>
                 </div>
-                <div class="card">
+                <div class="card kpi-card">
                     <div class="kpi-value" style="color:{pio_color}">{pio_text}</div>
                     <div class="kpi-label">Piotroski F-Score</div>
                     <div class="kpi-desc">Financial health (higher = stronger)</div>
                 </div>
-                <div class="card">
+                <div class="card kpi-card">
                     <div class="kpi-value" style="color:{altman_color}">{altman_text}</div>
                     <div class="kpi-label">Altman Z-Score</div>
                     <div class="kpi-desc">Bankruptcy risk (&gt;2.6 = safe)</div>
                 </div>
-                <div class="card">
+                <div class="card kpi-card">
                     <div class="kpi-value" style="color:{cagr_color}">{cagr_text}</div>
                     <div class="kpi-label">Revenue CAGR (3Y)</div>
                     <div class="kpi-desc">3-year revenue growth rate</div>
@@ -740,9 +842,9 @@ class HtmlDashboardExporter:
         </div>
 
         <!-- ═══ RADAR + VALUATION ═══ -->
-        <div class="grid-2">
+        <div class="grid-2 charts-row">
             <!-- Piotroski Radar -->
-            <div class="card">
+            <div class="card chart-card radar-section">
                 <div class="section-label">Signal Analysis</div>
                 <div class="section-title" style="margin-bottom:0.5rem;">
                     <span class="dot" style="background:var(--teal);"></span>Piotroski Radar — {pio_score}/9
@@ -755,7 +857,7 @@ class HtmlDashboardExporter:
                 </div>
             </div>
             <!-- Valuation Benchmarks -->
-            <div class="card">
+            <div class="card chart-card">
                 <div class="section-label">Valuation</div>
                 <div class="section-title" style="margin-bottom:0.5rem;">
                     <span class="dot" style="background:var(--teal);"></span>Valuation Benchmarks
@@ -779,20 +881,20 @@ class HtmlDashboardExporter:
             <!-- 3 Gauges in a row -->
             <div class="card">
                 <div class="section-label">Score Gauges</div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;">
-                    <div style="text-align:center;">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;" class="gauge-row">
+                    <div class="gauge-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
                         <div class="gauge-wrap"><canvas id="gaugePio"></canvas>
                             <div class="gauge-center"><span class="gauge-value" style="font-size:1rem;">{pio_text}</span></div>
                         </div>
                         <div class="section-label" style="margin-top:0.25rem;">Piotroski F</div>
                     </div>
-                    <div style="text-align:center;">
+                    <div class="gauge-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
                         <div class="gauge-wrap"><canvas id="gaugeAltman" style="height:200px;"></canvas>
                             <div class="gauge-center"><span class="gauge-value" style="font-size:1rem;">{altman_text}</span></div>
                         </div>
                         <div class="section-label" style="margin-top:0.25rem;">Altman Z</div>
                     </div>
-                    <div style="text-align:center;">
+                    <div class="gauge-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
                         <div class="gauge-wrap"><canvas id="gaugeFCF" style="height:200px;"></canvas>
                             <div class="gauge-center"><span class="gauge-value" style="font-size:1rem;">{self._fmt_pct(fcf_yield)}</span></div>
                         </div>
@@ -804,7 +906,7 @@ class HtmlDashboardExporter:
                 </div>
             </div>
             <!-- Growth Metrics -->
-            <div class="card">
+            <div class="card chart-card">
                 <div class="section-label">Growth</div>
                 <div class="section-title" style="margin-bottom:0.5rem;">
                     <span class="dot" style="background:var(--indigo);"></span>Growth Metrics (3Y CAGR)
@@ -823,7 +925,7 @@ class HtmlDashboardExporter:
         </div>
 
         <!-- ═══ PIOTROSKI BREAKDOWN ═══ -->
-        <div class="card">
+        <div class="card checklist-section">
             <div class="section-label">Breakdown</div>
             <div class="section-title" style="margin-bottom:1rem;">
                 <span class="dot" style="background:var(--teal);"></span>Piotroski F-Score — {pio_score}/9 Signals Passed
@@ -888,7 +990,7 @@ class HtmlDashboardExporter:
         </div>
 
         <!-- ═══ ANALYST BRIEF ═══ -->
-        <div class="brief-card">
+        <div class="brief-card analyst-section">
             <div class="section-label">Analysis</div>
             <div class="section-title" style="margin-bottom:0.75rem;">AI Analyst Brief</div>
             <p class="brief-text">{result.analyst_brief}</p>
@@ -900,12 +1002,15 @@ class HtmlDashboardExporter:
         </div>
 
         <!-- ═══ RED FLAGS ═══ -->
-        {flags_html}
+        <div class="flags-section">
+            {flags_html}
+        </div>
 
         <!-- ═══ FOOTER ═══ -->
         {self._footer_block()}
 
     </div>
+</div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {{
@@ -1212,6 +1317,7 @@ class HtmlDashboardExporter:
 
         html_content = f"""{self._head_block(f"telmus — {ticker_a} vs {ticker_b} Comparison")}
 <body>
+<div class="dashboard-wrapper">
     <div class="container stack">
 
         <!-- Header -->
@@ -1267,7 +1373,7 @@ class HtmlDashboardExporter:
         </div>
 
         <!-- Radar Overlay -->
-        <div class="card">
+        <div class="card radar-section">
             <div class="section-label">Overview</div>
             <div class="section-title" style="margin-bottom:1rem;">
                 <span class="dot" style="background:var(--teal);"></span>Radar Comparison
@@ -1278,18 +1384,18 @@ class HtmlDashboardExporter:
         </div>
 
         <!-- Grouped Bar Charts -->
-        <div class="grid-3">
-            <div class="card">
+        <div class="grid-3 charts-row">
+            <div class="card chart-card">
                 <div class="section-label">Valuation</div>
                 <div class="chart-box" style="height:220px;"><canvas id="chartValuation" style="height:220px;"></canvas></div>
                 <div class="chart-explain">P/E, P/B and EV/EBITDA side by side. Lower bars usually mean cheaper valuation. Teal = {ticker_a}, coral = {ticker_b}.</div>
             </div>
-            <div class="card">
+            <div class="card chart-card">
                 <div class="section-label">Health</div>
                 <div class="chart-box" style="height:220px;"><canvas id="chartHealth"></canvas></div>
                 <div class="chart-explain">Piotroski F (higher = stronger), Altman Z (higher = safer), Debt/Equity (lower = less risky), Current Ratio (>1 = liquid), Interest Coverage (higher = safer).</div>
             </div>
-            <div class="card">
+            <div class="card chart-card">
                 <div class="section-label">Growth</div>
                 <div class="chart-box" style="height:220px;"><canvas id="chartGrowth" style="height:220px;"></canvas></div>
                 <div class="chart-explain">Revenue and profit growth rates over 3 years, plus free cash flow yield. Taller bars indicate stronger growth momentum.</div>
@@ -1497,6 +1603,7 @@ class HtmlDashboardExporter:
 
         html_content = f"""{self._head_block("telmus — Sector Screen Results")}
 <body>
+<div class="dashboard-wrapper">
     <div class="container stack">
 
         <!-- Header -->
@@ -1514,20 +1621,20 @@ class HtmlDashboardExporter:
         </header>
 
         <!-- KPI Row -->
-        <div class="grid-4">
-            <div class="card">
+        <div class="grid-4 kpi-row">
+            <div class="card kpi-card">
                 <div class="kpi-value c-teal">{n}</div>
                 <div class="kpi-label">Stocks Screened</div>
             </div>
-            <div class="card">
+            <div class="card kpi-card">
                 <div class="kpi-value" style="color:var(--teal);">{avg_pio:,.2f}</div>
                 <div class="kpi-label">Average Piotroski F</div>
             </div>
-            <div class="card">
+            <div class="card kpi-card">
                 <div class="kpi-value" style="color:var(--indigo);">{avg_pe:,.2f}</div>
                 <div class="kpi-label">Average P/E Ratio</div>
             </div>
-            <div class="card">
+            <div class="card kpi-card">
                 <div class="kpi-value" style="color:var(--amber);">{no_flags_count}</div>
                 <div class="kpi-label">No Red Flag Stocks</div>
             </div>
@@ -1586,6 +1693,7 @@ class HtmlDashboardExporter:
 
         {self._footer_block()}
     </div>
+</div>
 
     <script>
         Chart.defaults.color = '#525252';
