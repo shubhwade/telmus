@@ -427,3 +427,43 @@ def check(ticker: str) -> None:
     except Exception as exc:
         console.print(f"[bold red]Error:[/] {exc}")
         raise typer.Exit(code=1)
+
+
+@app.command()
+def powerbi(
+    extra_tickers: list[str] = typer.Argument(None, help="Additional tickers to scan."),
+    tickers: list[str] = typer.Option(None, "--tickers", help="List of tickers to scan."),
+    export: str = typer.Option(..., "--export", help="Save results to a CSV file."),
+    flags: bool = typer.Option(False, "--flags", help="Export red flags details instead of standard portfolio metrics."),
+) -> None:
+    """Export portfolio metrics formatted for Power BI."""
+    try:
+        all_tickers = []
+        if tickers:
+            all_tickers.extend(tickers)
+        if extra_tickers:
+            all_tickers.extend(extra_tickers)
+
+        if not all_tickers:
+            console.print("[bold red]Error:[/] No tickers provided.")
+            raise typer.Exit(code=1)
+
+        # Deduplicate while preserving order
+        seen = set()
+        clean_tickers = []
+        for t in all_tickers:
+            if t not in seen:
+                seen.add(t)
+                clean_tickers.append(t)
+
+        from telmus.exporters.powerbi import PowerBIExporter
+        exporter = PowerBIExporter()
+        if flags:
+            exporter.export_flags(clean_tickers, export)
+        else:
+            exporter.export_portfolio(clean_tickers, export)
+        console.print(f"Saved to {export}")
+    except Exception as exc:
+        console.print(f"[bold red]Error:[/] {exc}")
+        raise typer.Exit(code=1)
+

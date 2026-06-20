@@ -59,6 +59,7 @@ class ScanResult:
     red_flags: list[RedFlag]
     highest_concern: str
     analyst_brief: str
+    beneish_m: float | None = None
     schema_version: int = 1
 
     def to_dict(self) -> dict[str, Any]:

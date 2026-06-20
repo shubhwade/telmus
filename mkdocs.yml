@@ -56,6 +56,7 @@ nav:
     - CLI: cli.md
     - MCP server: mcp.md
     - SDK: sdk.md
+  - Power BI: powerbi.md
   - Engines:
     - Health: engines/health.md
   - Changelog: changelog.md

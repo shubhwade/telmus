@@ -44,6 +44,7 @@ class TelmusScanner:
                 red_flags=flags.red_flags,
                 highest_concern=flags.highest_concern,
                 analyst_brief="",
+                beneish_m=flags.beneish_m,
             )
         )
 
@@ -58,6 +59,7 @@ class TelmusScanner:
             red_flags=flags.red_flags,
             highest_concern=flags.highest_concern,
             analyst_brief=brief,
+            beneish_m=flags.beneish_m,
         )
 
     def compare(self, ticker_a: str, ticker_b: str) -> CompareResult:
