@@ -1,3 +1,9 @@
+## v0.2.2
+### Fixed
+- Print report fits exactly one A4 landscape page (transform scale 0.85)
+- Red flags "No Flags" banner background removed — text-only with teal left border
+- Print button moved beside version text in header, teal outline style
+
 ## v0.2.1
 ### Added
 - Real company logos via Clearbit API (no API key needed)

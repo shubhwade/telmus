@@ -297,11 +297,13 @@ class HtmlDashboardExporter:
 
         /* Red flag banner */
         .flag-clean {{
-            background: var(--teal-10);
-            border: 1px solid var(--teal-20);
+            background: transparent;
+            border: none;
+            border-left: 3px solid var(--teal);
             color: var(--teal);
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
+            padding: 0.75rem 1rem 0.75rem 1rem;
+            padding-left: 1rem;
+            border-radius: 0;
             display: flex;
             align-items: center;
             gap: 0.75rem;
@@ -411,21 +413,36 @@ class HtmlDashboardExporter:
         .metric-val {{ font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; font-weight: 600; }}
 
         @media print {{
-          * {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }}
-          body {{ background: white !important; color: #0d1117 !important; }}
+          @page {{ size: A4 landscape; margin: 0.5cm; }}
+          * {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; overflow: visible !important; }}
           #printBtn {{ display: none !important; }}
-          .dashboard-container {{ background: white !important; padding: 1rem !important; }}
-          .kpi-card {{ background: #f8f9fa !important; border: 1px solid #dee2e6 !important; break-inside: avoid; }}
-          .chart-card {{ background: #f8f9fa !important; border: 1px solid #dee2e6 !important; break-inside: avoid; }}
-          .gauge-card {{ background: #f8f9fa !important; border: 1px solid #dee2e6 !important; break-inside: avoid; }}
-          .analyst-brief {{ background: #f0fdf4 !important; border-left: 4px solid #00d4aa !important; break-inside: avoid; }}
-          .header-section {{ background: #0d1117 !important; color: white !important; -webkit-print-color-adjust: exact !important; }}
-          canvas {{ max-width: 100% !important; }}
-          @page {{ size: A4 landscape; margin: 1cm; }}
-          .kpi-row {{ page-break-inside: avoid; }}
-          .gauge-row {{ page-break-inside: avoid; }}
-          .charts-row {{ page-break-inside: avoid; }}
-          .piotroski-checklist {{ page-break-inside: avoid; }}
+          html, body {{ height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; background: #050505 !important; color: #e5e5e5 !important; }}
+          h1 {{ font-size: 14px !important; }}
+          h2, h3 {{ font-size: 11px !important; }}
+          p, td, .brief-text {{ font-size: 9px !important; }}
+          .kpi-label, .check-name, .check-desc, .metric-key, .metric-val, .kpi-desc, small {{ font-size: 8px !important; }}
+          .kpi-value {{ font-size: 18px !important; }}
+          .section-label {{ font-size: 7px !important; }}
+          .card {{ padding: 6px !important; margin: 2px !important; }}
+          .stack {{ gap: 4px !important; }}
+          .container {{ padding: 8px !important; max-width: 100% !important; margin: 0 !important; }}
+          header {{ padding: 8px !important; }}
+          .letter-avatar, .company-avatar {{ width: 32px !important; height: 32px !important; font-size: 0.9rem !important; }}
+          .grid-4 {{ grid-template-columns: repeat(4,1fr) !important; gap: 4px !important; }}
+          .grid-3 {{ grid-template-columns: repeat(3,1fr) !important; gap: 4px !important; }}
+          .grid-2 {{ grid-template-columns: repeat(2,1fr) !important; gap: 4px !important; }}
+          .gauge-wrap {{ max-height: 80px !important; max-width: 120px !important; }}
+          .gauge-value {{ font-size: 14px !important; }}
+          .chart-box canvas {{ max-height: 120px !important; }}
+          .check-item {{ padding: 2px 4px !important; gap: 0.3rem !important; }}
+          .check-icon {{ font-size: 0.7rem !important; }}
+          .brief-card {{ padding: 6px 8px !important; max-height: 80px !important; overflow: hidden !important; }}
+          .flag-clean, .flag-table {{ font-size: 8px !important; padding: 4px 8px !important; }}
+          th, td {{ padding: 3px 5px !important; font-size: 8px !important; }}
+          .header-sub {{ font-size: 7px !important; }}
+          .header-quote {{ font-size: 8px !important; margin-top: 2px !important; }}
+          .kpi-row, .gauge-row, .charts-row, .checklist-section, .analyst-section, .flags-section {{ page-break-inside: avoid !important; break-inside: avoid !important; }}
+          body > div.container {{ transform: scale(0.85); transform-origin: top left; width: 117%; }}
         }}
     </style>
 </head>"""
@@ -659,29 +676,11 @@ class HtmlDashboardExporter:
         fcf_gauge_label = 'High yield' if (fcf_yield or 0.0) >= 0.08 else ('Adequate yield' if (fcf_yield or 0.0) >= 0.02 else 'Weak/Negative yield')
         logo_url = get_company_logo_url(result.ticker)
         html_content = f"""{self._head_block(f"telmus — {result.company} ({result.ticker}) Analysis")}
-<style>
-@media print {{
-    #printBtn {{ display: none !important; }}
-    .card, header {{ break-inside: avoid; }}
-    body {{ background: #fff !important; color: #000 !important; }}
-    .container {{ width: 100% !important; }}
-}}
-</style>
 <body>
     <div class="container stack">
 
         <!-- ═══ HEADER ═══ -->
         <header class="header-section" style="position:relative; padding:1.5rem; border-radius:12px; border:1px solid var(--border);">
-            <button onclick="window.print()" id="printBtn" 
-            style="position:fixed;top:1rem;right:1rem;
-            background:#00d4aa;color:#0d1117;
-            border:none;padding:0.6rem 1.4rem;
-            border-radius:6px;font-weight:700;
-            font-size:0.9rem;cursor:pointer;
-            font-family:Inter,sans-serif;
-            z-index:1000;">
-            Print Report
-            </button>
             <div style="display:flex;align-items:center;gap:1.5rem;">
                 <img src="{logo_url}" 
                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
@@ -692,10 +691,23 @@ class HtmlDashboardExporter:
                     <div class="header-sub" style="margin-top:0.25rem;">{result.ticker} · {result.exchange} · Last scanned: {scan_date}</div>
                     <div class="header-quote" style="margin-top:0.5rem;color:var(--text-dim);font-style:italic;">"{result.analyst_brief}"</div>
                 </div>
-                <div style="text-align:right;">
+                <div style="display:flex;align-items:center;gap:1rem;">
                     <span class="font-mono" style="font-size:1.375rem;font-weight:800;color:#fff;">
                         <span style="color:var(--teal);">telmus</span> v{telmus_version}
                     </span>
+                    <button onclick="window.print()" id="printBtn"
+                    style="background:transparent;
+                    color:var(--teal);
+                    border:1px solid var(--teal);
+                    padding:0.3rem 0.9rem;
+                    border-radius:4px;
+                    font-size:0.8rem;
+                    font-weight:600;
+                    cursor:pointer;
+                    font-family:'JetBrains Mono',monospace;
+                    letter-spacing:0.03em;">
+                    Print Report
+                    </button>
                 </div>
             </div>
         </header>
@@ -1199,40 +1211,34 @@ class HtmlDashboardExporter:
         logo_url_b = get_company_logo_url(ticker_b)
 
         html_content = f"""{self._head_block(f"telmus — {ticker_a} vs {ticker_b} Comparison")}
-<style>
-@media print {{
-    #printBtn {{ display: none !important; }}
-    .card, header {{ break-inside: avoid; }}
-    body {{ background: #fff !important; color: #000 !important; }}
-    .container {{ width: 100% !important; }}
-}}
-</style>
 <body>
     <div class="container stack">
 
         <!-- Header -->
         <header class="header-section" style="position:relative; padding:1.5rem; border-radius:12px; border:1px solid var(--border);">
-            <button onclick="window.print()" id="printBtn" 
-            style="position:fixed;top:1rem;right:1rem;
-            background:#00d4aa;color:#0d1117;
-            border:none;padding:0.6rem 1.4rem;
-            border-radius:6px;font-weight:700;
-            font-size:0.9rem;cursor:pointer;
-            font-family:Inter,sans-serif;
-            z-index:1000;">
-            Print Report
-            </button>
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div>
                     <h1 style="margin-bottom:0;">{ticker_a} vs {ticker_b} — Head to Head</h1>
                     <div class="header-sub" style="margin-top:0.25rem;">Comparison scan · {scan_date}</div>
                 </div>
-                <div style="text-align:right;">
-                    <div class="section-label">System</div>
-                    <span class="font-mono" style="font-size:0.875rem;font-weight:600;color:var(--text-dim);">
-                        <span style="color:var(--teal);">telmus</span> v{telmus_version}
-                    </span>
-                </div>
+                    <div style="display:flex;align-items:center;gap:1rem;">
+                        <span class="font-mono" style="font-size:0.875rem;font-weight:600;color:var(--text-dim);">
+                            <span style="color:var(--teal);">telmus</span> v{telmus_version}
+                        </span>
+                        <button onclick="window.print()" id="printBtn"
+                        style="background:transparent;
+                        color:var(--teal);
+                        border:1px solid var(--teal);
+                        padding:0.3rem 0.9rem;
+                        border-radius:4px;
+                        font-size:0.8rem;
+                        font-weight:600;
+                        cursor:pointer;
+                        font-family:'JetBrains Mono',monospace;
+                        letter-spacing:0.03em;">
+                        Print Report
+                        </button>
+                    </div>
             </div>
         </header>
 
