@@ -14,6 +14,13 @@ Financial statement analysis for AI IDEs and coding agents.
 | Health | Balance sheet stress, leverage, and credit risk |
 | Flags | Earnings manipulation risk and cash flow trouble |
 
+## Features
+
+- **One Command = Instant Dashboard**: Every scan, compare, or screen command instantly auto-generates styled Excel workbooks and interactive HTML dashboards.
+- **50,000+ Tickers Supported Globally**: Seamlessly analyze US, Indian, European, and Asian equities.
+- **No API Key Needed**: Pulls data directly from public financial statements automatically.
+- **MCP Server Ready**: Built-in Model Context Protocol server for direct integration with AI assistants like Claude Desktop, Cursor, and Windsurf.
+
 ## The analyst_brief - The Key Innovation
 
 The `analyst_brief` is a deterministic summary generated from financial metrics and red flags. Designed for AI IDEs to consume without relying on generative models.

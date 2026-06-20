@@ -56,8 +56,8 @@ def test_excel_export_creates_valid_file() -> None:
 
         # Load workbook and check sheet names
         wb = load_workbook(dest_path)
-        assert len(wb.sheetnames) == 5
-        assert wb.sheetnames == ["Summary", "Valuation", "Health", "Growth", "Red Flags"]
+        assert len(wb.sheetnames) == 6
+        assert wb.sheetnames == ["Dashboard", "Summary", "Valuation", "Health", "Growth", "Red Flags"]
 
         # Verify Summary sheet contains company name
         ws_summary = wb["Summary"]
@@ -113,7 +113,7 @@ def test_excel_export_graceful_on_missing_data() -> None:
         assert os.path.exists(dest_path)
 
         wb = load_workbook(dest_path)
-        assert len(wb.sheetnames) == 5
+        assert len(wb.sheetnames) == 6
 
         # Verify empty red flags cell has the correct message
         ws_flags = wb["Red Flags"]

@@ -5,6 +5,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.chart import BarChart, LineChart, Reference
+from openpyxl.chart.series import SeriesLabel
+from openpyxl.chart.data_source import StrRef
 
 from telmus.core.result import ScanResult, CompareResult
 
@@ -453,7 +455,8 @@ class ExcelExporter:
         self._auto_fit_columns(ws_flags)
 
         # ---------------- DASHBOARD SHEET ----------------
-        ws_dash = wb.create_sheet(title="Dashboard")
+        # index=0 makes it the first sheet in the workbook
+        ws_dash = wb.create_sheet(title="Dashboard", index=0)
         ws_dash.views.sheetView[0].showGridLines = True
 
         # Write title block on Dashboard
@@ -469,16 +472,18 @@ class ExcelExporter:
         )
         ws_dash.row_dimensions[1].height = 30
 
-        # We will write a small data table in A3:E4 (leaving row 2 blank as a separator)
+        # We will write a small data table in A3:G4 (leaving row 2 blank as a separator)
         ws_dash.cell(row=3, column=1, value="Ticker")
         ws_dash.cell(row=3, column=2, value="Piotroski F-Score")
         ws_dash.cell(row=3, column=3, value="P/E Ratio")
-        ws_dash.cell(row=3, column=4, value="Altman Z-Score")
-        ws_dash.cell(row=3, column=5, value="Altman Z Threshold")
+        ws_dash.cell(row=3, column=4, value="P/B Ratio")
+        ws_dash.cell(row=3, column=5, value="EV/EBITDA")
+        ws_dash.cell(row=3, column=6, value="Revenue CAGR (%)")
+        ws_dash.cell(row=3, column=7, value="PAT CAGR (%)")
 
         self._style_range(
             ws_dash,
-            "A3:E3",
+            "A3:G3",
             font=self.font_data_bold,
             fill=self.fill_alt,
             border=self.border_all,
@@ -489,12 +494,14 @@ class ExcelExporter:
         ws_dash.cell(row=4, column=1, value="=Summary!B3")
         ws_dash.cell(row=4, column=2, value="=Health!B2")
         ws_dash.cell(row=4, column=3, value="=Valuation!B2")
-        ws_dash.cell(row=4, column=4, value="=Health!B4")
-        ws_dash.cell(row=4, column=5, value=2.99)
+        ws_dash.cell(row=4, column=4, value="=Valuation!B3")
+        ws_dash.cell(row=4, column=5, value="=Valuation!B4")
+        ws_dash.cell(row=4, column=6, value="=Growth!B2*100")
+        ws_dash.cell(row=4, column=7, value="=Growth!B3*100")
 
         self._style_range(
             ws_dash,
-            "A4:E4",
+            "A4:G4",
             font=self.font_data,
             fill=self.fill_white,
             border=self.border_all,
@@ -532,39 +539,40 @@ class ExcelExporter:
         if len(chart1.series) > 0:
             chart1.series[0].graphicalProperties.solidFill = f_color
 
-        # Chart 2: BarChart - P/E Ratio
+        # Chart 2: BarChart - P/E, P/B, EV/EBITDA
         chart2 = BarChart()
         chart2.type = "col"
-        chart2.title = "P/E Ratio Comparison"
-        chart2.y_axis.title = "P/E Ratio"
-        chart2.x_axis.title = "Ticker"
-        chart2.legend = None
+        chart2.title = "Valuation Comparison (P/E, P/B, EV/EBITDA)"
+        chart2.x_axis.title = "Metric"
+        chart2.y_axis.title = "Value"
+        
+        cats2 = Reference(ws_dash, min_col=3, max_col=5, min_row=3, max_row=3)
+        data2 = Reference(ws_dash, min_col=3, max_col=5, min_row=4, max_row=4)
+        chart2.add_data(data2, from_rows=True)
+        chart2.set_categories(cats2)
+        if len(chart2.series) > 0:
+            chart2.series[0].title = SeriesLabel(strRef=StrRef(f="Dashboard!$A$4"))
+            chart2.series[0].graphicalProperties.solidFill = "6366F1" # Indigo
 
-        data_pe = Reference(ws_dash, min_col=3, min_row=3, max_row=4)
-        chart2.add_data(data_pe, titles_from_data=True)
-        chart2.set_categories(cats)
-
-        # Chart 3: BarChart - Altman Z score with 2.99 threshold reference line
+        # Chart 3: BarChart - Revenue CAGR and PAT CAGR
         chart3 = BarChart()
         chart3.type = "col"
-        chart3.title = "Altman Z-Score (Safety Zone)"
-        chart3.y_axis.title = "Z-Score"
-        chart3.x_axis.title = "Ticker"
-
-        data_z = Reference(ws_dash, min_col=4, min_row=3, max_row=4)
-        chart3.add_data(data_z, titles_from_data=True)
-        chart3.set_categories(cats)
-
-        # Create threshold LineChart
-        chart_line = LineChart()
-        data_thresh = Reference(ws_dash, min_col=5, min_row=3, max_row=4)
-        chart_line.add_data(data_thresh, titles_from_data=True)
-        chart3 += chart_line
+        chart3.title = "Growth CAGR Comparison (%)"
+        chart3.x_axis.title = "Metric"
+        chart3.y_axis.title = "Percentage (%)"
+        
+        cats3 = Reference(ws_dash, min_col=6, max_col=7, min_row=3, max_row=3)
+        data3 = Reference(ws_dash, min_col=6, max_col=7, min_row=4, max_row=4)
+        chart3.add_data(data3, from_rows=True)
+        chart3.set_categories(cats3)
+        if len(chart3.series) > 0:
+            chart3.series[0].title = SeriesLabel(strRef=StrRef(f="Dashboard!$A$4"))
+            chart3.series[0].graphicalProperties.solidFill = "10B981" # Emerald
 
         # Add charts to Dashboard in a grid layout
         ws_dash.add_chart(chart1, "B6")
-        ws_dash.add_chart(chart3, "J6")
-        ws_dash.add_chart(chart2, "B22")
+        ws_dash.add_chart(chart2, "J6")
+        ws_dash.add_chart(chart3, "B22")
 
         wb.save(path)
 

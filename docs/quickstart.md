@@ -129,3 +129,32 @@ Analyst brief
 ------------
 INFY: stable revenue growth with a moderate balance sheet. TCS: stronger earnings quality and growth, but a higher valuation multiple.
 ```
+
+## 6. What gets auto-generated
+
+Every main command in `telmus` generates high-quality files and opens interactive dashboards in your default web browser instantly.
+
+### When running `telmus scan TICKER`:
+1. **`{TICKER}_analysis.xlsx` (Excel Workbook, ~15 KB)**:
+   - **Dashboard (Sheet 1, Index 0)**: The active home tab featuring a summary data table and three grid-aligned charts (Piotroski F-Score with value-based bar colors, Valuation comparison, and Growth CAGR percentages).
+   - **Summary (Sheet 2)**: Contains metadata like Company Name, Ticker, Exchange, and the detailed Analyst Brief.
+   - **Valuation (Sheet 3)**: Contains multiples like P/E, P/B, EV/EBITDA, and sector comparisons.
+   - **Health (Sheet 4)**: Piotroski, Altman, leverage ratios, and liquidity ratings.
+   - **Growth (Sheet 5)**: Revenue CAGR, PAT CAGR, margin trends, and FCF yields.
+   - **Red Flags (Sheet 6)**: Individual warning details and Beneish M-scores.
+2. **`{TICKER}_dashboard.html` (HTML Report, ~12 KB)**:
+   - Self-contained dark-theme HTML file utilizing Chart.js.
+   - Company profiles, analyst brief, interactive bar charts, and conditional warning flags table.
+
+### When running `telmus compare TICKER_A TICKER_B`:
+1. **`{TICKERA}vs{TICKERB}_comparison.xlsx` (Excel Workbook, ~12 KB)**:
+   - Side-by-side metric comparison highlighting the winning peer for each parameter (Valuation, Health, Growth).
+2. **`{TICKERA}vs{TICKERB}_dashboard.html` (HTML Report, ~15 KB)**:
+   - Interactive grouped column charts comparing multiples, health indicators, and growth rates between both tickers side-by-side.
+
+### When running `telmus screen --sector IT`:
+1. **`screen_results.xlsx` (Excel Workbook, ~10 KB)**:
+   - Summarized table of all companies matching the screen criteria, with averages calculated automatically at the bottom.
+2. **`screen_dashboard.html` (HTML Report, ~15 KB)**:
+   - Multi-company bar charts comparing quality scores and a sortable data table.
+

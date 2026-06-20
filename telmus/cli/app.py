@@ -162,6 +162,23 @@ def scan(
                 with open(export, "w", encoding="utf-8") as handle:
                     handle.write(result.to_json())
             console.print(f"Saved to {export}")
+
+        # Auto-generate dashboards
+        if not json_output:
+            ticker_clean = ticker.replace(".NS", "").replace(".BO", "")
+            excel_path = f"{ticker_clean}_analysis.xlsx"
+            html_path = f"{ticker_clean}_dashboard.html"
+            
+            from telmus.exporters.excel import ExcelExporter
+            from telmus.exporters.html_dashboard import HtmlDashboardExporter
+            
+            ExcelExporter().export(result, excel_path)
+            HtmlDashboardExporter().export_scan(result, html_path)
+            print(f"Saved: {excel_path} and {html_path}")
+            
+            import subprocess
+            subprocess.Popen(["start", html_path], shell=True)
+
     except Exception as exc:
         console.print(f"[bold red]Error:[/] {exc}")
         raise typer.Exit(code=1)
@@ -288,6 +305,21 @@ def compare(
                 with open(export, "w", encoding="utf-8") as handle:
                     handle.write(comparison.to_json())
             console.print(f"Saved to {export}")
+
+        # Auto-generate dashboards
+        name = f"{ticker_a.replace('.NS','').replace('.BO','')}" \
+               f"vs{ticker_b.replace('.NS','').replace('.BO','')}"
+               
+        from telmus.exporters.excel import ExcelExporter
+        from telmus.exporters.html_dashboard import HtmlDashboardExporter
+        
+        ExcelExporter().export_compare(comparison, f"{name}_comparison.xlsx")
+        HtmlDashboardExporter().export_compare(comparison, f"{name}_dashboard.html")
+        print(f"Saved: {name}_comparison.xlsx and {name}_dashboard.html")
+        
+        import subprocess
+        subprocess.Popen(["start", f"{name}_dashboard.html"], shell=True)
+
     except Exception as exc:
         console.print(f"[bold red]Error:[/] {exc}")
         raise typer.Exit(code=1)
@@ -382,7 +414,18 @@ def screen(
             with open(export, "w", encoding="utf-8") as handle:
                 import json
                 json.dump([r.to_dict() for r in results], handle, indent=2)
-        console.print(f"Saved to {export}")
+            console.print(f"Saved to {export}")
+
+    # Auto-generate dashboards
+    from telmus.exporters.excel import ExcelExporter
+    from telmus.exporters.html_dashboard import HtmlDashboardExporter
+    
+    ExcelExporter().export_screen(results, "screen_results.xlsx")
+    HtmlDashboardExporter().export_screen(results, "screen_dashboard.html")
+    print(f"Saved: screen_results.xlsx and screen_dashboard.html")
+    
+    import subprocess
+    subprocess.Popen(["start", "screen_dashboard.html"], shell=True)
 
 
 @app.command()

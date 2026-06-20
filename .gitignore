@@ -11,3 +11,5 @@ site/
 .pytest_cache/
 .ruff_cache/
 .coverage
+*.xlsx
+*.html
