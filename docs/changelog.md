@@ -1,3 +1,6 @@
+## v0.1.12 - Compare Dashboard JS Fix
+- Removed dangling JS bracket that caused syntax errors and blank compare charts
+
 ## v0.1.11 - HTML Dashboard Variable Hardening
 - Safely fallback missing values to 0 to prevent JavaScript errors
 - Fully mapped all radar chart labels and overlay datasets to variables correctly

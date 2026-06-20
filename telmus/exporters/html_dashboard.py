@@ -1339,7 +1339,6 @@ class HtmlDashboardExporter:
             }},
             options: chartOpts
         }});
-        }});
     </script>
 </body>
 </html>"""
