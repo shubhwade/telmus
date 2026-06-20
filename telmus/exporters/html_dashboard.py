@@ -825,7 +825,7 @@ class HtmlDashboardExporter:
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {{
         // ─── Chart.js global defaults ───
         Chart.defaults.color = '#525252';
         Chart.defaults.borderColor = '#141414';
@@ -1040,7 +1040,7 @@ class HtmlDashboardExporter:
                 }}
             }}
         }});
-        });
+        }});
     </script>
 </body>
 </html>"""
@@ -1339,7 +1339,7 @@ class HtmlDashboardExporter:
             }},
             options: chartOpts
         }});
-        });
+        }});
     </script>
 </body>
 </html>"""
@@ -1639,7 +1639,7 @@ class HtmlDashboardExporter:
                 }}
             }}
         }}
-        });
+        }});
     </script>
 </body>
 </html>"""

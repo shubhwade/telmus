@@ -1,3 +1,6 @@
+## v0.1.10 - Hotfix Dashboard Charts
+- Fixed an f-string rendering issue preventing charts from displaying
+
 ## v0.1.9 - Final Polish & Chart Bug Fixes
 - Full synchronization
 - Fixed piotroski chart vanishing
