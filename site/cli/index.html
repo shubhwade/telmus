@@ -576,10 +576,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#telmus-scan-ticker-json-export-path" class="md-nav__link">
+  <a href="#scan-command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        telmus scan TICKER [--json] [--export PATH]
+        == SCAN COMMAND ==
       
     </span>
   </a>
@@ -587,10 +587,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#telmus-compare-ticker_a-ticker_b" class="md-nav__link">
+  <a href="#compare-command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        telmus compare TICKER_A TICKER_B
+        == COMPARE COMMAND ==
       
     </span>
   </a>
@@ -598,10 +598,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#telmus-screen-sector-text-min-piotroski-int-max-de-float" class="md-nav__link">
+  <a href="#screen-command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        telmus screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT]
+        == SCREEN COMMAND ==
       
     </span>
   </a>
@@ -609,10 +609,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#telmus-check-ticker" class="md-nav__link">
+  <a href="#check-command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        telmus check TICKER
+        == CHECK COMMAND ==
       
     </span>
   </a>
@@ -620,10 +620,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#telmus-serve" class="md-nav__link">
+  <a href="#powerbi-command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        telmus serve
+        == POWERBI COMMAND ==
       
     </span>
   </a>
@@ -631,10 +631,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#telmus-info" class="md-nav__link">
+  <a href="#serve-command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        telmus info
+        == SERVE COMMAND ==
       
     </span>
   </a>
@@ -642,63 +642,24 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#common-workflows" class="md-nav__link">
+  <a href="#info-command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Common workflows
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Common workflows">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#perform-a-scan-and-save-the-result-jsonexcelcsv" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Perform a scan and save the result (JSON/Excel/CSV)
+        == INFO COMMAND ==
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#compare-two-investment-candidates-jsonexcelcsv" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#ticker-suffix-conventions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Compare two investment candidates (JSON/Excel/CSV)
+        Ticker Suffix Conventions
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#start-the-mcp-server-for-ai-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Start the MCP server for AI integration
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#screen-for-stronger-companies-in-a-sector-jsonexcelcsv" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Screen for stronger companies in a sector (JSON/Excel/CSV)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -940,142 +901,83 @@
 
 
 <h1 id="cli-reference">CLI Reference</h1>
-<p>The <code>telmus</code> command-line interface gives you fast access to financial scans, comparisons, screens, health checks, and MCP server mode. Use these commands to analyze companies, compare peers, filter investment candidates, and serve results to AI assistants.</p>
-<h2 id="telmus-scan-ticker-json-export-path"><code>telmus scan TICKER [--json] [--export PATH]</code></h2>
-<p><strong>What it does</strong>
-Performs a complete financial scan for a single ticker and returns valuation, health, growth, red-flag metrics, and a deterministic analyst brief.</p>
-<p><strong>When to use it</strong>
-- You want a fast company profile for a single stock.
-- You need structured JSON output for automation.
-- You want an analyst brief that summarizes fundamentals clearly.</p>
-<p><strong>Syntax</strong></p>
-<pre><code class="language-bash">telmus scan TICKER [--json] [--export PATH]
-</code></pre>
-<p><strong>Examples</strong></p>
-<pre><code class="language-bash">telmus scan INFY
-telmus scan INFY --json
-telmus scan INFY --export infy-report.json
-telmus scan INFY --export infy-report.xlsx
-telmus scan INFY --export infy-report.csv
-</code></pre>
-<p><strong>Output</strong>
-The default output includes sections for <code>Valuation</code>, <code>Health</code>, <code>Growth</code>, and <code>Analyst brief</code>. When you use <code>--json</code>, the CLI returns a JSON object with nested sections like <code>valuation</code>, <code>health</code>, <code>growth</code>, <code>flags</code>, and <code>analyst_brief</code>.</p>
-<p><strong>Flags</strong>
-- <code>--json</code> return the full structured result as JSON.
-- <code>--export PATH</code> save the scan result to a file at the specified path. Supports <code>.xlsx</code> (Excel), <code>.csv</code> (CSV), and <code>.json</code> (JSON) file formats.</p>
+<p>The <code>telmus</code> command-line interface provides instant financial statement analysis. Every main command automatically generates styled Excel workbooks and interactive HTML dashboards.</p>
 <hr />
-<h2 id="telmus-compare-ticker_a-ticker_b"><code>telmus compare TICKER_A TICKER_B</code></h2>
+<h2 id="scan-command">== SCAN COMMAND ==</h2>
+<pre><code class="language-bash">telmus scan TICKER
+</code></pre>
 <p><strong>What it does</strong>
-Compares two tickers side by side across their financial metrics, making it easy to spot valuation, health, and growth differences.</p>
-<p><strong>When to use it</strong>
-- You want a quick peer comparison between two stocks.
-- You are choosing between alternatives in the same sector.
-- You need a concise view of relative risk and valuation.</p>
-<p><strong>Syntax</strong></p>
-<pre><code class="language-bash">telmus compare TICKER_A TICKER_B [--export PATH]
-</code></pre>
-<p><strong>Examples</strong></p>
-<pre><code class="language-bash">telmus compare INFY TCS
-telmus compare INFY TCS --export comparison.xlsx
-telmus compare INFY TCS --export comparison.csv
-telmus compare INFY TCS --export comparison.json
-</code></pre>
-<p><strong>Flags</strong>
-- <code>--export PATH</code> save the comparison results to a file. Supports <code>.xlsx</code> (Excel), <code>.csv</code> (CSV), and <code>.json</code> (JSON) formats.</p>
-<p><strong>Output</strong>
-The comparison table shows metrics such as <code>P/E</code>, <code>P/B</code>, <code>EV/EBITDA</code>, <code>Piotroski F</code>, <code>Altman Z</code>, <code>Revenue CAGR 3y</code>, and <code>Margin Trend</code> for both tickers.</p>
+Performs a comprehensive financial scan for a single ticker and generates detailed reports.</p>
+<p><strong>Examples</strong>
+- <code>telmus scan INFY.NS</code> (Indian NSE stock)
+- <code>telmus scan AAPL</code> (US stock)
+- <code>telmus scan RELIANCE.NS</code> (Indian NSE stock)</p>
+<p><strong>Auto-generates instantly after every scan:</strong>
+- <strong><code>TICKER_analysis.xlsx</code></strong>: Excel workbook with 6 sheets, starting with the interactive <strong>Dashboard</strong> tab at index 0 followed by Valuation, Health, Growth, and Red Flags details.
+- <strong><code>TICKER_dashboard.html</code></strong>: A fully self-contained dark-theme HTML report with Chart.js charts that opens automatically in your web browser.</p>
 <hr />
-<h2 id="telmus-screen-sector-text-min-piotroski-int-max-de-float"><code>telmus screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT]</code></h2>
+<h2 id="compare-command">== COMPARE COMMAND ==</h2>
+<pre><code class="language-bash">telmus compare TICKER_A TICKER_B
+</code></pre>
 <p><strong>What it does</strong>
-Filters the ticker universe by sector, Piotroski score, and leverage, returning only companies that match the selected quality criteria.</p>
-<p><strong>When to use it</strong>
-- You want to find fundamentally strong stocks in a specific sector.
-- You want to enforce minimum earnings quality and maximum leverage rules.
-- You are building a shortlist for deeper analysis.</p>
-<p><strong>Syntax</strong></p>
-<pre><code class="language-bash">telmus screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT] [--export PATH]
-</code></pre>
-<p><strong>Examples</strong></p>
-<pre><code class="language-bash">telmus screen --sector IT --min-piotroski 6 --max-de 1.5
-telmus screen --sector IT --export sector.xlsx
-telmus screen --sector IT --export sector.csv
-telmus screen --sector IT --export sector.json
-</code></pre>
-<p><strong>Available flags</strong>
-- <code>--sector TEXT</code> filter by industry sector.
-- <code>--min-piotroski INT</code> require a minimum Piotroski F-score.
-- <code>--max-de FLOAT</code> require a maximum debt-to-equity ratio.
-- <code>--export PATH</code> save the screening results to a file. Supports <code>.xlsx</code> (Excel), <code>.csv</code> (CSV), and <code>.json</code> (JSON) formats.</p>
+Compares two tickers side-by-side across their financial metrics.</p>
+<p><strong>Examples</strong>
+- <code>telmus compare INFY.NS TCS.NS</code>
+- <code>telmus compare AAPL MSFT</code></p>
+<p><strong>Auto-generates:</strong>
+- <strong><code>TICKERAvsTICKERB_comparison.xlsx</code></strong>: Side-by-side comparative Excel workbook.
+- <strong><code>TICKERAvsTICKERB_dashboard.html</code></strong>: Grouped bar charts (Teal for Ticker A, Orange for Ticker B) and a winner-highlighted metrics table. Opens automatically in your browser.</p>
 <hr />
-<h2 id="telmus-check-ticker"><code>telmus check TICKER</code></h2>
+<h2 id="screen-command">== SCREEN COMMAND ==</h2>
+<pre><code class="language-bash">telmus screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT]
+</code></pre>
 <p><strong>What it does</strong>
-Runs a compact health check for a ticker and returns the most important balance sheet and earnings quality indicators.</p>
-<p><strong>When to use it</strong>
-- You need a quick health snapshot without the full scan.
-- You want to confirm whether a company passes basic leverage and liquidity thresholds.
-- You are screening for balance-sheet risk.</p>
-<p><strong>Syntax</strong></p>
+Screens the stock universe using specific filters.</p>
+<p><strong>Examples</strong>
+- <code>telmus screen --sector IT</code>
+- <code>telmus screen --sector IT --min-piotroski 5</code>
+- <code>telmus screen --sector IT --max-de 1.5</code>
+- <code>telmus screen --sector Banking</code></p>
+<p><strong>Auto-generates:</strong>
+- <strong><code>screen_results.xlsx</code></strong>: Tabular Excel sheet summarizing all screening results and averages.
+- <strong><code>screen_dashboard.html</code></strong>: Visual comparison dashboard with interactive multi-company bar charts and a sortable results table. Opens automatically in your browser.</p>
+<hr />
+<h2 id="check-command">== CHECK COMMAND ==</h2>
 <pre><code class="language-bash">telmus check TICKER
 </code></pre>
-<p><strong>Example</strong></p>
-<pre><code class="language-bash">telmus check INFY
-</code></pre>
-<p><strong>Output</strong>
-The check output focuses on <code>Piotroski F</code>, <code>Altman Z</code>, <code>D/E</code>, <code>Current Ratio</code>, and <code>Interest Coverage</code>, plus a brief risk summary.</p>
-<hr />
-<h2 id="telmus-serve"><code>telmus serve</code></h2>
 <p><strong>What it does</strong>
-Starts telmus in MCP server mode so connected AI tools and assistants can call it as a structured external tool.</p>
-<p><strong>When to use it</strong>
-- You want an AI assistant to query real financial metrics automatically.
-- You are integrating telmus with an MCP-compatible client such as Claude Desktop, Cursor, or Windsurf.
-- You need a live, local tool endpoint for your agent workflows.</p>
-<p><strong>Syntax</strong></p>
+Performs a lightweight, ultra-fast financial safety check on a ticker.</p>
+<p><strong>Examples</strong>
+- <code>telmus check INFY.NS</code></p>
+<p><strong>Notes</strong>
+- Fast health check only — <strong>no report files are generated</strong>. Prints summary output directly to the terminal.</p>
+<hr />
+<h2 id="powerbi-command">== POWERBI COMMAND ==</h2>
+<pre><code class="language-bash">telmus powerbi --tickers INFY.NS TCS.NS WIPRO.NS --export portfolio.csv
+</code></pre>
+<p><strong>What it does</strong>
+Generates custom portfolios formatted for Power BI.</p>
+<p><strong>Auto-generates:</strong>
+- <strong><code>portfolio.csv</code></strong>: A CSV file structured for Power BI data models.
+- <strong><code>portfolio_report.html</code></strong>: A self-contained dark-theme HTML dashboard showcasing the combined portfolio metrics.</p>
+<hr />
+<h2 id="serve-command">== SERVE COMMAND ==</h2>
 <pre><code class="language-bash">telmus serve
 </code></pre>
-<p><strong>Example</strong></p>
-<pre><code class="language-bash">telmus serve
-</code></pre>
-<p><strong>Expected output</strong></p>
-<pre><code class="language-text">telmus MCP server listening on port 8080
-Available tools: scan, scan_ticker, compare, screen, info
-</code></pre>
-<hr />
-<h2 id="telmus-info"><code>telmus info</code></h2>
 <p><strong>What it does</strong>
-Displays server metadata, package version, tool availability, and data source details.</p>
-<p><strong>When to use it</strong>
-- You want to verify the running server state.
-- You need the current package version or supported tool list.
-- You are troubleshooting your MCP service.</p>
-<p><strong>Syntax</strong></p>
+Starts the telmus MCP (Model Context Protocol) server. Useful for connecting telmus as a tool directly to AI assistants like Claude Desktop, Cursor, or Windsurf.</p>
+<hr />
+<h2 id="info-command">== INFO COMMAND ==</h2>
 <pre><code class="language-bash">telmus info
 </code></pre>
-<p><strong>Example</strong></p>
-<pre><code class="language-bash">telmus info
-</code></pre>
-<p><strong>Sample output</strong></p>
-<pre><code class="language-text">telmus version: 0.1.0
-data source: public financial statements
-available tools: scan, scan_ticker, compare, screen, info
-</code></pre>
+<p><strong>What it does</strong>
+Displays system information, including package version, active data sources, and coverage metadata.</p>
 <hr />
-<h2 id="common-workflows">Common workflows</h2>
-<h3 id="perform-a-scan-and-save-the-result-jsonexcelcsv">Perform a scan and save the result (JSON/Excel/CSV)</h3>
-<pre><code class="language-bash">telmus scan INFY --export infy.xlsx
-telmus scan INFY --export infy.csv
-telmus scan INFY --export infy.json
-</code></pre>
-<h3 id="compare-two-investment-candidates-jsonexcelcsv">Compare two investment candidates (JSON/Excel/CSV)</h3>
-<pre><code class="language-bash">telmus compare INFY TCS --export comparison.xlsx
-telmus compare INFY TCS --export comparison.csv
-</code></pre>
-<h3 id="start-the-mcp-server-for-ai-integration">Start the MCP server for AI integration</h3>
-<pre><code class="language-bash">telmus serve
-</code></pre>
-<h3 id="screen-for-stronger-companies-in-a-sector-jsonexcelcsv">Screen for stronger companies in a sector (JSON/Excel/CSV)</h3>
-<pre><code class="language-bash">telmus screen --sector IT --min-piotroski 7 --max-de 1.2 --export quality_it.xlsx
-</code></pre>
+<h2 id="ticker-suffix-conventions">Ticker Suffix Conventions</h2>
+<p>To fetch data correctly from the underlying APIs:
+1. <strong>Indian Stocks (NSE)</strong>: Always use the <code>.NS</code> suffix (e.g., <code>INFY.NS</code>, <code>TCS.NS</code>, <code>RELIANCE.NS</code>).
+2. <strong>Indian Stocks (BSE)</strong>: Use the <code>.BO</code> suffix (e.g., <code>500209.BO</code>).
+3. <strong>US Stocks</strong>: Use no suffix (e.g., <code>AAPL</code>, <code>MSFT</code>, <code>GOOGL</code>).</p>
 
 
 

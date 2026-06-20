@@ -52,6 +52,358 @@ class HtmlDashboardExporter:
         else:
             return ("A", ticker_a) if a > b else ("B", ticker_b)
 
+    # ─── Shared HTML head/style block ──────────────────────────────────────────
+    def _head_block(self, title: str) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+    <style>
+        *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
+
+        :root {{
+            --bg:        #050505;
+            --card:      #0c0c0c;
+            --border:    #1a1a1a;
+            --border-hl: #2a2a2a;
+            --text:      #e5e5e5;
+            --text-dim:  #737373;
+            --text-mute: #525252;
+            --teal:      #00d4aa;
+            --coral:     #f78166;
+            --amber:     #e3b341;
+            --indigo:    #818cf8;
+            --teal-10:   rgba(0,212,170,0.10);
+            --teal-20:   rgba(0,212,170,0.20);
+            --coral-10:  rgba(247,129,102,0.10);
+            --coral-20:  rgba(247,129,102,0.20);
+            --amber-10:  rgba(227,179,65,0.10);
+            --amber-20:  rgba(227,179,65,0.20);
+        }}
+
+        body {{
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            padding: 2rem 1.5rem;
+            line-height: 1.6;
+        }}
+        @media (min-width: 1024px) {{ body {{ padding: 3rem 4rem; }} }}
+
+        .container {{ max-width: 1280px; margin: 0 auto; }}
+
+        /* Typography */
+        .font-mono {{ font-family: 'JetBrains Mono', 'Consolas', monospace; }}
+        h1, h2, h3 {{ font-family: 'JetBrains Mono', monospace; }}
+        h1 {{ font-size: 1.875rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; }}
+        .section-label {{
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.625rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-mute);
+            margin-bottom: 0.5rem;
+        }}
+        .section-title {{
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.01em;
+        }}
+
+        /* Card system */
+        .card {{
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: border-color 0.2s ease;
+        }}
+        .card:hover {{ border-color: var(--border-hl); }}
+
+        /* KPI cards */
+        .kpi-value {{
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }}
+        .kpi-label {{
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.625rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }}
+        .kpi-desc {{
+            font-size: 0.625rem;
+            color: var(--text-mute);
+            margin-top: 0.25rem;
+        }}
+
+        /* Grid layouts */
+        .grid-4 {{ display: grid; grid-template-columns: 1fr; gap: 1rem; }}
+        @media (min-width: 640px) {{ .grid-4 {{ grid-template-columns: repeat(2, 1fr); }} }}
+        @media (min-width: 1024px) {{ .grid-4 {{ grid-template-columns: repeat(4, 1fr); }} }}
+
+        .grid-3 {{ display: grid; grid-template-columns: 1fr; gap: 1rem; }}
+        @media (min-width: 768px) {{ .grid-3 {{ grid-template-columns: repeat(3, 1fr); }} }}
+
+        .grid-2 {{ display: grid; grid-template-columns: 1fr; gap: 1rem; }}
+        @media (min-width: 1024px) {{ .grid-2 {{ grid-template-columns: repeat(2, 1fr); }} }}
+
+        .stack {{ display: flex; flex-direction: column; gap: 1rem; }}
+
+        /* Chart explanation */
+        .chart-explain {{
+            font-size: 0.6875rem;
+            color: var(--text-mute);
+            line-height: 1.5;
+            margin-top: 0.625rem;
+            padding-top: 0.625rem;
+            border-top: 1px solid var(--border);
+        }}
+        .chart-explain strong {{ color: var(--text-dim); font-weight: 600; }}
+
+        /* Colors */
+        .c-teal {{ color: var(--teal); }}
+        .c-coral {{ color: var(--coral); }}
+        .c-amber {{ color: var(--amber); }}
+        .c-dim {{ color: var(--text-dim); }}
+        .c-mute {{ color: var(--text-mute); }}
+        .c-white {{ color: #fff; }}
+
+        /* Badges */
+        .badge {{
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.625rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.625rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }}
+        .badge-teal {{ background: var(--teal-10); color: var(--teal); border: 1px solid var(--teal-20); }}
+        .badge-coral {{ background: var(--coral-10); color: var(--coral); border: 1px solid var(--coral-20); }}
+        .badge-amber {{ background: var(--amber-10); color: var(--amber); border: 1px solid var(--amber-20); }}
+        .badge-dim {{ background: rgba(115,115,115,0.1); color: var(--text-dim); border: 1px solid rgba(115,115,115,0.2); }}
+
+        /* Checklist items */
+        .check-item {{
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid;
+            transition: all 0.15s ease;
+        }}
+        .check-pass {{ background: var(--teal-10); border-color: var(--teal-20); }}
+        .check-fail {{ background: var(--coral-10); border-color: var(--coral-20); }}
+        .check-icon {{ font-size: 1rem; flex-shrink: 0; }}
+        .check-name {{
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text);
+        }}
+        .check-desc {{ font-size: 0.625rem; color: var(--text-mute); }}
+
+        /* Gauge container */
+        .gauge-wrap {{
+            position: relative;
+            width: 100%;
+            max-width: 180px;
+            aspect-ratio: 2 / 1;
+            margin: 0 auto;
+        }}
+        .gauge-center {{
+            position: absolute;
+            bottom: 0.25rem;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }}
+        .gauge-value {{
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.375rem;
+            font-weight: 800;
+            color: #fff;
+        }}
+
+        /* Tables */
+        table {{ width: 100%; border-collapse: collapse; text-align: left; }}
+        thead tr {{ border-bottom: 1px solid var(--border); }}
+        th {{
+            padding: 0.75rem 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.625rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-mute);
+        }}
+        tbody tr {{ border-bottom: 1px solid var(--border); transition: background 0.15s; }}
+        tbody tr:hover {{ background: rgba(255,255,255,0.015); }}
+        td {{
+            padding: 0.75rem 1rem;
+            font-size: 0.8125rem;
+        }}
+        td.mono {{ font-family: 'JetBrains Mono', monospace; }}
+
+        /* Chart container */
+        .chart-box {{ position: relative; }}
+
+        /* Analyst brief */
+        .brief-card {{
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--teal);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+        }}
+        .brief-text {{ color: var(--text); font-size: 0.875rem; line-height: 1.7; font-weight: 500; }}
+
+        /* Red flag banner */
+        .flag-clean {{
+            background: var(--teal-10);
+            border: 1px solid var(--teal-20);
+            color: var(--teal);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }}
+        .flag-table {{ background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }}
+
+        /* Header */
+        header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }}
+        .header-sub {{
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-dim);
+            margin-top: 0.375rem;
+        }}
+        .header-quote {{
+            font-size: 0.8125rem;
+            font-style: italic;
+            color: var(--text-mute);
+            margin-top: 0.75rem;
+            max-width: 60ch;
+        }}
+
+        /* Footer */
+        footer {{
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6875rem;
+            color: var(--text-mute);
+        }}
+        footer code {{
+            background: var(--card);
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            color: var(--text-dim);
+        }}
+
+        /* Dot indicator */
+        .dot {{
+            display: inline-block;
+            width: 4px;
+            height: 14px;
+            border-radius: 2px;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }}
+
+        /* Compare company header */
+        .company-header {{
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }}
+        .company-avatar {{
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }}
+
+        /* Winner cell */
+        .winner-badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 4px;
+            font-size: 0.6875rem;
+            font-weight: 700;
+        }}
+
+        /* Screen row severity left-border */
+        .sev-high {{ border-left: 3px solid var(--coral); background: var(--coral-10); }}
+        .sev-medium {{ border-left: 3px solid var(--amber); background: var(--amber-10); }}
+        .sev-low {{ border-left: 3px solid var(--teal); background: var(--teal-10); }}
+
+        /* Sortable th */
+        th.sortable {{ cursor: pointer; user-select: none; }}
+        th.sortable:hover {{ color: var(--teal); }}
+
+        /* Metrics table value styling */
+        .metric-row {{ display: flex; justify-content: space-between; padding: 0.625rem 0; border-bottom: 1px solid var(--border); }}
+        .metric-row:last-child {{ border-bottom: none; }}
+        .metric-key {{ font-size: 0.8125rem; color: var(--text-dim); }}
+        .metric-val {{ font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; font-weight: 600; }}
+    </style>
+</head>"""
+
+    def _footer_block(self) -> str:
+        return """
+        <footer>
+            <div>Generated by <span style="color:var(--text-dim);font-weight:700;">telmus v0.1.6</span> | <code>pip install telmus</code></div>
+            <div>Data via Yahoo Finance | Not financial advice</div>
+        </footer>"""
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # SCAN DASHBOARD
+    # ═══════════════════════════════════════════════════════════════════════════
     def export_scan(self, result: ScanResult, path: str) -> None:
         scan_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         pe = result.valuation.pe_ratio
@@ -61,49 +413,53 @@ class HtmlDashboardExporter:
         fcf_yield = result.growth.fcf_yield
         m_score = result.beneish_m if result.beneish_m is not None else -2.22
 
-        # P/E Color and Label logic
+        # ── Color logic ──
+        def _kpi_color(val, thresholds):
+            """Return CSS color var based on thresholds list of (test, color)."""
+            for test_fn, color in thresholds:
+                if test_fn(val):
+                    return color
+            return "var(--text-dim)"
+
         pe_text = self._fmt(pe)
         if pe is None:
-            pe_color = "text-gray-400"
+            pe_color = "var(--text-dim)"
         elif 0 <= pe < 20:
-            pe_color = "text-[#00d4aa]" # green
+            pe_color = "var(--teal)"
         elif 20 <= pe <= 35:
-            pe_color = "text-[#e3b341]" # amber
+            pe_color = "var(--amber)"
         else:
-            pe_color = "text-[#f78166]" # red
+            pe_color = "var(--coral)"
 
-        # Piotroski Color
         pio_text = f"{pio}/9" if pio is not None else "n/a"
         if pio is None:
-            pio_color = "text-gray-400"
+            pio_color = "var(--text-dim)"
         elif pio >= 7:
-            pio_color = "text-[#00d4aa]"
+            pio_color = "var(--teal)"
         elif pio >= 5:
-            pio_color = "text-[#e3b341]"
+            pio_color = "var(--amber)"
         else:
-            pio_color = "text-[#f78166]"
+            pio_color = "var(--coral)"
 
-        # Altman Z Color
         altman_text = self._fmt(altman)
         if altman is None:
-            altman_color = "text-gray-400"
+            altman_color = "var(--text-dim)"
         elif altman > 2.6:
-            altman_color = "text-[#00d4aa]"
+            altman_color = "var(--teal)"
         elif altman >= 1.1:
-            altman_color = "text-[#e3b341]"
+            altman_color = "var(--amber)"
         else:
-            altman_color = "text-[#f78166]"
+            altman_color = "var(--coral)"
 
-        # Revenue CAGR Color
         cagr_text = self._fmt_pct(rev_cagr)
         if rev_cagr is None:
-            cagr_color = "text-gray-400"
+            cagr_color = "var(--text-dim)"
         elif rev_cagr > 0:
-            cagr_color = "text-[#00d4aa]"
+            cagr_color = "var(--teal)"
         else:
-            cagr_color = "text-[#f78166]"
+            cagr_color = "var(--coral)"
 
-        # Compute Piotroski individual signals on the fly
+        # ── Piotroski individual signals ──
         from telmus.core.loaders import load_financials
         from telmus.core.engines.health import HealthEngine
         import pandas as pd
@@ -145,49 +501,55 @@ class HtmlDashboardExporter:
         except Exception:
             pass
 
-        # Build Piotroski checklist HTML
+        # Radar chart data (1 for pass, 0 for fail)
+        signal_names = list(signals.keys())
+        signal_values = [1 if signals[s][1] else 0 for s in signal_names]
+        # Short labels for radar
+        radar_labels = ["ROA+", "CFO+", "ROA↑", "Accruals", "Leverage↓", "Liquidity↑", "No Dilution", "Margin↑", "Turnover↑"]
+
+        # Build checklist HTML
         checklist_items = []
         for name, (desc, passed) in signals.items():
-            status_icon = '<span class="text-[#00d4aa] text-lg">✔</span>' if passed else '<span class="text-[#f78166] text-lg">✘</span>'
-            status_bg = "bg-[#00d4aa]/5 border-[#00d4aa]/20" if passed else "bg-[#f78166]/5 border-[#f78166]/20"
+            css = "check-pass" if passed else "check-fail"
+            icon_color = "var(--teal)" if passed else "var(--coral)"
+            icon = "✔" if passed else "✘"
             checklist_items.append(f"""
-            <div class="flex items-center gap-3 p-3.5 rounded-xl border {status_bg} transition-all">
-                {status_icon}
-                <div>
-                    <div class="text-xs font-bold text-gray-300 uppercase tracking-wider">{name}</div>
-                    <div class="text-[11px] text-gray-500">{desc}</div>
-                </div>
-            </div>
-            """)
+                <div class="check-item {css}">
+                    <span class="check-icon" style="color:{icon_color}">{icon}</span>
+                    <div>
+                        <div class="check-name">{name}</div>
+                        <div class="check-desc">{desc}</div>
+                    </div>
+                </div>""")
 
-        # Analyst Brief Pill Badges
+        # Analyst brief badges
         val_status = (result.valuation.vs_sector or "FAIR").upper()
         if val_status == "CHEAP":
-            val_badge = "bg-[#00d4aa]/10 text-[#00d4aa] border border-[#00d4aa]/20"
+            val_badge_cls = "badge-teal"
         elif val_status == "EXPENSIVE":
-            val_badge = "bg-[#f78166]/10 text-[#f78166] border border-[#f78166]/20"
+            val_badge_cls = "badge-coral"
         else:
-            val_badge = "bg-gray-500/10 text-gray-400 border border-gray-500/20"
+            val_badge_cls = "badge-dim"
 
         pio_score = pio if pio is not None else 0
         if pio_score >= 7:
-            health_badge = "bg-[#00d4aa]/10 text-[#00d4aa] border border-[#00d4aa]/20"
+            health_badge_cls = "badge-teal"
             health_text = "HEALTH: STRONG"
         elif pio_score >= 5:
-            health_badge = "bg-[#e3b341]/10 text-[#e3b341] border border-[#e3b341]/20"
+            health_badge_cls = "badge-amber"
             health_text = "HEALTH: ADEQUATE"
         else:
-            health_badge = "bg-[#f78166]/10 text-[#f78166] border border-[#f78166]/20"
+            health_badge_cls = "badge-coral"
             health_text = "HEALTH: WEAK"
 
         if rev_cagr is not None and rev_cagr > 0:
-            growth_badge = "bg-[#00d4aa]/10 text-[#00d4aa] border border-[#00d4aa]/20"
+            growth_badge_cls = "badge-teal"
             growth_text = "GROWTH: POSITIVE"
         else:
-            growth_badge = "bg-[#f78166]/10 text-[#f78166] border border-[#f78166]/20"
+            growth_badge_cls = "badge-coral"
             growth_text = "GROWTH: DECLINING"
 
-        # Red flags or success banner
+        # Red flags
         FLAG_MEANINGS = {
             "negative_fcf": "Free Cash Flow is negative, indicating cash burn",
             "negative_revenue_growth": "Revenue is declining, showing contraction",
@@ -202,418 +564,510 @@ class HtmlDashboardExporter:
 
         if not result.red_flags:
             flags_html = f"""
-            <div class="bg-[#00d4aa]/10 border border-[#00d4aa]/20 text-[#00d4aa] px-6 py-5 rounded-2xl flex items-center gap-3">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+            <div class="flag-clean">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="22" height="22">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span class="font-bold text-base">No Red Flags Detected — Beneish M-Score of {m_score:.2f} indicates low manipulation risk</span>
-            </div>
-            """
+                <span>No Red Flags Detected — Beneish M-Score of {m_score:.2f} indicates low manipulation risk</span>
+            </div>"""
         else:
             rows = []
             for flag in result.red_flags:
                 sev = flag.severity.upper()
                 if sev == "HIGH":
-                    badge = "bg-[#f78166]/10 text-[#f78166] border border-[#f78166]/20"
+                    badge_cls = "badge-coral"
                 elif sev == "MEDIUM":
-                    badge = "bg-[#e3b341]/10 text-[#e3b341] border border-[#e3b341]/20"
+                    badge_cls = "badge-amber"
                 else:
-                    badge = "bg-[#00d4aa]/10 text-[#00d4aa] border border-[#00d4aa]/20"
-                
+                    badge_cls = "badge-teal"
                 meaning = FLAG_MEANINGS.get(flag.type, "Triggered threshold alert")
                 rows.append(f"""
-                <tr class="border-b border-[#21262d] hover:bg-white/[0.01] transition-all">
-                    <td class="px-6 py-4 text-sm font-semibold text-white">{flag.type}</td>
-                    <td class="px-6 py-4 text-sm text-gray-300 font-mono">{self._fmt(flag.value)}</td>
-                    <td class="px-6 py-4 text-sm"><span class="px-2.5 py-1 rounded text-xs font-bold {badge}">{sev}</span></td>
-                    <td class="px-6 py-4 text-sm text-gray-400">{meaning}</td>
-                </tr>
-                """)
+                <tr>
+                    <td class="mono" style="color:#fff;font-weight:600;">{flag.type}</td>
+                    <td class="mono c-dim">{self._fmt(flag.value)}</td>
+                    <td><span class="badge {badge_cls}">{sev}</span></td>
+                    <td style="color:var(--text-dim)">{meaning}</td>
+                </tr>""")
             flags_html = f"""
-            <div class="bg-[#161b22] border border-[#21262d] rounded-2xl p-6 shadow-2xl">
-                <h3 class="text-sm font-extrabold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <span class="w-1.5 h-4 bg-[#f78166] rounded-full"></span>
-                    Red Flags ({len(result.red_flags)})
-                </h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-[#21262d]">
-                                <th class="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Flag</th>
-                                <th class="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Value</th>
-                                <th class="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Severity</th>
-                                <th class="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">What it means</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {"".join(rows)}
-                        </tbody>
+            <div class="flag-table">
+                <div style="margin-bottom:1rem;">
+                    <span class="dot" style="background:var(--coral);"></span>
+                    <span class="section-title">Red Flags ({len(result.red_flags)})</span>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead><tr>
+                            <th>Flag</th><th>Value</th><th>Severity</th><th>What it means</th>
+                        </tr></thead>
+                        <tbody>{"".join(rows)}</tbody>
                     </table>
                 </div>
-            </div>
-            """
+            </div>"""
 
-        # Prep chart values
+        # Chart values
         pe_val = pe if pe is not None else 0.0
         pb_val = result.valuation.pb_ratio if result.valuation.pb_ratio is not None else 0.0
         ev_val = result.valuation.ev_ebitda if result.valuation.ev_ebitda is not None else 0.0
+        rev_cagr_pct = (rev_cagr or 0.0) * 100.0
         pat_cagr_pct = (result.growth.pat_cagr_3y or 0.0) * 100.0
         fcf_yield_pct = (fcf_yield or 0.0) * 100.0
 
-        html_content = f"""<!DOCTYPE html>
-<html lang="en" class="bg-[#0d1117]">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>telmus - {result.company} ({result.ticker}) Analysis</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config = {{
-            theme: {{
-                extend: {{
-                    colors: {{
-                        darkBg: '#0d1117',
-                        cardBg: '#161b22',
-                        borderD: '#21262d',
-                        tealAccent: '#00d4aa',
-                        coralAccent: '#f78166',
-                        amberAccent: '#e3b341'
-                    }},
-                    fontFamily: {{
-                        mono: ['JetBrains Mono', 'monospace'],
-                        sans: ['Inter', 'sans-serif']
-                    }}
-                }}
-            }}
-        }}
-    </script>
-</head>
-<body class="bg-darkBg text-gray-100 min-h-screen flex flex-col p-6 lg:p-12 font-sans">
-    <div class="max-w-7xl mx-auto w-full flex-1 flex flex-col gap-8">
-        
-        <!-- Header -->
-        <header class="flex flex-col border-b border-borderD pb-6 gap-2">
-            <div class="flex justify-between items-start flex-wrap gap-4">
-                <div>
-                    <h1 class="text-3xl font-extrabold text-white tracking-tight">{result.company}</h1>
-                    <p class="text-gray-400 text-sm mt-1 uppercase font-semibold font-mono tracking-wider">
-                        {result.ticker} | {result.exchange} | Last scanned: {scan_date}
-                    </p>
-                </div>
-                <div>
-                    <span class="text-2xl font-black text-white font-mono tracking-tight">
-                        <span class="text-tealAccent">telmus</span> v0.1.6
-                    </span>
-                </div>
+        # Financial metrics table
+        de_val = result.health.debt_to_equity
+        cr_val = result.health.current_ratio
+        ic_val = result.health.interest_coverage
+        margin_trend = result.growth.margin_trend or "n/a"
+
+        def _metric_color(val, good_fn):
+            if val is None:
+                return "var(--text-dim)"
+            return "var(--teal)" if good_fn(val) else "var(--coral)"
+
+        de_color = _metric_color(de_val, lambda v: v < 1.5)
+        cr_color = _metric_color(cr_val, lambda v: v > 1.0)
+        ic_color = _metric_color(ic_val, lambda v: v > 3.0)
+
+        pio_gauge_label = f"{pio_score}/9 — {'Strong fundamentals' if pio_score >= 7 else ('Adequate fundamentals' if pio_score >= 5 else 'Weak fundamentals')}"
+        altman_gauge_label = 'Safe zone (Z > 2.6)' if (altman or 0) > 2.6 else ('Grey zone (1.1–2.6)' if (altman or 0) >= 1.1 else 'Distress zone (Z < 1.1)')
+        fcf_gauge_label = 'High yield' if (fcf_yield or 0.0) >= 0.08 else ('Adequate yield' if (fcf_yield or 0.0) >= 0.02 else 'Weak/Negative yield')
+
+        html_content = f"""{self._head_block(f"telmus — {result.company} ({result.ticker}) Analysis")}
+<body>
+    <div class="container stack">
+
+        <!-- ═══ HEADER ═══ -->
+        <header>
+            <div>
+                <h1>{result.company}</h1>
+                <div class="header-sub">{result.ticker} · {result.exchange} · Last scanned: {scan_date}</div>
+                <div class="header-quote">"{result.analyst_brief}"</div>
             </div>
-            <p class="text-gray-500 text-sm italic mt-2">"{result.analyst_brief}"</p>
+            <div style="text-align:right;">
+                <span class="font-mono" style="font-size:1.375rem;font-weight:800;color:#fff;">
+                    <span style="color:var(--teal);">telmus</span> v0.1.6
+                </span>
+            </div>
         </header>
 
-        <!-- KPI ROW (4 cards) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- P/E Card -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl hover:border-tealAccent/30 transition-all duration-300">
-                <div class="text-4xl font-extrabold font-mono {pe_color}">{pe_text}</div>
-                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">P/E Ratio</div>
-                <p class="text-[10px] text-gray-500 mt-1">Price you pay per ₹1 of earnings</p>
-            </div>
-            <!-- Piotroski Card -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl hover:border-tealAccent/30 transition-all duration-300">
-                <div class="text-4xl font-extrabold font-mono {pio_color}">{pio_text}</div>
-                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">Piotroski F-Score</div>
-                <p class="text-[10px] text-gray-500 mt-1">Financial health score (higher = stronger)</p>
-            </div>
-            <!-- Altman Z Card -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl hover:border-tealAccent/30 transition-all duration-300">
-                <div class="text-4xl font-extrabold font-mono {altman_color}">{altman_text}</div>
-                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">Altman Z-Score</div>
-                <p class="text-[10px] text-gray-500 mt-1">Bankruptcy risk (&gt;2.6 = safe)</p>
-            </div>
-            <!-- Revenue CAGR Card -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl hover:border-tealAccent/30 transition-all duration-300">
-                <div class="text-4xl font-extrabold font-mono {cagr_color}">{cagr_text}</div>
-                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">Revenue CAGR (3Y)</div>
-                <p class="text-[10px] text-gray-500 mt-1">3-year revenue growth rate</p>
+        <!-- ═══ KPI ROW ═══ -->
+        <div>
+            <div class="section-label">Key Metrics</div>
+            <div class="grid-4">
+                <div class="card">
+                    <div class="kpi-value" style="color:{pe_color}">{pe_text}</div>
+                    <div class="kpi-label">P/E Ratio</div>
+                    <div class="kpi-desc">Price per unit of earnings</div>
+                </div>
+                <div class="card">
+                    <div class="kpi-value" style="color:{pio_color}">{pio_text}</div>
+                    <div class="kpi-label">Piotroski F-Score</div>
+                    <div class="kpi-desc">Financial health (higher = stronger)</div>
+                </div>
+                <div class="card">
+                    <div class="kpi-value" style="color:{altman_color}">{altman_text}</div>
+                    <div class="kpi-label">Altman Z-Score</div>
+                    <div class="kpi-desc">Bankruptcy risk (&gt;2.6 = safe)</div>
+                </div>
+                <div class="card">
+                    <div class="kpi-value" style="color:{cagr_color}">{cagr_text}</div>
+                    <div class="kpi-label">Revenue CAGR (3Y)</div>
+                    <div class="kpi-desc">3-year revenue growth rate</div>
+                </div>
             </div>
         </div>
 
-        <!-- GAUGE ROW (3 gauges) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Piotroski F Gauge -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl flex flex-col items-center">
-                <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-4">Piotroski F-Score</h3>
-                <div class="relative w-full max-w-[200px] aspect-[2/1] flex flex-col items-center">
-                    <canvas id="gaugePio"></canvas>
-                    <div class="absolute bottom-1 text-center">
-                        <span class="text-2xl font-black text-white font-mono">{pio_text}</span>
-                    </div>
+        <!-- ═══ RADAR + VALUATION ═══ -->
+        <div class="grid-2">
+            <!-- Piotroski Radar -->
+            <div class="card">
+                <div class="section-label">Signal Analysis</div>
+                <div class="section-title" style="margin-bottom:0.5rem;">
+                    <span class="dot" style="background:var(--teal);"></span>Piotroski Radar — {pio_score}/9
                 </div>
-                <span class="text-xs text-gray-500 mt-2 text-center uppercase tracking-wider font-semibold font-mono">
-                    {pio_score}/9 — { 'Strong fundamentals' if pio_score >= 7 else ('Adequate fundamentals' if pio_score >= 5 else 'Weak fundamentals') }
-                </span>
-            </div>
-            <!-- Altman Z Gauge -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl flex flex-col items-center">
-                <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-4">Altman Z-Score</h3>
-                <div class="relative w-full max-w-[200px] aspect-[2/1] flex flex-col items-center">
-                    <canvas id="gaugeAltman"></canvas>
-                    <div class="absolute bottom-1 text-center">
-                        <span class="text-2xl font-black text-white font-mono">{altman_text}</span>
-                    </div>
+                <div class="chart-box" style="height:260px;">
+                    <canvas id="radarPio"></canvas>
                 </div>
-                <span class="text-xs text-gray-500 mt-2 text-center uppercase tracking-wider font-semibold font-mono">
-                    { 'Safe zone (Z > 2.6)' if (altman or 0) > 2.6 else ('Grey zone (1.1 - 2.6)' if (altman or 0) >= 1.1 else 'Distress zone (Z < 1.1)') }
-                </span>
-            </div>
-            <!-- FCF Yield Gauge -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl flex flex-col items-center">
-                <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-4">FCF Yield</h3>
-                <div class="relative w-full max-w-[200px] aspect-[2/1] flex flex-col items-center">
-                    <canvas id="gaugeFCF"></canvas>
-                    <div class="absolute bottom-1 text-center">
-                        <span class="text-2xl font-black text-white font-mono">{self._fmt_pct(fcf_yield)}</span>
-                    </div>
+                <div class="chart-explain">
+                    Each point on the radar represents one of 9 financial health checks. <strong>Teal points = passed</strong>, <strong>coral points = failed</strong>. A wider shape means the company passes more checks — 7+/9 signals a strong business.
                 </div>
-                <span class="text-xs text-gray-500 mt-2 text-center uppercase tracking-wider font-semibold font-mono">
-                    { 'High yield' if (fcf_yield or 0.0) >= 0.08 else ('Adequate yield' if (fcf_yield or 0.0) >= 0.02 else 'Weak/Negative yield') }
-                </span>
             </div>
-        </div>
-
-        <!-- CHARTS ROW (2 side by side) -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Valuation Benchmarks -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl flex flex-col">
-                <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-6 flex items-center gap-2">
-                    <span class="w-1.5 h-4 bg-tealAccent rounded-full"></span>
-                    Valuation Benchmarks
-                </h3>
-                <div class="h-64 relative">
+            <div class="card">
+                <div class="section-label">Valuation</div>
+                <div class="section-title" style="margin-bottom:0.5rem;">
+                    <span class="dot" style="background:var(--teal);"></span>Valuation Benchmarks
+                </div>
+                <div class="chart-box" style="height:260px;">
                     <canvas id="chartValuation"></canvas>
+                </div>
+                <div class="chart-explain">
+                    <strong>P/E</strong> = price per ₹1 of earnings (lower = cheaper). <strong>P/B</strong> = price vs book value of assets. <strong>EV/EBITDA</strong> = enterprise value per unit of operating profit. Dashed lines show typical fair-value benchmarks — bars below the line suggest the stock may be undervalued.
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ GAUGES + GROWTH ═══ -->
+        <div class="grid-2">
+            <!-- 3 Gauges in a row -->
+            <div class="card">
+                <div class="section-label">Score Gauges</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;">
+                    <div style="text-align:center;">
+                        <div class="gauge-wrap"><canvas id="gaugePio"></canvas>
+                            <div class="gauge-center"><span class="gauge-value" style="font-size:1rem;">{pio_text}</span></div>
+                        </div>
+                        <div class="section-label" style="margin-top:0.25rem;">Piotroski F</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div class="gauge-wrap"><canvas id="gaugeAltman"></canvas>
+                            <div class="gauge-center"><span class="gauge-value" style="font-size:1rem;">{altman_text}</span></div>
+                        </div>
+                        <div class="section-label" style="margin-top:0.25rem;">Altman Z</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div class="gauge-wrap"><canvas id="gaugeFCF"></canvas>
+                            <div class="gauge-center"><span class="gauge-value" style="font-size:1rem;">{self._fmt_pct(fcf_yield)}</span></div>
+                        </div>
+                        <div class="section-label" style="margin-top:0.25rem;">FCF Yield</div>
+                    </div>
+                </div>
+                <div class="chart-explain">
+                    <strong>Piotroski F</strong> scores financial strength out of 9 (7+ = strong). <strong>Altman Z</strong> predicts bankruptcy risk (>2.6 = safe zone). <strong>FCF Yield</strong> shows how much free cash the company generates relative to its price.
                 </div>
             </div>
             <!-- Growth Metrics -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl flex flex-col">
-                <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-6 flex items-center gap-2">
-                    <span class="w-1.5 h-4 bg-indigo-500 rounded-full"></span>
-                    Growth Metrics (3Y CAGR)
-                </h3>
-                <div class="h-64 relative">
+            <div class="card">
+                <div class="section-label">Growth</div>
+                <div class="section-title" style="margin-bottom:0.5rem;">
+                    <span class="dot" style="background:var(--indigo);"></span>Growth Metrics (3Y CAGR)
+                </div>
+                <div class="chart-box" style="height:200px;">
                     <canvas id="chartGrowth"></canvas>
+                </div>
+                <div class="chart-explain">
+                    <strong>Rev CAGR</strong> = average annual revenue growth over 3 years. <strong>PAT CAGR</strong> = profit-after-tax growth rate. <strong>FCF Yield</strong> = free cash flow as a % of market cap. Green bars = positive growth, red = declining. Higher is better for all three.
                 </div>
             </div>
         </div>
 
-        <!-- PIOTROSKI BREAKDOWN checklist -->
-        <div class="bg-cardBg border border-borderD rounded-2xl p-6 shadow-2xl">
-            <h3 class="text-sm font-extrabold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                <span class="w-1.5 h-4 bg-tealAccent rounded-full"></span>
-                Piotroski F-Score Breakdown — {pio_score}/9 Signals Passed
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- ═══ PIOTROSKI BREAKDOWN ═══ -->
+        <div class="card">
+            <div class="section-label">Breakdown</div>
+            <div class="section-title" style="margin-bottom:1rem;">
+                <span class="dot" style="background:var(--teal);"></span>Piotroski F-Score — {pio_score}/9 Signals Passed
+            </div>
+            <div class="grid-3">
                 {"".join(checklist_items)}
             </div>
         </div>
 
-        <!-- AI Analyst Brief -->
-        <div class="bg-cardBg border-l-4 border-l-tealAccent border border-y-borderD border-r-borderD p-8 rounded-2xl shadow-2xl flex flex-col gap-4">
-            <div>
-                <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-wider mb-2">AI Analyst Brief</h3>
-                <p class="text-gray-100 leading-relaxed font-semibold">{result.analyst_brief}</p>
+        <!-- ═══ FINANCIAL METRICS TABLE ═══ -->
+        <div class="card">
+            <div class="section-label">Details</div>
+            <div class="section-title" style="margin-bottom:1rem;">
+                <span class="dot" style="background:var(--indigo);"></span>Financial Metrics
             </div>
-            <div class="flex flex-wrap gap-2">
-                <span class="px-2.5 py-1 rounded text-[10px] font-extrabold uppercase font-mono {val_badge}">VALUATION: {val_status}</span>
-                <span class="px-2.5 py-1 rounded text-[10px] font-extrabold uppercase font-mono {health_badge}">{health_text}</span>
-                <span class="px-2.5 py-1 rounded text-[10px] font-extrabold uppercase font-mono {growth_badge}">{growth_text}</span>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 2rem;">
+                <div>
+                    <div class="metric-row">
+                        <span class="metric-key">P/E Ratio</span>
+                        <span class="metric-val" style="color:{pe_color}">{pe_text}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-key">P/B Ratio</span>
+                        <span class="metric-val" style="color:var(--text)">{self._fmt(result.valuation.pb_ratio)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-key">EV/EBITDA</span>
+                        <span class="metric-val" style="color:var(--text)">{self._fmt(result.valuation.ev_ebitda)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-key">Debt / Equity</span>
+                        <span class="metric-val" style="color:{de_color}">{self._fmt(de_val)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-key">Current Ratio</span>
+                        <span class="metric-val" style="color:{cr_color}">{self._fmt(cr_val)}</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="metric-row">
+                        <span class="metric-key">Interest Coverage</span>
+                        <span class="metric-val" style="color:{ic_color}">{self._fmt(ic_val)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-key">Revenue CAGR (3Y)</span>
+                        <span class="metric-val" style="color:{cagr_color}">{cagr_text}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-key">PAT CAGR (3Y)</span>
+                        <span class="metric-val" style="color:var(--text)">{self._fmt_pct(result.growth.pat_cagr_3y)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-key">FCF Yield</span>
+                        <span class="metric-val" style="color:var(--text)">{self._fmt_pct(fcf_yield)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-key">Margin Trend</span>
+                        <span class="metric-val" style="color:var(--text)">{margin_trend}</span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- RED FLAGS SECTION -->
+        <!-- ═══ ANALYST BRIEF ═══ -->
+        <div class="brief-card">
+            <div class="section-label">Analysis</div>
+            <div class="section-title" style="margin-bottom:0.75rem;">AI Analyst Brief</div>
+            <p class="brief-text">{result.analyst_brief}</p>
+            <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1rem;">
+                <span class="badge {val_badge_cls}">VALUATION: {val_status}</span>
+                <span class="badge {health_badge_cls}">{health_text}</span>
+                <span class="badge {growth_badge_cls}">{growth_text}</span>
+            </div>
+        </div>
+
+        <!-- ═══ RED FLAGS ═══ -->
         {flags_html}
 
-        <!-- Footer -->
-        <footer class="border-t border-borderD pt-6 text-center text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 font-mono">
-            <div>
-                Generated by <span class="font-bold text-gray-400">telmus v0.1.6</span> | <code class="bg-[#161b22] px-1.5 py-0.5 rounded text-gray-400">pip install telmus</code>
-            </div>
-            <div>
-                Data via Yahoo Finance | Not financial advice
-            </div>
-        </footer>
+        <!-- ═══ FOOTER ═══ -->
+        {self._footer_block()}
 
     </div>
 
     <script>
-        // Custom benchmark line drawing plugin
-        const benchmarkLinesPlugin = {{
+        // ─── Chart.js global defaults ───
+        Chart.defaults.color = '#525252';
+        Chart.defaults.borderColor = '#141414';
+        Chart.defaults.font.family = "'JetBrains Mono', monospace";
+        Chart.defaults.font.size = 10;
+
+        // ─── Value label plugin (draws value on top of each bar) ───
+        const valueLabelPlugin = {{
+            id: 'valueLabels',
+            afterDatasetsDraw(chart) {{
+                const ctx = chart.ctx;
+                ctx.save();
+                chart.data.datasets.forEach((dataset, i) => {{
+                    const meta = chart.getDatasetMeta(i);
+                    meta.data.forEach((bar, index) => {{
+                        const value = dataset.data[index];
+                        if (value === null || value === undefined) return;
+                        const label = typeof value === 'number' ? (Math.abs(value) >= 100 ? value.toFixed(0) : value.toFixed(1)) : value;
+                        ctx.fillStyle = '#8a8a8a';
+                        ctx.font = "600 9px 'JetBrains Mono'";
+                        ctx.textAlign = 'center';
+                        if (chart.options.indexAxis === 'y') {{
+                            ctx.textAlign = 'left';
+                            ctx.fillText(label, bar.x + 6, bar.y + 3.5);
+                        }} else {{
+                            ctx.fillText(label, bar.x, bar.y - 8);
+                        }}
+                    }});
+                }});
+                ctx.restore();
+            }}
+        }};
+        Chart.register(valueLabelPlugin);
+
+        // ─── Benchmark line plugin ───
+        const benchmarkPlugin = {{
+            id: 'benchmarkLines',
             afterDraw(chart, args, options) {{
                 const ctx = chart.ctx;
                 const left = chart.chartArea.left;
                 const right = chart.chartArea.right;
                 const y = chart.scales.y;
                 ctx.save();
-                
                 (options.lines || []).forEach(line => {{
                     const yPos = y.getPixelForValue(line.value);
                     if (yPos >= chart.chartArea.top && yPos <= chart.chartArea.bottom) {{
-                        ctx.strokeStyle = line.color || '#f78166';
-                        ctx.lineWidth = line.lineWidth || 1.5;
-                        ctx.setLineDash(line.lineDash || [5, 5]);
-                        
+                        ctx.strokeStyle = line.color || '#333';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([3, 3]);
                         ctx.beginPath();
                         ctx.moveTo(left, yPos);
                         ctx.lineTo(right, yPos);
                         ctx.stroke();
-                        
-                        ctx.fillStyle = line.color || '#f78166';
-                        ctx.font = '10px Inter';
-                        ctx.fillText(line.label, left + 10, yPos - 5);
+                        ctx.fillStyle = '#525252';
+                        ctx.font = "500 9px 'JetBrains Mono'";
+                        ctx.fillText(line.label, left + 6, yPos - 5);
                     }}
                 }});
                 ctx.restore();
             }}
         }};
-        Chart.register(benchmarkLinesPlugin);
+        Chart.register(benchmarkPlugin);
 
-        // Common Gauge options
-        const gaugeOptions = {{
+        const gaugeOpts = {{
             responsive: true,
             maintainAspectRatio: false,
             rotation: 270,
             circumference: 180,
-            cutout: '80%',
-            plugins: {{
-                legend: {{ display: false }},
-                tooltip: {{ enabled: false }}
-            }}
+            cutout: '82%',
+            plugins: {{ legend: {{ display: false }}, tooltip: {{ enabled: false }}, valueLabels: false }}
         }};
 
-        // Piotroski Gauge
-        const pioScore = {pio_score};
-        new Chart(document.getElementById('gaugePio'), {{
-            type: 'doughnut',
+        // ─── Piotroski Radar ───
+        new Chart(document.getElementById('radarPio'), {{
+            type: 'radar',
             data: {{
+                labels: {json.dumps(radar_labels)},
                 datasets: [{{
-                    data: [pioScore, Math.max(0, 9 - pioScore)],
-                    backgroundColor: [pioScore >= 7 ? '#00d4aa' : (pioScore >= 5 ? '#e3b341' : '#f78166'), '#21262d'],
-                    borderWidth: 0
-                }}]
-            }},
-            options: gaugeOptions
-        }});
-
-        // Altman Z Gauge (Capped at 10)
-        const altmanScore = {altman if altman is not None else 0.0};
-        const cappedAltman = Math.min(10.0, Math.max(0.0, altmanScore));
-        new Chart(document.getElementById('gaugeAltman'), {{
-            type: 'doughnut',
-            data: {{
-                datasets: [{{
-                    data: [cappedAltman, 10.0 - cappedAltman],
-                    backgroundColor: [altmanScore > 2.6 ? '#00d4aa' : (altmanScore >= 1.1 ? '#e3b341' : '#f78166'), '#21262d'],
-                    borderWidth: 0
-                }}]
-            }},
-            options: gaugeOptions
-        }});
-
-        // FCF Yield Gauge (Capped at 50% for display)
-        const fcfYield = {fcf_yield_pct};
-        const cappedFCF = Math.min(50.0, Math.max(0.0, fcfYield));
-        new Chart(document.getElementById('gaugeFCF'), {{
-            type: 'doughnut',
-            data: {{
-                datasets: [{{
-                    data: [cappedFCF, 50.0 - cappedFCF],
-                    backgroundColor: [fcfYield > 0 ? '#00d4aa' : '#f78166', '#21262d'],
-                    borderWidth: 0
-                }}]
-            }},
-            options: gaugeOptions
-        }});
-
-        // Valuation Chart (Bar Chart with conditional coloring and benchmark lines)
-        const peVal = {pe_val};
-        const pbVal = {pb_val};
-        const evVal = {ev_val};
-        
-        new Chart(document.getElementById('chartValuation'), {{
-            type: 'bar',
-            data: {{
-                labels: ['P/E (Earnings)', 'P/B (Assets)', 'EV/EBITDA (EBITDA)'],
-                datasets: [{{
-                    label: 'Valuation',
-                    data: [peVal, pbVal, evVal],
-                    backgroundColor: [
-                        peVal < 20 ? '#00d4aa' : '#f78166',
-                        pbVal < 3 ? '#00d4aa' : '#f78166',
-                        evVal < 10 ? '#00d4aa' : '#f78166'
-                    ],
-                    borderRadius: 4,
-                    barThickness: 35
+                    label: 'Signals',
+                    data: {json.dumps(signal_values)},
+                    backgroundColor: 'rgba(0,212,170,0.08)',
+                    borderColor: '#00d4aa',
+                    borderWidth: 1.5,
+                    pointBackgroundColor: {json.dumps(['#00d4aa' if v else '#f78166' for v in signal_values])},
+                    pointBorderColor: '#0c0c0c',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }}]
             }},
             options: {{
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {{
-                    legend: {{ display: false }},
-                    benchmarkLines: {{
-                        lines: [
-                            {{ value: 20, label: 'P/E Fair Value (20)', color: '#00d4aa', lineDash: [4, 4] }},
-                            {{ value: 10, label: 'EV/EBITDA Sector Avg (10)', color: '#f78166', lineDash: [4, 4] }}
-                        ]
+                scales: {{
+                    r: {{
+                        beginAtZero: true,
+                        max: 1,
+                        ticks: {{ display: false }},
+                        grid: {{ color: '#1a1a1a', lineWidth: 0.5 }},
+                        angleLines: {{ color: '#1a1a1a', lineWidth: 0.5 }},
+                        pointLabels: {{
+                            color: '#999',
+                            font: {{ family: "'JetBrains Mono'", size: 9, weight: '500' }}
+                        }}
                     }}
                 }},
-                scales: {{
-                    x: {{ grid: {{ display: false }}, ticks: {{ color: '#8b949e', font: {{ family: 'Inter', size: 10 }} }} }},
-                    y: {{ grid: {{ color: '#21262d' }}, ticks: {{ color: '#8b949e', font: {{ family: 'JetBrains Mono' }} }} }}
+                plugins: {{
+                    legend: {{ display: false }},
+                    valueLabels: false,
+                    tooltip: {{
+                        backgroundColor: '#1a1a1a',
+                        titleColor: '#e5e5e5',
+                        bodyColor: '#999',
+                        borderColor: '#2a2a2a',
+                        borderWidth: 1,
+                        callbacks: {{
+                            label: ctx => ctx.raw === 1 ? 'PASS' : 'FAIL'
+                        }}
+                    }}
                 }}
             }}
         }});
 
-        // Growth Chart
-        const revCagrVal = {rev_cagr * 100.0 if rev_cagr is not None else 0.0};
-        const patCagrVal = {pat_cagr_pct};
-        const fcfYieldVal = {fcf_yield_pct};
-        
-        new Chart(document.getElementById('chartGrowth'), {{
+        // ─── Gauges ───
+        const pioScore = {pio_score};
+        new Chart(document.getElementById('gaugePio'), {{
+            type: 'doughnut',
+            data: {{ datasets: [{{ data: [pioScore, Math.max(0, 9 - pioScore)], backgroundColor: [pioScore >= 7 ? '#00d4aa' : (pioScore >= 5 ? '#e3b341' : '#f78166'), '#141414'], borderWidth: 0 }}] }},
+            options: gaugeOpts
+        }});
+
+        const altmanScore = {altman if altman is not None else 0.0};
+        const cappedAlt = Math.min(10, Math.max(0, altmanScore));
+        new Chart(document.getElementById('gaugeAltman'), {{
+            type: 'doughnut',
+            data: {{ datasets: [{{ data: [cappedAlt, 10 - cappedAlt], backgroundColor: [altmanScore > 2.6 ? '#00d4aa' : (altmanScore >= 1.1 ? '#e3b341' : '#f78166'), '#141414'], borderWidth: 0 }}] }},
+            options: gaugeOpts
+        }});
+
+        const fcfY = {fcf_yield_pct};
+        const cappedFCF = Math.min(50, Math.max(0, fcfY));
+        new Chart(document.getElementById('gaugeFCF'), {{
+            type: 'doughnut',
+            data: {{ datasets: [{{ data: [cappedFCF, 50 - cappedFCF], backgroundColor: [fcfY > 0 ? '#00d4aa' : '#f78166', '#141414'], borderWidth: 0 }}] }},
+            options: gaugeOpts
+        }});
+
+        // ─── Valuation Chart ───
+        const peV = {pe_val}; const pbV = {pb_val}; const evV = {ev_val};
+        new Chart(document.getElementById('chartValuation'), {{
             type: 'bar',
             data: {{
-                labels: ['Revenue CAGR', 'PAT CAGR', 'FCF Yield'],
+                labels: ['P/E', 'P/B', 'EV/EBITDA'],
                 datasets: [{{
-                    label: 'Growth %',
-                    data: [revCagrVal, patCagrVal, fcfYieldVal],
+                    data: [peV, pbV, evV],
                     backgroundColor: [
-                        revCagrVal > 0 ? '#00d4aa' : '#f78166',
-                        patCagrVal > 0 ? '#00d4aa' : '#f78166',
-                        fcfYieldVal > 0 ? '#00d4aa' : '#f78166'
+                        peV < 20 ? 'rgba(0,212,170,0.7)' : (peV <= 35 ? 'rgba(227,179,65,0.7)' : 'rgba(247,129,102,0.7)'),
+                        pbV < 3 ? 'rgba(0,212,170,0.7)' : 'rgba(247,129,102,0.7)',
+                        evV < 10 ? 'rgba(0,212,170,0.7)' : 'rgba(247,129,102,0.7)'
                     ],
-                    borderRadius: 4,
-                    barThickness: 35
+                    borderColor: [
+                        peV < 20 ? '#00d4aa' : (peV <= 35 ? '#e3b341' : '#f78166'),
+                        pbV < 3 ? '#00d4aa' : '#f78166',
+                        evV < 10 ? '#00d4aa' : '#f78166'
+                    ],
+                    borderWidth: 1,
+                    borderSkipped: 'bottom',
+                    maxBarThickness: 48
                 }}]
             }},
             options: {{
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
+                layout: {{ padding: {{ top: 20 }} }},
                 plugins: {{
-                    legend: {{ display: false }}
+                    legend: {{ display: false }},
+                    benchmarkLines: {{
+                        lines: [
+                            {{ value: 20, label: 'P/E fair (20)', color: '#333' }},
+                            {{ value: 10, label: 'EV avg (10)', color: '#333' }}
+                        ]
+                    }}
                 }},
                 scales: {{
-                    x: {{ grid: {{ display: false }}, ticks: {{ color: '#8b949e', font: {{ family: 'Inter', size: 10 }} }} }},
-                    y: {{ grid: {{ color: '#21262d' }}, ticks: {{ color: '#8b949e', font: {{ family: 'JetBrains Mono' }} }} }}
+                    x: {{ grid: {{ display: false }}, ticks: {{ color: '#525252' }}, border: {{ display: false }} }},
+                    y: {{ grid: {{ color: '#141414', lineWidth: 0.5 }}, ticks: {{ color: '#525252' }}, border: {{ display: false }} }}
+                }}
+            }}
+        }});
+
+        // ─── Growth Chart ───
+        const revC = {rev_cagr_pct}; const patC = {pat_cagr_pct}; const fcfC = {fcf_yield_pct};
+        new Chart(document.getElementById('chartGrowth'), {{
+            type: 'bar',
+            data: {{
+                labels: ['Rev CAGR', 'PAT CAGR', 'FCF Yield'],
+                datasets: [{{
+                    data: [revC, patC, fcfC],
+                    backgroundColor: [
+                        revC > 0 ? 'rgba(0,212,170,0.7)' : 'rgba(247,129,102,0.7)',
+                        patC > 0 ? 'rgba(0,212,170,0.7)' : 'rgba(247,129,102,0.7)',
+                        fcfC > 0 ? 'rgba(0,212,170,0.7)' : 'rgba(247,129,102,0.7)'
+                    ],
+                    borderColor: [
+                        revC > 0 ? '#00d4aa' : '#f78166',
+                        patC > 0 ? '#00d4aa' : '#f78166',
+                        fcfC > 0 ? '#00d4aa' : '#f78166'
+                    ],
+                    borderWidth: 1,
+                    borderSkipped: 'bottom',
+                    maxBarThickness: 48
+                }}]
+            }},
+            options: {{
+                responsive: true, maintainAspectRatio: false,
+                layout: {{ padding: {{ top: 20 }} }},
+                plugins: {{ legend: {{ display: false }} }},
+                scales: {{
+                    x: {{ grid: {{ display: false }}, ticks: {{ color: '#525252' }}, border: {{ display: false }} }},
+                    y: {{ grid: {{ color: '#141414', lineWidth: 0.5 }}, ticks: {{ color: '#525252' }}, border: {{ display: false }} }}
                 }}
             }}
         }});
     </script>
 </body>
-</html>
-"""
+</html>"""
+
         with open(path, "w", encoding="utf-8") as f:
             f.write(html_content)
 
+    # ═══════════════════════════════════════════════════════════════════════════
+    # COMPARE DASHBOARD
+    # ═══════════════════════════════════════════════════════════════════════════
     def export_compare(self, result: CompareResult, path: str) -> None:
         scan_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ticker_a = result.ticker_a
@@ -621,42 +1075,7 @@ class HtmlDashboardExporter:
         res_a = result.result_a
         res_b = result.result_b
 
-        # Helper method for styling cards inside compare view
-        def _get_val_styles(val: float | None) -> tuple[str, str]:
-            if val is None:
-                return "n/a", "text-gray-400"
-            if val < 20:
-                return f"{val:,.2f}", "text-[#00d4aa]"
-            if val <= 35:
-                return f"{val:,.2f}", "text-[#e3b341]"
-            return f"{val:,.2f}", "text-[#f78166]"
-
-        def _get_pio_styles(val: int | None) -> tuple[str, str]:
-            if val is None:
-                return "n/a", "text-gray-400"
-            if val >= 7:
-                return f"{val}/9", "text-[#00d4aa]"
-            if val >= 5:
-                return f"{val}/9", "text-[#e3b341]"
-            return f"{val}/9", "text-[#f78166]"
-
-        def _get_alt_styles(val: float | None) -> tuple[str, str]:
-            if val is None:
-                return "n/a", "text-gray-400"
-            if val > 2.6:
-                return f"{val:,.2f}", "text-[#00d4aa]"
-            if val >= 1.1:
-                return f"{val:,.2f}", "text-[#e3b341]"
-            return f"{val:,.2f}", "text-[#f78166]"
-
-        pe_a_text, pe_a_col = _get_val_styles(res_a.valuation.pe_ratio)
-        pe_b_text, pe_b_col = _get_val_styles(res_b.valuation.pe_ratio)
-        pio_a_text, pio_a_col = _get_pio_styles(res_a.health.piotroski_f)
-        pio_b_text, pio_b_col = _get_pio_styles(res_b.health.piotroski_f)
-        alt_a_text, alt_a_col = _get_alt_styles(res_a.health.altman_z)
-        alt_b_text, alt_b_col = _get_alt_styles(res_b.health.altman_z)
-
-        # Build metrics list for winner table
+        # Build metrics for winner table
         metrics = [
             ("P/E Ratio", res_a.valuation.pe_ratio, res_b.valuation.pe_ratio, "ratio"),
             ("P/B Ratio", res_a.valuation.pb_ratio, res_b.valuation.pb_ratio, "ratio"),
@@ -674,7 +1093,6 @@ class HtmlDashboardExporter:
         table_rows = []
         for name, val_a, val_b, fmt_type in metrics:
             win_code, win_text = self._get_winner_details(name, val_a, val_b, ticker_a, ticker_b)
-            
             if fmt_type == "percent":
                 str_a = self._fmt_pct(val_a)
                 str_b = self._fmt_pct(val_b)
@@ -682,31 +1100,28 @@ class HtmlDashboardExporter:
                 str_a = self._fmt(val_a)
                 str_b = self._fmt(val_b)
 
-            style_a = "bg-[#00d4aa]/10 text-[#00d4aa] font-bold font-mono" if win_code == "A" else "text-gray-400 font-mono bg-white/[0.01]"
-            style_b = "bg-[#00d4aa]/10 text-[#00d4aa] font-bold font-mono" if win_code == "B" else "text-gray-400 font-mono bg-white/[0.01]"
-            
+            style_a = 'style="color:var(--teal);font-weight:700;"' if win_code == "A" else 'style="color:var(--text-dim);"'
+            style_b = 'style="color:var(--teal);font-weight:700;"' if win_code == "B" else 'style="color:var(--text-dim);"'
+
             if win_code in ("A", "B"):
-                win_display = f"""<span class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#00d4aa]/10 text-[#00d4aa] text-xs font-bold border border-[#00d4aa]/20">
-                    👑 {win_text}
-                </span>"""
+                win_display = f'<span class="winner-badge badge-teal">👑 {win_text}</span>'
             else:
-                win_display = f"""<span class="px-2.5 py-1 rounded bg-gray-500/10 text-gray-400 text-xs font-bold border border-gray-500/20">Draw</span>"""
+                win_display = '<span class="winner-badge badge-dim">Draw</span>'
 
             table_rows.append(f"""
-            <tr class="border-b border-[#21262d] hover:bg-white/[0.01] transition-all">
-                <td class="px-6 py-4 text-sm font-semibold text-white">{name}</td>
-                <td class="px-6 py-4 text-sm {style_a}">{str_a}</td>
-                <td class="px-6 py-4 text-sm {style_b}">{str_b}</td>
-                <td class="px-6 py-4 text-sm">{win_display}</td>
-            </tr>
-            """)
+                <tr>
+                    <td style="color:#fff;font-weight:600;">{name}</td>
+                    <td class="mono" {style_a}>{str_a}</td>
+                    <td class="mono" {style_b}>{str_b}</td>
+                    <td>{win_display}</td>
+                </tr>""")
 
-        # Prep JSON data for Chart.js
+        # Chart data
         val_labels = ['P/E Ratio', 'P/B Ratio', 'EV/EBITDA']
-        val_a = [res_a.valuation.pe_ratio or 0.0, res_a.valuation.pb_ratio or 0.0, res_a.valuation.ev_ebitda or 0.0]
-        val_b = [res_b.valuation.pe_ratio or 0.0, res_b.valuation.pb_ratio or 0.0, res_b.valuation.ev_ebitda or 0.0]
+        val_a_data = [res_a.valuation.pe_ratio or 0.0, res_a.valuation.pb_ratio or 0.0, res_a.valuation.ev_ebitda or 0.0]
+        val_b_data = [res_b.valuation.pe_ratio or 0.0, res_b.valuation.pb_ratio or 0.0, res_b.valuation.ev_ebitda or 0.0]
 
-        health_labels = ['Piotroski F', 'Altman Z', 'Debt/Equity', 'Current Ratio', 'Interest Coverage']
+        health_labels = ['Piotroski F', 'Altman Z', 'Debt/Equity', 'Current Ratio', 'Interest Cov.']
         health_a = [res_a.health.piotroski_f or 0.0, res_a.health.altman_z or 0.0, res_a.health.debt_to_equity or 0.0, res_a.health.current_ratio or 0.0, res_a.health.interest_coverage or 0.0]
         health_b = [res_b.health.piotroski_f or 0.0, res_b.health.altman_z or 0.0, res_b.health.debt_to_equity or 0.0, res_b.health.current_ratio or 0.0, res_b.health.interest_coverage or 0.0]
 
@@ -714,229 +1129,247 @@ class HtmlDashboardExporter:
         growth_a = [(res_a.growth.revenue_cagr_3y or 0.0) * 100.0, (res_a.growth.pat_cagr_3y or 0.0) * 100.0, (res_a.growth.fcf_yield or 0.0) * 100.0]
         growth_b = [(res_b.growth.revenue_cagr_3y or 0.0) * 100.0, (res_b.growth.pat_cagr_3y or 0.0) * 100.0, (res_b.growth.fcf_yield or 0.0) * 100.0]
 
-        html_content = f"""<!DOCTYPE html>
-<html lang="en" class="bg-[#0d1117]">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>telmus Comparison - {ticker_a} vs {ticker_b}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config = {{
-            theme: {{
-                extend: {{
-                    colors: {{
-                        darkBg: '#0d1117',
-                        cardBg: '#161b22',
-                        borderD: '#21262d',
-                        tealAccent: '#00d4aa',
-                        coralAccent: '#f78166',
-                        amberAccent: '#e3b341'
-                    }},
-                    fontFamily: {{
-                        mono: ['JetBrains Mono', 'monospace'],
-                        sans: ['Inter', 'sans-serif']
-                    }}
-                }}
-            }}
-        }}
-    </script>
-</head>
-<body class="bg-darkBg text-gray-100 min-h-screen flex flex-col p-6 lg:p-12 font-sans">
-    <div class="max-w-7xl mx-auto w-full flex-1 flex flex-col gap-8">
-        
+        # Radar data for comparison
+        radar_labels_cmp = ['P/E', 'P/B', 'Piotroski', 'Altman Z', 'Rev CAGR']
+        # Normalize each metric to 0-1 for radar overlay
+        def _norm(vals):
+            mx = max(abs(v) for v in vals) if any(v != 0 for v in vals) else 1
+            return [abs(v) / mx for v in vals]
+
+        radar_raw_a = [res_a.valuation.pe_ratio or 0, res_a.valuation.pb_ratio or 0, res_a.health.piotroski_f or 0, res_a.health.altman_z or 0, (res_a.growth.revenue_cagr_3y or 0) * 100]
+        radar_raw_b = [res_b.valuation.pe_ratio or 0, res_b.valuation.pb_ratio or 0, res_b.health.piotroski_f or 0, res_b.health.altman_z or 0, (res_b.growth.revenue_cagr_3y or 0) * 100]
+        combined = [max(abs(radar_raw_a[i]), abs(radar_raw_b[i])) for i in range(5)]
+        radar_norm_a = [abs(radar_raw_a[i]) / combined[i] if combined[i] != 0 else 0 for i in range(5)]
+        radar_norm_b = [abs(radar_raw_b[i]) / combined[i] if combined[i] != 0 else 0 for i in range(5)]
+
+        html_content = f"""{self._head_block(f"telmus — {ticker_a} vs {ticker_b} Comparison")}
+<body>
+    <div class="container stack">
+
         <!-- Header -->
-        <header class="flex justify-between items-center border-b border-borderD pb-6">
+        <header>
             <div>
-                <h1 class="text-2xl font-extrabold text-white tracking-tight">{ticker_a} vs {ticker_b} — Head to Head Analysis</h1>
-                <p class="text-gray-400 text-xs mt-1 uppercase font-semibold font-mono tracking-wider">Comparison Scan | {scan_date}</p>
+                <h1>{ticker_a} vs {ticker_b} — Head to Head</h1>
+                <div class="header-sub">Comparison scan · {scan_date}</div>
             </div>
-            <div class="text-right">
-                <span class="text-xs text-gray-500 uppercase tracking-widest block font-mono">System</span>
-                <span class="text-sm font-semibold text-gray-300 font-mono"><span class="text-tealAccent">telmus</span> v0.1.6</span>
+            <div style="text-align:right;">
+                <div class="section-label">System</div>
+                <span class="font-mono" style="font-size:0.875rem;font-weight:600;color:var(--text-dim);">
+                    <span style="color:var(--teal);">telmus</span> v0.1.6
+                </span>
             </div>
         </header>
 
-        <!-- TWO COLUMN COMPANY HEADERS -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Left Company -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-[#00d4aa]/10 border border-[#00d4aa]/20 flex items-center justify-center font-bold text-[#00d4aa] text-lg font-mono">
-                    {ticker_a[0]}
-                </div>
-                <div>
-                    <h2 class="text-lg font-bold text-white">{res_a.company}</h2>
-                    <p class="text-xs text-gray-400 font-mono">{ticker_a} | {res_a.exchange}</p>
+        <!-- Company Headers -->
+        <div class="grid-2">
+            <div class="card">
+                <div class="company-header">
+                    <div class="company-avatar" style="background:var(--teal-10);border:1px solid var(--teal-20);color:var(--teal);">{ticker_a[0]}</div>
+                    <div>
+                        <div style="font-weight:700;color:#fff;">{res_a.company}</div>
+                        <div class="font-mono" style="font-size:0.75rem;color:var(--text-dim);">{ticker_a} · {res_a.exchange}</div>
+                    </div>
                 </div>
             </div>
-
-            <!-- Right Company -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-[#f78166]/10 border border-[#f78166]/20 flex items-center justify-center font-bold text-[#f78166] text-lg font-mono">
-                    {ticker_b[0]}
-                </div>
-                <div>
-                    <h2 class="text-lg font-bold text-white">{res_b.company}</h2>
-                    <p class="text-xs text-gray-400 font-mono">{ticker_b} | {res_b.exchange}</p>
+            <div class="card">
+                <div class="company-header">
+                    <div class="company-avatar" style="background:var(--coral-10);border:1px solid var(--coral-20);color:var(--coral);">{ticker_b[0]}</div>
+                    <div>
+                        <div style="font-weight:700;color:#fff;">{res_b.company}</div>
+                        <div class="font-mono" style="font-size:0.75rem;color:var(--text-dim);">{ticker_b} · {res_b.exchange}</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- GROUPED BAR CHARTS (3 charts) -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Valuation Chart -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl flex flex-col">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Valuation</h3>
-                <div class="h-60 relative">
-                    <canvas id="chartValuation"></canvas>
-                </div>
+        <!-- Radar Overlay -->
+        <div class="card">
+            <div class="section-label">Overview</div>
+            <div class="section-title" style="margin-bottom:1rem;">
+                <span class="dot" style="background:var(--teal);"></span>Radar Comparison
             </div>
-            <!-- Health Chart -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl flex flex-col">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Health</h3>
-                <div class="h-60 relative">
-                    <canvas id="chartHealth"></canvas>
-                </div>
-            </div>
-            <!-- Growth Chart -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl flex flex-col">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Growth</h3>
-                <div class="h-60 relative">
-                    <canvas id="chartGrowth"></canvas>
-                </div>
+            <div class="chart-box" style="height:320px;max-width:480px;margin:0 auto;">
+                <canvas id="radarCompare"></canvas>
             </div>
         </div>
 
-        <!-- WINNER TABLE -->
-        <div class="bg-cardBg border border-borderD rounded-2xl p-6 shadow-2xl">
-            <h3 class="text-sm font-extrabold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
-                <span class="w-1.5 h-4 bg-tealAccent rounded-full"></span>
-                Head-to-Head Winner Table
-            </h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-borderD text-xs font-bold text-gray-500 uppercase tracking-wider">
-                            <th class="px-6 py-3">Metric</th>
-                            <th class="px-6 py-3">{ticker_a}</th>
-                            <th class="px-6 py-3">{ticker_b}</th>
-                            <th class="px-6 py-3">Winner</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {"".join(table_rows)}
-                    </tbody>
+        <!-- Grouped Bar Charts -->
+        <div class="grid-3">
+            <div class="card">
+                <div class="section-label">Valuation</div>
+                <div class="chart-box" style="height:220px;"><canvas id="chartValuation"></canvas></div>
+                <div class="chart-explain">P/E, P/B and EV/EBITDA side by side. Lower bars usually mean cheaper valuation. Teal = {ticker_a}, coral = {ticker_b}.</div>
+            </div>
+            <div class="card">
+                <div class="section-label">Health</div>
+                <div class="chart-box" style="height:220px;"><canvas id="chartHealth"></canvas></div>
+                <div class="chart-explain">Piotroski F (higher = stronger), Altman Z (higher = safer), Debt/Equity (lower = less risky), Current Ratio (>1 = liquid), Interest Coverage (higher = safer).</div>
+            </div>
+            <div class="card">
+                <div class="section-label">Growth</div>
+                <div class="chart-box" style="height:220px;"><canvas id="chartGrowth"></canvas></div>
+                <div class="chart-explain">Revenue and profit growth rates over 3 years, plus free cash flow yield. Taller bars indicate stronger growth momentum.</div>
+            </div>
+        </div>
+
+        <!-- Winner Table -->
+        <div class="card">
+            <div class="section-label">Results</div>
+            <div class="section-title" style="margin-bottom:1rem;">
+                <span class="dot" style="background:var(--teal);"></span>Head-to-Head Winner Table
+            </div>
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead><tr>
+                        <th>Metric</th><th>{ticker_a}</th><th>{ticker_b}</th><th>Winner</th>
+                    </tr></thead>
+                    <tbody>{"".join(table_rows)}</tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Footer -->
-        <footer class="border-t border-borderD pt-6 text-center text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-4 font-mono">
-            <div>
-                Generated by <span class="font-bold text-gray-400">telmus v0.1.6</span> | <code class="bg-[#161b22] px-1.5 py-0.5 rounded text-gray-400">pip install telmus</code>
-            </div>
-            <div>
-                Data via Yahoo Finance | Not financial advice
-            </div>
-        </footer>
-
+        {self._footer_block()}
     </div>
 
     <script>
-        const chartOptions = {{
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {{
-                legend: {{ labels: {{ color: '#8b949e', font: {{ family: 'Inter', size: 10 }} }} }}
-            }},
+        Chart.defaults.color = '#525252';
+        Chart.defaults.borderColor = '#141414';
+        Chart.defaults.font.family = "'JetBrains Mono', monospace";
+        Chart.defaults.font.size = 10;
+
+        // Value label plugin
+        const valueLabelPlugin = {{
+            id: 'valueLabels',
+            afterDatasetsDraw(chart) {{
+                const ctx = chart.ctx;
+                ctx.save();
+                chart.data.datasets.forEach((dataset, i) => {{
+                    const meta = chart.getDatasetMeta(i);
+                    meta.data.forEach((bar, index) => {{
+                        const value = dataset.data[index];
+                        if (value === null || value === undefined) return;
+                        const label = typeof value === 'number' ? (Math.abs(value) >= 100 ? value.toFixed(0) : value.toFixed(1)) : value;
+                        ctx.fillStyle = '#8a8a8a';
+                        ctx.font = "600 9px 'JetBrains Mono'";
+                        ctx.textAlign = 'center';
+                        ctx.fillText(label, bar.x, bar.y - 8);
+                    }});
+                }});
+                ctx.restore();
+            }}
+        }};
+        Chart.register(valueLabelPlugin);
+
+        const chartOpts = {{
+            responsive: true, maintainAspectRatio: false,
+            layout: {{ padding: {{ top: 20 }} }},
+            plugins: {{ legend: {{ labels: {{ color: '#999', font: {{ size: 10 }} }} }} }},
             scales: {{
-                x: {{ grid: {{ display: false }}, ticks: {{ color: '#8b949e', font: {{ family: 'Inter', size: 10 }} }} }},
-                y: {{ grid: {{ color: '#21262d' }}, ticks: {{ color: '#8b949e', font: {{ family: 'JetBrains Mono' }} }} }}
+                x: {{ grid: {{ display: false }}, ticks: {{ color: '#525252' }}, border: {{ display: false }} }},
+                y: {{ grid: {{ color: '#141414', lineWidth: 0.5 }}, ticks: {{ color: '#525252' }}, border: {{ display: false }} }}
             }}
         }};
 
-        // Valuation Chart
+        // Radar Overlay
+        new Chart(document.getElementById('radarCompare'), {{
+            type: 'radar',
+            data: {{
+                labels: {json.dumps(radar_labels_cmp)},
+                datasets: [
+                    {{
+                        label: '{ticker_a}',
+                        data: {json.dumps(radar_norm_a)},
+                        backgroundColor: 'rgba(0,212,170,0.08)',
+                        borderColor: '#00d4aa',
+                        borderWidth: 1.5,
+                        pointBackgroundColor: '#00d4aa',
+                        pointBorderColor: '#0c0c0c',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }},
+                    {{
+                        label: '{ticker_b}',
+                        data: {json.dumps(radar_norm_b)},
+                        backgroundColor: 'rgba(247,129,102,0.08)',
+                        borderColor: '#f78166',
+                        borderWidth: 1.5,
+                        pointBackgroundColor: '#f78166',
+                        pointBorderColor: '#0c0c0c',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }}
+                ]
+            }},
+            options: {{
+                responsive: true, maintainAspectRatio: false,
+                scales: {{
+                    r: {{
+                        beginAtZero: true, max: 1,
+                        ticks: {{ display: false }},
+                        grid: {{ color: '#1a1a1a', lineWidth: 0.5 }},
+                        angleLines: {{ color: '#1a1a1a', lineWidth: 0.5 }},
+                        pointLabels: {{ color: '#999', font: {{ family: "'JetBrains Mono'", size: 10, weight: '500' }} }}
+                    }}
+                }},
+                plugins: {{
+                    legend: {{ labels: {{ color: '#999', font: {{ family: "'JetBrains Mono'", size: 10 }} }} }},
+                    valueLabels: false
+                }}
+            }}
+        }});
+
+        // Valuation
         new Chart(document.getElementById('chartValuation'), {{
             type: 'bar',
             data: {{
                 labels: {json.dumps(val_labels)},
                 datasets: [
-                    {{
-                        label: '{ticker_a}',
-                        data: {json.dumps(val_a)},
-                        backgroundColor: '#00d4aa',
-                        borderRadius: 4
-                    }},
-                    {{
-                        label: '{ticker_b}',
-                        data: {json.dumps(val_b)},
-                        backgroundColor: '#f78166',
-                        borderRadius: 4
-                    }}
+                    {{ label: '{ticker_a}', data: {json.dumps(val_a_data)}, backgroundColor: 'rgba(0,212,170,0.7)', borderColor: '#00d4aa', borderWidth: 1, borderSkipped: 'bottom', maxBarThickness: 36 }},
+                    {{ label: '{ticker_b}', data: {json.dumps(val_b_data)}, backgroundColor: 'rgba(247,129,102,0.7)', borderColor: '#f78166', borderWidth: 1, borderSkipped: 'bottom', maxBarThickness: 36 }}
                 ]
             }},
-            options: chartOptions
+            options: chartOpts
         }});
 
-        // Health Chart
+        // Health
         new Chart(document.getElementById('chartHealth'), {{
             type: 'bar',
             data: {{
                 labels: {json.dumps(health_labels)},
                 datasets: [
-                    {{
-                        label: '{ticker_a}',
-                        data: {json.dumps(health_a)},
-                        backgroundColor: '#00d4aa',
-                        borderRadius: 4
-                    }},
-                    {{
-                        label: '{ticker_b}',
-                        data: {json.dumps(health_b)},
-                        backgroundColor: '#f78166',
-                        borderRadius: 4
-                    }}
+                    {{ label: '{ticker_a}', data: {json.dumps(health_a)}, backgroundColor: 'rgba(0,212,170,0.7)', borderColor: '#00d4aa', borderWidth: 1, borderSkipped: 'bottom', maxBarThickness: 36 }},
+                    {{ label: '{ticker_b}', data: {json.dumps(health_b)}, backgroundColor: 'rgba(247,129,102,0.7)', borderColor: '#f78166', borderWidth: 1, borderSkipped: 'bottom', maxBarThickness: 36 }}
                 ]
             }},
-            options: chartOptions
+            options: chartOpts
         }});
 
-        // Growth Chart
+        // Growth
         new Chart(document.getElementById('chartGrowth'), {{
             type: 'bar',
             data: {{
                 labels: {json.dumps(growth_labels)},
                 datasets: [
-                    {{
-                        label: '{ticker_a}',
-                        data: {json.dumps(growth_a)},
-                        backgroundColor: '#00d4aa',
-                        borderRadius: 4
-                    }},
-                    {{
-                        label: '{ticker_b}',
-                        data: {json.dumps(growth_b)},
-                        backgroundColor: '#f78166',
-                        borderRadius: 4
-                    }}
+                    {{ label: '{ticker_a}', data: {json.dumps(growth_a)}, backgroundColor: 'rgba(0,212,170,0.7)', borderColor: '#00d4aa', borderWidth: 1, borderSkipped: 'bottom', maxBarThickness: 36 }},
+                    {{ label: '{ticker_b}', data: {json.dumps(growth_b)}, backgroundColor: 'rgba(247,129,102,0.7)', borderColor: '#f78166', borderWidth: 1, borderSkipped: 'bottom', maxBarThickness: 36 }}
                 ]
             }},
-            options: chartOptions
+            options: chartOpts
         }});
     </script>
 </body>
-</html>
-"""
+</html>"""
+
         with open(path, "w", encoding="utf-8") as f:
             f.write(html_content)
 
+    # ═══════════════════════════════════════════════════════════════════════════
+    # SCREEN DASHBOARD
+    # ═══════════════════════════════════════════════════════════════════════════
     def export_screen(self, results: list[ScanResult], path: str) -> None:
         scan_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         n = len(results)
 
-        # Summaries calculations
         pio_values = [r.health.piotroski_f for r in results if r.health.piotroski_f is not None]
         pe_values = [r.valuation.pe_ratio for r in results if r.valuation.pe_ratio is not None]
         no_flags_count = sum(1 for r in results if not r.red_flags)
@@ -944,13 +1377,11 @@ class HtmlDashboardExporter:
         avg_pio = sum(pio_values) / len(pio_values) if pio_values else 0.0
         avg_pe = sum(pe_values) / len(pe_values) if pe_values else 0.0
 
-        # Construct JS lists
         tickers = [r.ticker for r in results]
         pio_scores = [r.health.piotroski_f if r.health.piotroski_f is not None else 0 for r in results]
         pe_ratios = [r.valuation.pe_ratio if r.valuation.pe_ratio is not None else 0.0 for r in results]
         altman_scores = [r.health.altman_z if r.health.altman_z is not None else 0.0 for r in results]
 
-        # Table rows
         table_rows = []
         for idx, r in enumerate(results, start=1):
             pe_str = f"{r.valuation.pe_ratio:,.2f}" if r.valuation.pe_ratio is not None else "n/a"
@@ -959,164 +1390,155 @@ class HtmlDashboardExporter:
 
             concern_lvl = (r.highest_concern or "LOW").upper()
             if concern_lvl == "HIGH":
-                concern_badge = "bg-[#f78166]/10 text-[#f78166] border border-[#f78166]/20"
-                row_bg = "bg-[#f78166]/5 border-l-4 border-l-[#f78166]"
+                concern_cls = "badge-coral"
+                row_cls = "sev-high"
             elif concern_lvl == "MEDIUM":
-                concern_badge = "bg-[#e3b341]/10 text-[#e3b341] border border-[#e3b341]/20"
-                row_bg = "bg-[#e3b341]/5 border-l-4 border-l-[#e3b341]"
+                concern_cls = "badge-amber"
+                row_cls = "sev-medium"
             else:
-                concern_badge = "bg-[#00d4aa]/10 text-[#00d4aa] border border-[#00d4aa]/20"
-                row_bg = "bg-[#00d4aa]/5 border-l-4 border-l-[#00d4aa]"
+                concern_cls = "badge-teal"
+                row_cls = "sev-low"
 
             table_rows.append(f"""
-            <tr class="border-b border-[#21262d] {row_bg} hover:bg-white/[0.01] transition-all">
-                <td class="px-6 py-4 text-sm font-bold text-gray-400 font-mono" data-val="{idx}">{idx}</td>
-                <td class="px-6 py-4 text-sm text-white font-semibold" data-val="{r.company}">{r.company}</td>
-                <td class="px-6 py-4 text-sm font-bold text-tealAccent font-mono" data-val="{r.ticker}">{r.ticker}</td>
-                <td class="px-6 py-4 text-sm text-gray-300 font-mono" data-val="{r.valuation.pe_ratio or 9999}">{pe_str}</td>
-                <td class="px-6 py-4 text-sm text-gray-300 font-mono" data-val="{r.health.piotroski_f or -1}">{r.health.piotroski_f if r.health.piotroski_f is not None else 'n/a'}</td>
-                <td class="px-6 py-4 text-sm text-gray-300 font-mono" data-val="{r.health.altman_z or -99}">{alt_str}</td>
-                <td class="px-6 py-4 text-sm text-gray-300 font-mono" data-val="{r.growth.revenue_cagr_3y or -99}">{rev_str}</td>
-                <td class="px-6 py-4 text-sm" data-val="{concern_lvl}"><span class="px-2.5 py-1 rounded text-xs font-bold uppercase {concern_badge}">{concern_lvl}</span></td>
-            </tr>
-            """)
+                <tr class="{row_cls}">
+                    <td class="mono c-dim" data-val="{idx}">{idx}</td>
+                    <td style="color:#fff;font-weight:600;" data-val="{r.company}">{r.company}</td>
+                    <td class="mono c-teal" style="font-weight:700;" data-val="{r.ticker}">{r.ticker}</td>
+                    <td class="mono c-dim" data-val="{r.valuation.pe_ratio or 9999}">{pe_str}</td>
+                    <td class="mono c-dim" data-val="{r.health.piotroski_f or -1}">{r.health.piotroski_f if r.health.piotroski_f is not None else 'n/a'}</td>
+                    <td class="mono c-dim" data-val="{r.health.altman_z or -99}">{alt_str}</td>
+                    <td class="mono c-dim" data-val="{r.growth.revenue_cagr_3y or -99}">{rev_str}</td>
+                    <td data-val="{concern_lvl}"><span class="badge {concern_cls}">{concern_lvl}</span></td>
+                </tr>""")
 
-        html_content = f"""<!DOCTYPE html>
-<html lang="en" class="bg-[#0d1117]">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>telmus - Sector Screen Results</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config = {{
-            theme: {{
-                extend: {{
-                    colors: {{
-                        darkBg: '#0d1117',
-                        cardBg: '#161b22',
-                        borderD: '#21262d',
-                        tealAccent: '#00d4aa',
-                        coralAccent: '#f78166',
-                        amberAccent: '#e3b341'
-                    }},
-                    fontFamily: {{
-                        mono: ['JetBrains Mono', 'monospace'],
-                        sans: ['Inter', 'sans-serif']
-                    }}
-                }}
-            }}
-        }}
-    </script>
-</head>
-<body class="bg-darkBg text-gray-100 min-h-screen flex flex-col p-6 lg:p-12 font-sans">
-    <div class="max-w-7xl mx-auto w-full flex-1 flex flex-col gap-8">
-        
+        html_content = f"""{self._head_block("telmus — Sector Screen Results")}
+<body>
+    <div class="container stack">
+
         <!-- Header -->
-        <header class="flex justify-between items-center border-b border-borderD pb-6">
+        <header>
             <div>
-                <h1 class="text-2xl font-extrabold text-white tracking-tight">Sector Screen Results — {n} companies analysed</h1>
-                <p class="text-gray-400 text-xs mt-1 uppercase font-semibold font-mono tracking-wider">Screening Report | {scan_date}</p>
+                <h1>Sector Screen — {n} companies analysed</h1>
+                <div class="header-sub">Screening report · {scan_date}</div>
             </div>
-            <div class="text-right">
-                <span class="text-xs text-gray-500 uppercase tracking-widest block font-mono">System</span>
-                <span class="text-sm font-semibold text-gray-300 font-mono"><span class="text-tealAccent">telmus</span> v0.1.6</span>
+            <div style="text-align:right;">
+                <div class="section-label">System</div>
+                <span class="font-mono" style="font-size:0.875rem;font-weight:600;color:var(--text-dim);">
+                    <span style="color:var(--teal);">telmus</span> v0.1.6
+                </span>
             </div>
         </header>
 
-        <!-- SUMMARY KPI ROW -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Screened -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl hover:border-tealAccent/30 transition-all duration-300">
-                <div class="text-4xl font-extrabold font-mono text-tealAccent">{n}</div>
-                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">Stocks Screened</div>
+        <!-- KPI Row -->
+        <div class="grid-4">
+            <div class="card">
+                <div class="kpi-value c-teal">{n}</div>
+                <div class="kpi-label">Stocks Screened</div>
             </div>
-            <!-- Avg Piotroski -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl hover:border-tealAccent/30 transition-all duration-300">
-                <div class="text-4xl font-extrabold font-mono text-emerald-400">{avg_pio:,.2f}</div>
-                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">Average Piotroski F</div>
+            <div class="card">
+                <div class="kpi-value" style="color:var(--teal);">{avg_pio:,.2f}</div>
+                <div class="kpi-label">Average Piotroski F</div>
             </div>
-            <!-- Avg PE -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl hover:border-tealAccent/30 transition-all duration-300">
-                <div class="text-4xl font-extrabold font-mono text-indigo-400">{avg_pe:,.2f}</div>
-                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">Average P/E Ratio</div>
+            <div class="card">
+                <div class="kpi-value" style="color:var(--indigo);">{avg_pe:,.2f}</div>
+                <div class="kpi-label">Average P/E Ratio</div>
             </div>
-            <!-- Clean count -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl hover:border-tealAccent/30 transition-all duration-300">
-                <div class="text-4xl font-extrabold font-mono text-amber-400">{no_flags_count}</div>
-                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mt-2">No Red Flag Stocks</div>
+            <div class="card">
+                <div class="kpi-value" style="color:var(--amber);">{no_flags_count}</div>
+                <div class="kpi-label">No Red Flag Stocks</div>
             </div>
         </div>
 
-        <!-- HORIZONTAL BAR CHARTS -->
-        <div class="grid grid-cols-1 gap-6">
-            <!-- Piotroski Horiz -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl flex flex-col">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Piotroski F-Score Comparison</h3>
-                <div class="h-64 relative">
-                    <canvas id="chartPio"></canvas>
-                </div>
+        <!-- Horizontal Bar Charts -->
+        <div class="card">
+            <div class="section-label">Comparison</div>
+            <div class="section-title" style="margin-bottom:0.5rem;">
+                <span class="dot" style="background:var(--teal);"></span>Piotroski F-Score
             </div>
-            <!-- P/E Ratio Horiz -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl flex flex-col">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">P/E Ratio Comparison</h3>
-                <div class="h-64 relative">
-                    <canvas id="chartPE"></canvas>
-                </div>
-            </div>
-            <!-- Altman Z Horiz -->
-            <div class="bg-cardBg border border-borderD p-6 rounded-2xl shadow-xl flex flex-col">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Altman Z-Score Comparison</h3>
-                <div class="h-64 relative">
-                    <canvas id="chartAltman"></canvas>
-                </div>
-            </div>
+            <div class="chart-box" style="height:280px;"><canvas id="chartPio"></canvas></div>
+            <div class="chart-explain">Measures overall financial strength out of 9. Score of 7+ = strong fundamentals, 5–6 = average, below 5 = weak. The dashed lines mark these thresholds. Longer bars = healthier companies.</div>
         </div>
 
-        <!-- RESULTS TABLE (full width, sortable) -->
-        <div class="bg-cardBg border border-borderD rounded-2xl p-6 shadow-2xl">
-            <h3 class="text-sm font-extrabold text-white uppercase tracking-wider mb-2 flex items-center gap-2">
-                <span class="w-1.5 h-4 bg-tealAccent rounded-full"></span>
-                Screening Results (Click Headers to Sort)
-            </h3>
-            <div class="overflow-x-auto">
-                <table id="screenTable" class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-borderD text-xs font-bold text-gray-500 uppercase tracking-wider cursor-pointer">
-                            <th class="px-6 py-3 hover:text-tealAccent" onclick="sortTable(0)">Rank</th>
-                            <th class="px-6 py-3 hover:text-tealAccent" onclick="sortTable(1)">Company</th>
-                            <th class="px-6 py-3 hover:text-tealAccent" onclick="sortTable(2)">Ticker</th>
-                            <th class="px-6 py-3 hover:text-tealAccent" onclick="sortTable(3)">P/E</th>
-                            <th class="px-6 py-3 hover:text-tealAccent" onclick="sortTable(4)">Piotroski F</th>
-                            <th class="px-6 py-3 hover:text-tealAccent" onclick="sortTable(5)">Altman Z</th>
-                            <th class="px-6 py-3 hover:text-tealAccent" onclick="sortTable(6)">Revenue CAGR</th>
-                            <th class="px-6 py-3 hover:text-tealAccent" onclick="sortTable(7)">Concern Level</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {"".join(table_rows)}
-                    </tbody>
+        <div class="card">
+            <div class="section-label">Valuation</div>
+            <div class="section-title" style="margin-bottom:0.5rem;">
+                <span class="dot" style="background:var(--teal);"></span>P/E Ratio
+            </div>
+            <div class="chart-box" style="height:280px;"><canvas id="chartPE"></canvas></div>
+            <div class="chart-explain">Price-to-Earnings ratio — how much investors pay for each ₹1 of profit. A P/E below the dashed line (20) generally means the stock is reasonably priced. Very high P/E can signal overvaluation or high growth expectations.</div>
+        </div>
+
+        <div class="card">
+            <div class="section-label">Safety</div>
+            <div class="section-title" style="margin-bottom:0.5rem;">
+                <span class="dot" style="background:var(--indigo);"></span>Altman Z-Score
+            </div>
+            <div class="chart-box" style="height:280px;"><canvas id="chartAltman"></canvas></div>
+            <div class="chart-explain">Predicts the probability of bankruptcy within 2 years. Z > 2.6 = safe zone (low risk), 1.1–2.6 = grey zone (uncertain), below 1.1 = distress zone (high risk). The dashed line marks the safe threshold.</div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="card">
+            <div class="section-label">Results</div>
+            <div class="section-title" style="margin-bottom:1rem;">
+                <span class="dot" style="background:var(--teal);"></span>Screening Results (Click Headers to Sort)
+            </div>
+            <div style="overflow-x:auto;">
+                <table id="screenTable">
+                    <thead><tr>
+                        <th class="sortable" onclick="sortTable(0)">Rank</th>
+                        <th class="sortable" onclick="sortTable(1)">Company</th>
+                        <th class="sortable" onclick="sortTable(2)">Ticker</th>
+                        <th class="sortable" onclick="sortTable(3)">P/E</th>
+                        <th class="sortable" onclick="sortTable(4)">Piotroski F</th>
+                        <th class="sortable" onclick="sortTable(5)">Altman Z</th>
+                        <th class="sortable" onclick="sortTable(6)">Revenue CAGR</th>
+                        <th class="sortable" onclick="sortTable(7)">Concern</th>
+                    </tr></thead>
+                    <tbody>{"".join(table_rows)}</tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Footer -->
-        <footer class="border-t border-borderD pt-6 text-center text-xs text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-4 font-mono">
-            <div>
-                Generated by <span class="font-bold text-gray-400">telmus v0.1.6</span> | <code class="bg-[#161b22] px-1.5 py-0.5 rounded text-gray-400">pip install telmus</code>
-            </div>
-            <div>
-                Data via Yahoo Finance | Not financial advice
-            </div>
-        </footer>
-
+        {self._footer_block()}
     </div>
 
     <script>
-        // Custom vertical line plugin
-        const verticalLinePlugin = {{
+        Chart.defaults.color = '#525252';
+        Chart.defaults.borderColor = '#141414';
+        Chart.defaults.font.family = "'JetBrains Mono', monospace";
+        Chart.defaults.font.size = 10;
+
+        // Value label plugin (horizontal)
+        const valueLabelPlugin = {{
+            id: 'valueLabels',
+            afterDatasetsDraw(chart) {{
+                const ctx = chart.ctx;
+                ctx.save();
+                chart.data.datasets.forEach((dataset, i) => {{
+                    const meta = chart.getDatasetMeta(i);
+                    meta.data.forEach((bar, index) => {{
+                        const value = dataset.data[index];
+                        if (value === null || value === undefined) return;
+                        const label = typeof value === 'number' ? (Math.abs(value) >= 100 ? value.toFixed(0) : value.toFixed(1)) : value;
+                        ctx.fillStyle = '#8a8a8a';
+                        ctx.font = "600 9px 'JetBrains Mono'";
+                        if (chart.options.indexAxis === 'y') {{
+                            ctx.textAlign = 'left';
+                            ctx.fillText(label, bar.x + 6, bar.y + 3.5);
+                        }} else {{
+                            ctx.textAlign = 'center';
+                            ctx.fillText(label, bar.x, bar.y - 8);
+                        }}
+                    }});
+                }});
+                ctx.restore();
+            }}
+        }};
+        Chart.register(valueLabelPlugin);
+
+        // Vertical line plugin for horizontal bars
+        const vertLinePlugin = {{
             id: 'verticalLine',
             afterDraw(chart, args, options) {{
                 const ctx = chart.ctx;
@@ -1124,170 +1546,118 @@ class HtmlDashboardExporter:
                 const bottom = chart.chartArea.bottom;
                 const x = chart.scales.x;
                 ctx.save();
-                
                 (options.lines || []).forEach(line => {{
                     const xPos = x.getPixelForValue(line.value);
                     if (xPos >= chart.chartArea.left && xPos <= chart.chartArea.right) {{
-                        ctx.strokeStyle = line.color || '#ef4444';
-                        ctx.lineWidth = line.lineWidth || 1.5;
-                        ctx.setLineDash(line.lineDash || [4, 4]);
-                        
+                        ctx.strokeStyle = '#333';
+                        ctx.lineWidth = 1;
+                        ctx.setLineDash([3, 3]);
                         ctx.beginPath();
                         ctx.moveTo(xPos, top);
                         ctx.lineTo(xPos, bottom);
                         ctx.stroke();
-                        
-                        ctx.fillStyle = line.color || '#ef4444';
-                        ctx.font = '10px Inter';
-                        ctx.fillText(line.label, xPos + 5, top + 15);
+                        ctx.fillStyle = '#525252';
+                        ctx.font = "500 9px 'JetBrains Mono'";
+                        ctx.fillText(line.label, xPos + 4, top + 12);
                     }}
                 }});
                 ctx.restore();
             }}
         }};
-        Chart.register(verticalLinePlugin);
+        Chart.register(vertLinePlugin);
 
         const tickers = {json.dumps(tickers)};
-        
-        // Colors mapping for Piotroski
         const pioScores = {json.dumps(pio_scores)};
-        const pioColors = pioScores.map(score => score >= 7 ? '#00d4aa' : (score >= 5 ? '#e3b341' : '#f78166'));
+        const pioColors = pioScores.map(s => s >= 7 ? 'rgba(0,212,170,0.7)' : (s >= 5 ? 'rgba(227,179,65,0.7)' : 'rgba(247,129,102,0.7)'));
+        const pioBorders = pioScores.map(s => s >= 7 ? '#00d4aa' : (s >= 5 ? '#e3b341' : '#f78166'));
 
-        const chartOptions = {{
+        const horizOpts = {{
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {{
-                legend: {{ display: false }}
-            }},
+            layout: {{ padding: {{ right: 40 }} }},
+            plugins: {{ legend: {{ display: false }} }},
             scales: {{
-                x: {{ grid: {{ color: '#21262d' }}, ticks: {{ color: '#8b949e', font: {{ family: 'JetBrains Mono' }} }} }},
-                y: {{ grid: {{ display: false }}, ticks: {{ color: '#8b949e', font: {{ family: 'Inter', size: 10 }} }} }}
+                x: {{ grid: {{ color: '#141414', lineWidth: 0.5 }}, ticks: {{ color: '#525252' }}, border: {{ display: false }} }},
+                y: {{ grid: {{ display: false }}, ticks: {{ color: '#525252' }}, border: {{ display: false }} }}
             }}
         }};
 
-        // Chart 1: Piotroski F
+        // Piotroski
         new Chart(document.getElementById('chartPio'), {{
             type: 'bar',
-            data: {{
-                labels: tickers,
-                datasets: [{{
-                    data: pioScores,
-                    backgroundColor: pioColors,
-                    borderRadius: 4
-                }}]
-            }},
+            data: {{ labels: tickers, datasets: [{{ data: pioScores, backgroundColor: pioColors, borderColor: pioBorders, borderWidth: 1, borderSkipped: 'start', maxBarThickness: 20 }}] }},
             options: {{
-                ...chartOptions,
+                ...horizOpts,
                 plugins: {{
                     legend: {{ display: false }},
                     verticalLine: {{
                         lines: [
-                            {{ value: 7, label: 'Strong threshold (7)', color: '#00d4aa' }},
-                            {{ value: 5, label: 'Adequate threshold (5)', color: '#e3b341' }}
+                            {{ value: 7, label: 'Strong (7)', color: '#333' }},
+                            {{ value: 5, label: 'Adequate (5)', color: '#333' }}
                         ]
                     }}
                 }}
             }}
         }});
 
-        // Chart 2: P/E
+        // P/E
         new Chart(document.getElementById('chartPE'), {{
             type: 'bar',
-            data: {{
-                labels: tickers,
-                datasets: [{{
-                    data: {json.dumps(pe_ratios)},
-                    backgroundColor: '#00d4aa',
-                    borderRadius: 4
-                }}]
-            }},
+            data: {{ labels: tickers, datasets: [{{ data: {json.dumps(pe_ratios)}, backgroundColor: 'rgba(0,212,170,0.7)', borderColor: '#00d4aa', borderWidth: 1, borderSkipped: 'start', maxBarThickness: 20 }}] }},
             options: {{
-                ...chartOptions,
+                ...horizOpts,
                 plugins: {{
                     legend: {{ display: false }},
-                    verticalLine: {{
-                        lines: [
-                            {{ value: 20, label: 'Fair value benchmark (20)', color: '#00d4aa' }}
-                        ]
-                    }}
+                    verticalLine: {{ lines: [{{ value: 20, label: 'Fair value (20)', color: '#333' }}] }}
                 }}
             }}
         }});
 
-        // Chart 3: Altman Z
+        // Altman Z
         new Chart(document.getElementById('chartAltman'), {{
             type: 'bar',
-            data: {{
-                labels: tickers,
-                datasets: [{{
-                    data: {json.dumps(altman_scores)},
-                    backgroundColor: '#6366f1',
-                    borderRadius: 4
-                }}]
-            }},
+            data: {{ labels: tickers, datasets: [{{ data: {json.dumps(altman_scores)}, backgroundColor: 'rgba(129,140,248,0.7)', borderColor: '#818cf8', borderWidth: 1, borderSkipped: 'start', maxBarThickness: 20 }}] }},
             options: {{
-                ...chartOptions,
+                ...horizOpts,
                 plugins: {{
                     legend: {{ display: false }},
-                    verticalLine: {{
-                        lines: [
-                            {{ value: 2.6, label: 'Safety zone (2.6)', color: '#00d4aa' }}
-                        ]
-                    }}
+                    verticalLine: {{ lines: [{{ value: 2.6, label: 'Safe zone (2.6)', color: '#333' }}] }}
                 }}
             }}
         }});
 
-        // Sorting Logic
-        let sortDirections = Array(8).fill(false);
-        function sortTable(colIndex) {{
+        // Sorting
+        let sortDirs = Array(8).fill(false);
+        function sortTable(col) {{
             const table = document.getElementById("screenTable");
-            let rows, switching, i, x, y, shouldSwitch;
-            const dirAsc = !sortDirections[colIndex];
-            sortDirections = Array(8).fill(false);
-            sortDirections[colIndex] = dirAsc;
-            
-            switching = true;
+            let rows, switching = true, i, x, y, shouldSwitch;
+            const asc = !sortDirs[col];
+            sortDirs = Array(8).fill(false);
+            sortDirs[col] = asc;
             while (switching) {{
                 switching = false;
                 rows = table.rows;
-                for (i = 1; i < (rows.length - 1); i++) {{
+                for (i = 1; i < rows.length - 1; i++) {{
                     shouldSwitch = false;
-                    x = rows[i].getElementsByTagName("TD")[colIndex];
-                    y = rows[i+1].getElementsByTagName("TD")[colIndex];
-                    
-                    let xVal = x.getAttribute("data-val") || x.innerText.toLowerCase().trim();
-                    let yVal = y.getAttribute("data-val") || y.innerText.toLowerCase().trim();
-                    
-                    let xNum = parseFloat(xVal.replace('%', ''));
-                    let yNum = parseFloat(yVal.replace('%', ''));
-                    if (!isNaN(xNum) && !isNaN(yNum)) {{
-                        xVal = xNum;
-                        yVal = yNum;
-                    }}
-                    
-                    if (dirAsc) {{
-                        if (xVal > yVal) {{
-                            shouldSwitch = true;
-                            break;
-                        }}
-                    }} else {{
-                        if (xVal < yVal) {{
-                            shouldSwitch = true;
-                            break;
-                        }}
-                    }}
+                    x = rows[i].getElementsByTagName("TD")[col];
+                    y = rows[i+1].getElementsByTagName("TD")[col];
+                    let xV = x.getAttribute("data-val") || x.innerText.toLowerCase().trim();
+                    let yV = y.getAttribute("data-val") || y.innerText.toLowerCase().trim();
+                    let xN = parseFloat(String(xV).replace('%',''));
+                    let yN = parseFloat(String(yV).replace('%',''));
+                    if (!isNaN(xN) && !isNaN(yN)) {{ xV = xN; yV = yN; }}
+                    if (asc ? xV > yV : xV < yV) {{ shouldSwitch = true; break; }}
                 }}
                 if (shouldSwitch) {{
-                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    rows[i].parentNode.insertBefore(rows[i+1], rows[i]);
                     switching = true;
                 }}
             }}
         }}
     </script>
 </body>
-</html>
-"""
+</html>"""
+
         with open(path, "w", encoding="utf-8") as f:
             f.write(html_content)
