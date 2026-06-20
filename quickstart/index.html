@@ -632,6 +632,56 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#6-what-gets-auto-generated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. What gets auto-generated
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. What gets auto-generated">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#when-running-telmus-scan-ticker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When running telmus scan TICKER:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-running-telmus-compare-ticker_a-ticker_b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When running telmus compare TICKER_A TICKER_B:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-running-telmus-screen-sector-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When running telmus screen --sector IT:
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1053,6 +1103,35 @@ Analyst brief
 ------------
 INFY: stable revenue growth with a moderate balance sheet. TCS: stronger earnings quality and growth, but a higher valuation multiple.
 </code></pre>
+<h2 id="6-what-gets-auto-generated">6. What gets auto-generated</h2>
+<p>Every main command in <code>telmus</code> generates high-quality files and opens interactive dashboards in your default web browser instantly.</p>
+<h3 id="when-running-telmus-scan-ticker">When running <code>telmus scan TICKER</code>:</h3>
+<ol>
+<li><strong><code>{TICKER}_analysis.xlsx</code> (Excel Workbook, ~15 KB)</strong>:</li>
+<li><strong>Dashboard (Sheet 1, Index 0)</strong>: The active home tab featuring a summary data table and three grid-aligned charts (Piotroski F-Score with value-based bar colors, Valuation comparison, and Growth CAGR percentages).</li>
+<li><strong>Summary (Sheet 2)</strong>: Contains metadata like Company Name, Ticker, Exchange, and the detailed Analyst Brief.</li>
+<li><strong>Valuation (Sheet 3)</strong>: Contains multiples like P/E, P/B, EV/EBITDA, and sector comparisons.</li>
+<li><strong>Health (Sheet 4)</strong>: Piotroski, Altman, leverage ratios, and liquidity ratings.</li>
+<li><strong>Growth (Sheet 5)</strong>: Revenue CAGR, PAT CAGR, margin trends, and FCF yields.</li>
+<li><strong>Red Flags (Sheet 6)</strong>: Individual warning details and Beneish M-scores.</li>
+<li><strong><code>{TICKER}_dashboard.html</code> (HTML Report, ~12 KB)</strong>:</li>
+<li>Self-contained dark-theme HTML file utilizing Chart.js.</li>
+<li>Company profiles, analyst brief, interactive bar charts, and conditional warning flags table.</li>
+</ol>
+<h3 id="when-running-telmus-compare-ticker_a-ticker_b">When running <code>telmus compare TICKER_A TICKER_B</code>:</h3>
+<ol>
+<li><strong><code>{TICKERA}vs{TICKERB}_comparison.xlsx</code> (Excel Workbook, ~12 KB)</strong>:</li>
+<li>Side-by-side metric comparison highlighting the winning peer for each parameter (Valuation, Health, Growth).</li>
+<li><strong><code>{TICKERA}vs{TICKERB}_dashboard.html</code> (HTML Report, ~15 KB)</strong>:</li>
+<li>Interactive grouped column charts comparing multiples, health indicators, and growth rates between both tickers side-by-side.</li>
+</ol>
+<h3 id="when-running-telmus-screen-sector-it">When running <code>telmus screen --sector IT</code>:</h3>
+<ol>
+<li><strong><code>screen_results.xlsx</code> (Excel Workbook, ~10 KB)</strong>:</li>
+<li>Summarized table of all companies matching the screen criteria, with averages calculated automatically at the bottom.</li>
+<li><strong><code>screen_dashboard.html</code> (HTML Report, ~15 KB)</strong>:</li>
+<li>Multi-company bar charts comparing quality scores and a sortable data table.</li>
+</ol>
 
 
 
