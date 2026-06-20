@@ -1,3 +1,11 @@
+## v0.1.9 - Final Polish & Chart Bug Fixes
+- Full synchronization
+- Fixed piotroski chart vanishing
+
+## v0.1.8 - Professional Dashboard Polish
+- Made bar charts perfectly sharp and styled
+- Fixed chart vanishing bug
+
 ## v0.1.0 - Initial Release
 
 ### Added

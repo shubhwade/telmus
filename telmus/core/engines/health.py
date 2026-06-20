@@ -63,7 +63,7 @@ class HealthEngine:
             cashflow = pd.DataFrame()
         info = financials.get("info") or {}
 
-        piotroski_f = self._compute_piotroski(income_stmt, balance_sheet, cashflow)
+        piotroski_f, piotroski_signals = self._compute_piotroski(income_stmt, balance_sheet, cashflow)
         altman_z = self._compute_altman_z(income_stmt, balance_sheet, info)
         debt_to_equity = self._compute_debt_to_equity(balance_sheet)
         current_ratio = self._compute_current_ratio(balance_sheet)
@@ -77,6 +77,7 @@ class HealthEngine:
 
         return HealthResult(
             piotroski_f=piotroski_f,
+            piotroski_signals=piotroski_signals,
             altman_z=altman_z,
             debt_to_equity=debt_to_equity,
             current_ratio=current_ratio,
@@ -89,18 +90,19 @@ class HealthEngine:
         income_stmt: pd.DataFrame,
         balance_sheet: pd.DataFrame,
         cashflow: pd.DataFrame,
-    ) -> int | None:
-        score = 0
-        score += 1 if self._roa_positive(income_stmt, balance_sheet) else 0
-        score += 1 if self._cfo_positive(cashflow) else 0
-        score += 1 if self._roa_increasing(income_stmt, balance_sheet) else 0
-        score += 1 if self._accruals(income_stmt, cashflow) else 0
-        score += 1 if self._leverage_decreasing(balance_sheet) else 0
-        score += 1 if self._liquidity_increasing(balance_sheet) else 0
-        score += 1 if self._no_dilution(balance_sheet) else 0
-        score += 1 if self._gross_margin_increasing(income_stmt) else 0
-        score += 1 if self._asset_turnover_increasing(income_stmt, balance_sheet) else 0
-        return score
+    ) -> tuple[int | None, dict]:
+        signals = {}
+        signals["ROA Positive"] = self._roa_positive(income_stmt, balance_sheet)
+        signals["CFO Positive"] = self._cfo_positive(cashflow)
+        signals["ROA Improving"] = self._roa_increasing(income_stmt, balance_sheet)
+        signals["Low Accruals"] = self._accruals(income_stmt, cashflow)
+        signals["Leverage Falling"] = self._leverage_decreasing(balance_sheet)
+        signals["Liquidity Rising"] = self._liquidity_increasing(balance_sheet)
+        signals["No Dilution"] = self._no_dilution(balance_sheet)
+        signals["Gross Margin Rising"] = self._gross_margin_increasing(income_stmt)
+        signals["Asset Turnover Rising"] = self._asset_turnover_increasing(income_stmt, balance_sheet)
+        score = sum(1 for v in signals.values() if v)
+        return score, signals
 
     def _roa_positive(
         self, income_stmt: pd.DataFrame, balance_sheet: pd.DataFrame

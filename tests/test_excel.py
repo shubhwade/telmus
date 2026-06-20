@@ -23,7 +23,7 @@ def test_excel_export_creates_valid_file() -> None:
             flag="expensive relative to sector"
         ),
         health=HealthResult(
-            piotroski_f=7,
+            piotroski_f=7, piotroski_signals={'ROA Positive': True, 'CFO Positive': True, 'ROA Improving': True, 'Low Accruals': True, 'Leverage Falling': True, 'Liquidity Rising': True, 'No Dilution': True, 'Gross Margin Rising': False, 'Asset Turnover Rising': False},
             altman_z=4.5,
             debt_to_equity=0.8,
             current_ratio=1.5,
@@ -85,6 +85,7 @@ def test_excel_export_graceful_on_missing_data() -> None:
         ),
         health=HealthResult(
             piotroski_f=None,
+            piotroski_signals={},
             altman_z=None,
             debt_to_equity=None,
             current_ratio=None,

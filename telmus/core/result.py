@@ -24,6 +24,7 @@ class ValuationResult:
 @dataclass
 class HealthResult:
     piotroski_f: int | None
+    piotroski_signals: dict[str, bool]
     altman_z: float | None
     debt_to_equity: float | None
     current_ratio: float | None

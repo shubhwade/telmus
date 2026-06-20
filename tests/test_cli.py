@@ -20,7 +20,7 @@ def fake_scan_result() -> ScanResult:
         exchange="NSE",
         scan_duration_ms=100,
         valuation=ValuationResult(pe_ratio=20.0, pb_ratio=5.0, ev_ebitda=15.0, vs_sector="fair", flag=None),
-        health=HealthResult(piotroski_f=7, altman_z=4.0, debt_to_equity=0.1, current_ratio=2.0, interest_coverage=40.0, flag=None),
+        health=HealthResult(piotroski_f=7, piotroski_signals={'ROA Positive': True, 'CFO Positive': True, 'ROA Improving': True, 'Low Accruals': True, 'Leverage Falling': True, 'Liquidity Rising': True, 'No Dilution': True, 'Gross Margin Rising': False, 'Asset Turnover Rising': False}, altman_z=4.0, debt_to_equity=0.1, current_ratio=2.0, interest_coverage=40.0, flag=None),
         growth=GrowthResult(revenue_cagr_3y=0.1, pat_cagr_3y=0.09, margin_trend="stable", fcf_yield=0.03, flag=None),
         red_flags=[],
         highest_concern="low",

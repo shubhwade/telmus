@@ -24,7 +24,7 @@ def mock_scan_result(ticker: str) -> ScanResult:
                 flag=None
             ),
             health=HealthResult(
-                piotroski_f=7,
+            piotroski_f=7, piotroski_signals={'ROA Positive': True, 'CFO Positive': True, 'ROA Improving': True, 'Low Accruals': True, 'Leverage Falling': True, 'Liquidity Rising': True, 'No Dilution': True, 'Gross Margin Rising': False, 'Asset Turnover Rising': False},
                 altman_z=4.2,
                 debt_to_equity=0.5,
                 current_ratio=1.5,
@@ -52,7 +52,7 @@ def mock_scan_result(ticker: str) -> ScanResult:
             exchange="NYSE",
             scan_duration_ms=0,
             valuation=ValuationResult(None, None, None, None, None),
-            health=HealthResult(None, None, None, None, None, None),
+            health=HealthResult(None, {}, None, None, None, None, None),
             growth=GrowthResult(None, None, None, None, None),
             red_flags=[],
             highest_concern="low",

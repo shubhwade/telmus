@@ -464,52 +464,27 @@ class HtmlDashboardExporter:
         from telmus.core.engines.health import HealthEngine
         import pandas as pd
 
-        signals = {
-            "ROA Positive": ("Company is profitable", False),
-            "CFO Positive": ("Operations generate cash", False),
-            "ROA Improving": ("Profitability improving", False),
-            "Low Accruals": ("Earnings quality is high", False),
-            "Leverage Falling": ("Debt burden reducing", False),
-            "Liquidity Rising": ("Short-term health improving", False),
-            "No Dilution": ("No new shares issued", False),
-            "Gross Margin Rising": ("Pricing power improving", False),
-            "Asset Turnover Rising": ("Using assets efficiently", False),
+        
+        signals_desc = {
+            "ROA Positive": "Company is profitable",
+            "CFO Positive": "Operations generate cash",
+            "ROA Improving": "Profitability improving",
+            "Low Accruals": "Earnings quality is high",
+            "Leverage Falling": "Debt burden reducing",
+            "Liquidity Rising": "Short-term health improving",
+            "No Dilution": "No new shares issued",
+            "Gross Margin Rising": "Pricing power improving",
+            "Asset Turnover Rising": "Using assets efficiently",
         }
-
-        try:
-            financials = load_financials(result.ticker)
-            income_stmt = financials.get("income_stmt")
-            if income_stmt is None:
-                income_stmt = pd.DataFrame()
-            balance_sheet = financials.get("balance_sheet")
-            if balance_sheet is None:
-                balance_sheet = pd.DataFrame()
-            cashflow = financials.get("cashflow")
-            if cashflow is None:
-                cashflow = pd.DataFrame()
-
-            he = HealthEngine()
-            signals["ROA Positive"] = (signals["ROA Positive"][0], he._roa_positive(income_stmt, balance_sheet))
-            signals["CFO Positive"] = (signals["CFO Positive"][0], he._cfo_positive(cashflow))
-            signals["ROA Improving"] = (signals["ROA Improving"][0], he._roa_increasing(income_stmt, balance_sheet))
-            signals["Low Accruals"] = (signals["Low Accruals"][0], he._accruals(income_stmt, cashflow))
-            signals["Leverage Falling"] = (signals["Leverage Falling"][0], he._leverage_decreasing(balance_sheet))
-            signals["Liquidity Rising"] = (signals["Liquidity Rising"][0], he._liquidity_increasing(balance_sheet))
-            signals["No Dilution"] = (signals["No Dilution"][0], he._no_dilution(balance_sheet))
-            signals["Gross Margin Rising"] = (signals["Gross Margin Rising"][0], he._gross_margin_increasing(income_stmt))
-            signals["Asset Turnover Rising"] = (signals["Asset Turnover Rising"][0], he._asset_turnover_increasing(income_stmt, balance_sheet))
-        except Exception:
-            pass
-
-        # Radar chart data (1 for pass, 0 for fail)
-        signal_names = list(signals.keys())
-        signal_values = [1 if signals[s][1] else 0 for s in signal_names]
-        # Short labels for radar
-        radar_labels = ["ROA+", "CFO+", "ROA↑", "Accruals", "Leverage↓", "Liquidity↑", "No Dilution", "Margin↑", "Turnover↑"]
 
         # Build checklist HTML
         checklist_items = []
-        for name, (desc, passed) in signals.items():
+        piotroski_signals = getattr(result.health, "piotroski_signals", {})
+        if not piotroski_signals:
+            piotroski_signals = {k: False for k in signals_desc}
+            
+        for name, desc in signals_desc.items():
+            passed = piotroski_signals.get(name, False)
             css = "check-pass" if passed else "check-fail"
             icon_color = "var(--teal)" if passed else "var(--coral)"
             icon = "✔" if passed else "✘"
@@ -521,6 +496,11 @@ class HtmlDashboardExporter:
                         <div class="check-desc">{desc}</div>
                     </div>
                 </div>""")
+
+        # Radar chart data (1 for pass, 0 for fail)
+        signal_names = list(signals_desc.keys())
+        signal_values = [1 if piotroski_signals.get(s, False) else 0 for s in signal_names]
+
 
         # Analyst brief badges
         val_status = (result.valuation.vs_sector or "FAIR").upper()
@@ -698,7 +678,7 @@ class HtmlDashboardExporter:
                     <span class="dot" style="background:var(--teal);"></span>Valuation Benchmarks
                 </div>
                 <div class="chart-box" style="height:280px;">
-                    <canvas id="chartValuation"></canvas>
+                    <canvas id="chartValuation" style="height:220px;"></canvas>
                 </div>
                 <div class="chart-explain">
                     <div style="font-weight:600;margin-bottom:0.5rem;color:#e5e5e5;">What this means:</div>
@@ -724,13 +704,13 @@ class HtmlDashboardExporter:
                         <div class="section-label" style="margin-top:0.25rem;">Piotroski F</div>
                     </div>
                     <div style="text-align:center;">
-                        <div class="gauge-wrap"><canvas id="gaugeAltman"></canvas>
+                        <div class="gauge-wrap"><canvas id="gaugeAltman" style="height:200px;"></canvas>
                             <div class="gauge-center"><span class="gauge-value" style="font-size:1rem;">{altman_text}</span></div>
                         </div>
                         <div class="section-label" style="margin-top:0.25rem;">Altman Z</div>
                     </div>
                     <div style="text-align:center;">
-                        <div class="gauge-wrap"><canvas id="gaugeFCF"></canvas>
+                        <div class="gauge-wrap"><canvas id="gaugeFCF" style="height:200px;"></canvas>
                             <div class="gauge-center"><span class="gauge-value" style="font-size:1rem;">{self._fmt_pct(fcf_yield)}</span></div>
                         </div>
                         <div class="section-label" style="margin-top:0.25rem;">FCF Yield</div>
@@ -747,7 +727,7 @@ class HtmlDashboardExporter:
                     <span class="dot" style="background:var(--indigo);"></span>Growth Metrics (3Y CAGR)
                 </div>
                 <div class="chart-box" style="height:220px;">
-                    <canvas id="chartGrowth"></canvas>
+                    <canvas id="chartGrowth" style="height:220px;"></canvas>
                 </div>
                 <div class="chart-explain">
                     <div style="font-weight:600;margin-bottom:0.5rem;color:#e5e5e5;">What this means:</div>
@@ -845,6 +825,7 @@ class HtmlDashboardExporter:
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
         // ─── Chart.js global defaults ───
         Chart.defaults.color = '#525252';
         Chart.defaults.borderColor = '#141414';
@@ -1059,6 +1040,7 @@ class HtmlDashboardExporter:
                 }}
             }}
         }});
+        });
     </script>
 </body>
 </html>"""
@@ -1198,7 +1180,7 @@ class HtmlDashboardExporter:
         <div class="grid-3">
             <div class="card">
                 <div class="section-label">Valuation</div>
-                <div class="chart-box" style="height:220px;"><canvas id="chartValuation"></canvas></div>
+                <div class="chart-box" style="height:220px;"><canvas id="chartValuation" style="height:220px;"></canvas></div>
                 <div class="chart-explain">P/E, P/B and EV/EBITDA side by side. Lower bars usually mean cheaper valuation. Teal = {ticker_a}, coral = {ticker_b}.</div>
             </div>
             <div class="card">
@@ -1208,7 +1190,7 @@ class HtmlDashboardExporter:
             </div>
             <div class="card">
                 <div class="section-label">Growth</div>
-                <div class="chart-box" style="height:220px;"><canvas id="chartGrowth"></canvas></div>
+                <div class="chart-box" style="height:220px;"><canvas id="chartGrowth" style="height:220px;"></canvas></div>
                 <div class="chart-explain">Revenue and profit growth rates over 3 years, plus free cash flow yield. Taller bars indicate stronger growth momentum.</div>
             </div>
         </div>
@@ -1357,6 +1339,7 @@ class HtmlDashboardExporter:
             }},
             options: chartOpts
         }});
+        });
     </script>
 </body>
 </html>"""
@@ -1656,6 +1639,7 @@ class HtmlDashboardExporter:
                 }}
             }}
         }}
+        });
     </script>
 </body>
 </html>"""
