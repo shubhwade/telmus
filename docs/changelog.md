@@ -1,3 +1,7 @@
+## v0.1.13 - Dashboard Layout and Versioning Polish
+- Fixed CSS layout causing Compare dashboard bar charts to overflow horizontally
+- UI components now dynamically read system version instead of hardcoding
+
 ## v0.1.12 - Compare Dashboard JS Fix
 - Removed dangling JS bracket that caused syntax errors and blank compare charts
 
