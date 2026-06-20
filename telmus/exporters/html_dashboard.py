@@ -7,6 +7,20 @@ from telmus.core.result import ScanResult, CompareResult
 from telmus import __version__ as telmus_version
 
 
+def get_company_logo_url(ticker: str, info: dict | None = None) -> str:
+    import yfinance as yf
+    try:
+        if info is None:
+            t = yf.Ticker(ticker)
+            info = getattr(t, 'info', {}) or {}
+        website = info.get("website", "")
+        if website:
+            domain = website.replace("https://", "").replace("http://", "").split("/")[0].replace("www.", "")
+            return f"https://logo.clearbit.com/{domain}"
+    except Exception:
+        pass
+    return ""
+
 class HtmlDashboardExporter:
     def _fmt(self, val: typing.Any) -> str:
         if val is None:
@@ -395,6 +409,24 @@ class HtmlDashboardExporter:
         .metric-row:last-child {{ border-bottom: none; }}
         .metric-key {{ font-size: 0.8125rem; color: var(--text-dim); }}
         .metric-val {{ font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; font-weight: 600; }}
+
+        @media print {{
+          * {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }}
+          body {{ background: white !important; color: #0d1117 !important; }}
+          #printBtn {{ display: none !important; }}
+          .dashboard-container {{ background: white !important; padding: 1rem !important; }}
+          .kpi-card {{ background: #f8f9fa !important; border: 1px solid #dee2e6 !important; break-inside: avoid; }}
+          .chart-card {{ background: #f8f9fa !important; border: 1px solid #dee2e6 !important; break-inside: avoid; }}
+          .gauge-card {{ background: #f8f9fa !important; border: 1px solid #dee2e6 !important; break-inside: avoid; }}
+          .analyst-brief {{ background: #f0fdf4 !important; border-left: 4px solid #00d4aa !important; break-inside: avoid; }}
+          .header-section {{ background: #0d1117 !important; color: white !important; -webkit-print-color-adjust: exact !important; }}
+          canvas {{ max-width: 100% !important; }}
+          @page {{ size: A4 landscape; margin: 1cm; }}
+          .kpi-row {{ page-break-inside: avoid; }}
+          .gauge-row {{ page-break-inside: avoid; }}
+          .charts-row {{ page-break-inside: avoid; }}
+          .piotroski-checklist {{ page-break-inside: avoid; }}
+        }}
     </style>
 </head>"""
 
@@ -618,7 +650,6 @@ class HtmlDashboardExporter:
             if val is None:
                 return "var(--text-dim)"
             return "var(--teal)" if good_fn(val) else "var(--coral)"
-
         de_color = _metric_color(de_val, lambda v: v < 1.5)
         cr_color = _metric_color(cr_val, lambda v: v > 1.0)
         ic_color = _metric_color(ic_val, lambda v: v > 3.0)
@@ -626,22 +657,46 @@ class HtmlDashboardExporter:
         pio_gauge_label = f"{pio_score}/9 — {'Strong fundamentals' if pio_score >= 7 else ('Adequate fundamentals' if pio_score >= 5 else 'Weak fundamentals')}"
         altman_gauge_label = 'Safe zone (Z > 2.6)' if (altman or 0) > 2.6 else ('Grey zone (1.1–2.6)' if (altman or 0) >= 1.1 else 'Distress zone (Z < 1.1)')
         fcf_gauge_label = 'High yield' if (fcf_yield or 0.0) >= 0.08 else ('Adequate yield' if (fcf_yield or 0.0) >= 0.02 else 'Weak/Negative yield')
-
+        logo_url = get_company_logo_url(result.ticker)
         html_content = f"""{self._head_block(f"telmus — {result.company} ({result.ticker}) Analysis")}
+<style>
+@media print {{
+    #printBtn {{ display: none !important; }}
+    .card, header {{ break-inside: avoid; }}
+    body {{ background: #fff !important; color: #000 !important; }}
+    .container {{ width: 100% !important; }}
+}}
+</style>
 <body>
     <div class="container stack">
 
         <!-- ═══ HEADER ═══ -->
-        <header>
-            <div>
-                <h1>{result.company}</h1>
-                <div class="header-sub">{result.ticker} · {result.exchange} · Last scanned: {scan_date}</div>
-                <div class="header-quote">"{result.analyst_brief}"</div>
-            </div>
-            <div style="text-align:right;">
-                <span class="font-mono" style="font-size:1.375rem;font-weight:800;color:#fff;">
-                    <span style="color:var(--teal);">telmus</span> v{telmus_version}
-                </span>
+        <header class="header-section" style="position:relative; padding:1.5rem; border-radius:12px; border:1px solid var(--border);">
+            <button onclick="window.print()" id="printBtn" 
+            style="position:fixed;top:1rem;right:1rem;
+            background:#00d4aa;color:#0d1117;
+            border:none;padding:0.6rem 1.4rem;
+            border-radius:6px;font-weight:700;
+            font-size:0.9rem;cursor:pointer;
+            font-family:Inter,sans-serif;
+            z-index:1000;">
+            Print Report
+            </button>
+            <div style="display:flex;align-items:center;gap:1.5rem;">
+                <img src="{logo_url}" 
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+                     style="width:56px;height:56px;border-radius:50%;object-fit:contain;background:white;padding:4px;">
+                <div style="display:{'none' if logo_url else 'flex'};align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:var(--teal-10);border:1px solid var(--teal-20);color:var(--teal);font-family:'JetBrains Mono', monospace;font-weight:700;font-size:1.5rem;" class="letter-avatar">{result.ticker[0]}</div>
+                <div style="flex:1;">
+                    <h1 style="margin-bottom:0;font-size:2rem;line-height:1.2;">{result.company}</h1>
+                    <div class="header-sub" style="margin-top:0.25rem;">{result.ticker} · {result.exchange} · Last scanned: {scan_date}</div>
+                    <div class="header-quote" style="margin-top:0.5rem;color:var(--text-dim);font-style:italic;">"{result.analyst_brief}"</div>
+                </div>
+                <div style="text-align:right;">
+                    <span class="font-mono" style="font-size:1.375rem;font-weight:800;color:#fff;">
+                        <span style="color:var(--teal);">telmus</span> v{telmus_version}
+                    </span>
+                </div>
             </div>
         </header>
 
@@ -1140,22 +1195,44 @@ class HtmlDashboardExporter:
         combined = [max(abs(radar_raw_a[i]), abs(radar_raw_b[i])) for i in range(5)]
         radar_norm_a = [abs(radar_raw_a[i]) / combined[i] if combined[i] != 0 else 0 for i in range(5)]
         radar_norm_b = [abs(radar_raw_b[i]) / combined[i] if combined[i] != 0 else 0 for i in range(5)]
+        logo_url_a = get_company_logo_url(ticker_a)
+        logo_url_b = get_company_logo_url(ticker_b)
 
         html_content = f"""{self._head_block(f"telmus — {ticker_a} vs {ticker_b} Comparison")}
+<style>
+@media print {{
+    #printBtn {{ display: none !important; }}
+    .card, header {{ break-inside: avoid; }}
+    body {{ background: #fff !important; color: #000 !important; }}
+    .container {{ width: 100% !important; }}
+}}
+</style>
 <body>
     <div class="container stack">
 
         <!-- Header -->
-        <header>
-            <div>
-                <h1>{ticker_a} vs {ticker_b} — Head to Head</h1>
-                <div class="header-sub">Comparison scan · {scan_date}</div>
-            </div>
-            <div style="text-align:right;">
-                <div class="section-label">System</div>
-                <span class="font-mono" style="font-size:0.875rem;font-weight:600;color:var(--text-dim);">
-                    <span style="color:var(--teal);">telmus</span> v{telmus_version}
-                </span>
+        <header class="header-section" style="position:relative; padding:1.5rem; border-radius:12px; border:1px solid var(--border);">
+            <button onclick="window.print()" id="printBtn" 
+            style="position:fixed;top:1rem;right:1rem;
+            background:#00d4aa;color:#0d1117;
+            border:none;padding:0.6rem 1.4rem;
+            border-radius:6px;font-weight:700;
+            font-size:0.9rem;cursor:pointer;
+            font-family:Inter,sans-serif;
+            z-index:1000;">
+            Print Report
+            </button>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <h1 style="margin-bottom:0;">{ticker_a} vs {ticker_b} — Head to Head</h1>
+                    <div class="header-sub" style="margin-top:0.25rem;">Comparison scan · {scan_date}</div>
+                </div>
+                <div style="text-align:right;">
+                    <div class="section-label">System</div>
+                    <span class="font-mono" style="font-size:0.875rem;font-weight:600;color:var(--text-dim);">
+                        <span style="color:var(--teal);">telmus</span> v{telmus_version}
+                    </span>
+                </div>
             </div>
         </header>
 
@@ -1163,7 +1240,8 @@ class HtmlDashboardExporter:
         <div class="grid-2">
             <div class="card">
                 <div class="company-header">
-                    <div class="company-avatar" style="background:var(--teal-10);border:1px solid var(--teal-20);color:var(--teal);">{ticker_a[0]}</div>
+                    <img src="{logo_url_a}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:3rem;height:3rem;border-radius:50%;object-fit:contain;background:white;padding:4px;">
+                    <div class="company-avatar" style="display:{'none' if logo_url_a else 'flex'};background:var(--teal-10);border:1px solid var(--teal-20);color:var(--teal);">{ticker_a[0]}</div>
                     <div>
                         <div style="font-weight:700;color:#fff;">{res_a.company}</div>
                         <div class="font-mono" style="font-size:0.75rem;color:var(--text-dim);">{ticker_a} · {res_a.exchange}</div>
@@ -1172,7 +1250,8 @@ class HtmlDashboardExporter:
             </div>
             <div class="card">
                 <div class="company-header">
-                    <div class="company-avatar" style="background:var(--coral-10);border:1px solid var(--coral-20);color:var(--coral);">{ticker_b[0]}</div>
+                    <img src="{logo_url_b}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:3rem;height:3rem;border-radius:50%;object-fit:contain;background:white;padding:4px;">
+                    <div class="company-avatar" style="display:{'none' if logo_url_b else 'flex'};background:var(--coral-10);border:1px solid var(--coral-20);color:var(--coral);">{ticker_b[0]}</div>
                     <div>
                         <div style="font-weight:700;color:#fff;">{res_b.company}</div>
                         <div class="font-mono" style="font-size:0.75rem;color:var(--text-dim);">{ticker_b} · {res_b.exchange}</div>

@@ -1,3 +1,9 @@
+## v0.2.1
+### Added
+- Real company logos via Clearbit API (no API key needed)
+- Print button generates clean one-page A4 landscape report
+- Print layout optimized for white paper with all charts preserved
+
 ## v0.2.0 - Final Boss Update
 - Cleaned codebase, performed security audit, and fixed typing issues
 - Added safe fallbacks for Valuation, Health, and Growth engines
