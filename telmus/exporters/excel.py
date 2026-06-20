@@ -569,10 +569,89 @@ class ExcelExporter:
             chart3.series[0].title = SeriesLabel(strRef=StrRef(f="Dashboard!$A$4"))
             chart3.series[0].graphicalProperties.solidFill = "10B981" # Emerald
 
-        # Add charts to Dashboard in a grid layout
+        # Fetch raw financials to construct line chart for margin trend if multiple periods available
+        from telmus.core.loaders import load_financials
+        from telmus.core.engines.health import _get_series_fallback
+        
+        chart4 = None
+        row_idx = 4
+        try:
+            financials = load_financials(result.ticker)
+            income_stmt = financials.get("income_stmt")
+            if income_stmt is not None:
+                operating_income = _get_series_fallback(income_stmt, ["Operating Income", "OperatingIncome", "Ebit", "EBIT"])
+                revenue = _get_series_fallback(income_stmt, ["Total Revenue", "TotalRevenue", "Revenue"])
+                
+                if operating_income is not None and revenue is not None:
+                    # Write margin trend table to Dashboard sheet in Columns K and L
+                    # We will sort years ascending so the line chart flows correctly
+                    unsorted_data = []
+                    for col in revenue.index:
+                        try:
+                            rev_val = float(revenue.loc[col])
+                            op_val = float(operating_income.loc[col])
+                            if rev_val != 0:
+                                margin_pct = (op_val / rev_val) * 100.0
+                                year_str = str(col.year) if hasattr(col, "year") else str(col)[:4]
+                                unsorted_data.append((year_str, margin_pct))
+                        except Exception:
+                            continue
+                    
+                    # Sort by year ascending
+                    unsorted_data.sort(key=lambda x: x[0])
+                    
+                    if unsorted_data:
+                        ws_dash.cell(row=3, column=11, value="Year")
+                        ws_dash.cell(row=3, column=12, value="Margin (%)")
+                        self._style_range(
+                            ws_dash,
+                            "K3:L3",
+                            font=self.font_data_bold,
+                            fill=self.fill_alt,
+                            border=self.border_all,
+                            alignment=Alignment(horizontal="center"),
+                        )
+                        
+                        for yr, mrg in unsorted_data:
+                            ws_dash.cell(row=row_idx, column=11, value=yr)
+                            ws_dash.cell(row=row_idx, column=12, value=mrg)
+                            row_idx += 1
+                        
+                        self._style_range(
+                            ws_dash,
+                            f"K4:L{row_idx-1}",
+                            font=self.font_data,
+                            fill=self.fill_white,
+                            border=self.border_all,
+                            alignment=Alignment(horizontal="center"),
+                        )
+                        
+                        # Set up LineChart
+                        chart4 = LineChart()
+                        chart4.title = "Operating Margin Trend (%)"
+                        chart4.y_axis.title = "Margin (%)"
+                        chart4.x_axis.title = "Year"
+                        chart4.legend = None
+                        
+                        cats4 = Reference(ws_dash, min_col=11, min_row=4, max_row=row_idx-1)
+                        data4 = Reference(ws_dash, min_col=12, min_row=3, max_row=row_idx-1)
+                        chart4.add_data(data4, titles_from_data=True)
+                        chart4.set_categories(cats4)
+                        
+                        if len(chart4.series) > 0:
+                            chart4.series[0].graphicalProperties.line.solidFill = "3B82F6" # Blue
+        except Exception as e:
+            logger.warning("Failed to fetch financials for Excel line chart: %s", e)
+
+        # Add charts to Dashboard in a 2x2 grid layout
         ws_dash.add_chart(chart1, "B6")
         ws_dash.add_chart(chart2, "J6")
         ws_dash.add_chart(chart3, "B22")
+        if chart4 is not None:
+            ws_dash.add_chart(chart4, "J22")
+
+        # Adjust column widths for Dashboard sheet (re-run to fit K/L column width too)
+        self._auto_fit_columns(ws_dash)
 
         wb.save(path)
 

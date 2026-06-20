@@ -55,19 +55,26 @@ class ValuationEngine:
         total_debt = self._total_debt(balance_sheet)
         cash = self._cash(balance_sheet)
 
-        pe_ratio = _safe_divide(market_cap, net_income)
-        pb_ratio = _safe_divide(market_cap, book_value)
-        ev_ebitda = None
-        if (
-            market_cap is not None
-            and total_debt is not None
-            and cash is not None
-            and ebitda is not None
-        ):
-            ev = market_cap + total_debt - cash
-            ev_ebitda = _safe_divide(ev, ebitda)
+        pe_ratio = _safe_value(info.get("trailingPE"))
+        if pe_ratio is None:
+            pe_ratio = _safe_divide(market_cap, net_income)
 
-        vs_sector = None
+        pb_ratio = _safe_value(info.get("priceToBook"))
+        if pb_ratio is None:
+            pb_ratio = _safe_divide(market_cap, book_value)
+
+        ev_ebitda = _safe_value(info.get("enterpriseToEbitda"))
+        if ev_ebitda is None:
+            if (
+                market_cap is not None
+                and total_debt is not None
+                and cash is not None
+                and ebitda is not None
+            ):
+                ev = market_cap + total_debt - cash
+                ev_ebitda = _safe_divide(ev, ebitda)
+
+        vs_sector = "fair"
         flag = None
         sector = info.get("sector")
         if sector and pe_ratio is not None:
@@ -159,13 +166,16 @@ class ValuationEngine:
                 peers = info.get("industryPeers") or []
                 peer_ratios = []
                 for peer in peers[:5]:
-                    peer_obj = yf.Ticker(peer)
-                    peer_info = peer_obj.info or {}
-                    ratio = _safe_value(peer_info.get("trailingPE"))
-                    if ratio is not None:
-                        peer_ratios.append(ratio)
+                    try:
+                        peer_obj = yf.Ticker(peer)
+                        peer_info = peer_obj.info or {}
+                        ratio = _safe_value(peer_info.get("trailingPE"))
+                        if ratio is not None:
+                            peer_ratios.append(ratio)
+                    except Exception as e:
+                        logger.warning("Failed to fetch info for peer %s: %s", peer, e)
                 if peer_ratios:
                     return float(np.median(peer_ratios))
-        except Exception:
-            logger.warning("Unable to fetch sector peers for %s", sector)
+        except Exception as e:
+            logger.warning("Unable to fetch sector peers for %s: %s", sector, e)
         return None
