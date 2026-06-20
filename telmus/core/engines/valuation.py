@@ -90,9 +90,9 @@ class ValuationEngine:
                     vs_sector = "fair"
 
         if pe_ratio is not None and pe_ratio < 0:
-            flag = 'negative earnings'
+            flag = "negative earnings"
         if ev_ebitda is not None and ev_ebitda < 0 and flag is None:
-            flag = 'negative ebitda'
+            flag = "negative ebitda"
         return ValuationResult(
             pe_ratio=pe_ratio,
             pb_ratio=pb_ratio,
@@ -163,7 +163,11 @@ class ValuationEngine:
         try:
             import yfinance as yf
 
-            with io.StringIO() as dump, contextlib.redirect_stdout(dump), contextlib.redirect_stderr(dump):
+            with (
+                io.StringIO() as dump,
+                contextlib.redirect_stdout(dump),
+                contextlib.redirect_stderr(dump),
+            ):
                 search = yf.Ticker(ticker) if ticker else None
                 if search is None:
                     return None

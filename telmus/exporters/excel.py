@@ -1,5 +1,6 @@
 from __future__ import annotations
 import logging
+
 logger = logging.getLogger(__name__)
 
 import datetime
@@ -20,19 +21,40 @@ class ExcelExporter:
         self.font_header = Font(name=self.font_name, size=11, bold=True, color="FFFFFF")
         self.font_data_bold = Font(name=self.font_name, size=11, bold=True)
         self.font_data = Font(name=self.font_name, size=11)
-        self.font_italic = Font(name=self.font_name, size=9, italic=True, color="555555")
+        self.font_italic = Font(
+            name=self.font_name, size=9, italic=True, color="555555"
+        )
 
-        self.fill_header = PatternFill(start_color="1A1A2E", end_color="1A1A2E", fill_type="solid")
-        self.fill_alt = PatternFill(start_color="F5F5F5", end_color="F5F5F5", fill_type="solid")
-        self.fill_white = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
+        self.fill_header = PatternFill(
+            start_color="1A1A2E", end_color="1A1A2E", fill_type="solid"
+        )
+        self.fill_alt = PatternFill(
+            start_color="F5F5F5", end_color="F5F5F5", fill_type="solid"
+        )
+        self.fill_white = PatternFill(
+            start_color="FFFFFF", end_color="FFFFFF", fill_type="solid"
+        )
 
-        self.fill_green_light = PatternFill(start_color="D4EDDA", end_color="D4EDDA", fill_type="solid")
-        self.fill_orange_light = PatternFill(start_color="FFF3CD", end_color="FFF3CD", fill_type="solid")
-        self.fill_red_light = PatternFill(start_color="F8D7DA", end_color="F8D7DA", fill_type="solid")
-        self.fill_yellow_light = PatternFill(start_color="FFFFE0", end_color="FFFFE0", fill_type="solid")
+        self.fill_green_light = PatternFill(
+            start_color="D4EDDA", end_color="D4EDDA", fill_type="solid"
+        )
+        self.fill_orange_light = PatternFill(
+            start_color="FFF3CD", end_color="FFF3CD", fill_type="solid"
+        )
+        self.fill_red_light = PatternFill(
+            start_color="F8D7DA", end_color="F8D7DA", fill_type="solid"
+        )
+        self.fill_yellow_light = PatternFill(
+            start_color="FFFFE0", end_color="FFFFE0", fill_type="solid"
+        )
 
         self.thin_side = Side(border_style="thin", color="CCCCCC")
-        self.border_all = Border(left=self.thin_side, right=self.thin_side, top=self.thin_side, bottom=self.thin_side)
+        self.border_all = Border(
+            left=self.thin_side,
+            right=self.thin_side,
+            top=self.thin_side,
+            bottom=self.thin_side,
+        )
 
     def _style_cell(
         self,
@@ -94,6 +116,7 @@ class ExcelExporter:
             return str(v)
 
     import typing
+
     def export(self, result: ScanResult, path: str) -> None:
         wb = Workbook()
         ws_summary = wb.active
@@ -276,8 +299,18 @@ class ExcelExporter:
         ic_status = "weak coverage" if (ic_val is not None and ic_val < 1.5) else "ok"
 
         health_rows = [
-            ("Piotroski F-Score", f_val, f_status, "* Note: 7-9 is strong, 5-6 is stable, <5 is weak"),
-            ("Altman Z-Score", z_val, z_status, "* Note: >2.99 is safe, 1.81-2.99 is grey zone, <1.81 is distress"),
+            (
+                "Piotroski F-Score",
+                f_val,
+                f_status,
+                "* Note: 7-9 is strong, 5-6 is stable, <5 is weak",
+            ),
+            (
+                "Altman Z-Score",
+                z_val,
+                z_status,
+                "* Note: >2.99 is safe, 1.81-2.99 is grey zone, <1.81 is distress",
+            ),
             ("Debt/Equity", de_val, de_status, None),
             ("Current Ratio", cr_val, cr_status, None),
             ("Interest Coverage", ic_val, ic_status, None),
@@ -351,10 +384,20 @@ class ExcelExporter:
         margin_trend = result.growth.margin_trend
         fcf_yield = result.growth.fcf_yield
 
-        rev_status = "declining revenue" if (rev_cagr is not None and rev_cagr < 0) else "ok"
-        pat_status = "declining earnings" if (pat_cagr is not None and pat_cagr < 0) else "ok"
-        margin_status = "declining margins" if (margin_trend and "declining" in margin_trend.lower()) else "ok"
-        fcf_status = "negative yield" if (fcf_yield is not None and fcf_yield < 0) else "ok"
+        rev_status = (
+            "declining revenue" if (rev_cagr is not None and rev_cagr < 0) else "ok"
+        )
+        pat_status = (
+            "declining earnings" if (pat_cagr is not None and pat_cagr < 0) else "ok"
+        )
+        margin_status = (
+            "declining margins"
+            if (margin_trend and "declining" in margin_trend.lower())
+            else "ok"
+        )
+        fcf_status = (
+            "negative yield" if (fcf_yield is not None and fcf_yield < 0) else "ok"
+        )
 
         growth_rows = [
             ("Revenue CAGR 3Y", rev_cagr, rev_status),
@@ -531,14 +574,14 @@ class ExcelExporter:
         f_val = result.health.piotroski_f
         if f_val is not None:
             if f_val >= 7:
-                f_color = "28A745" # green
+                f_color = "28A745"  # green
             elif f_val >= 5:
-                f_color = "FD7E14" # orange
+                f_color = "FD7E14"  # orange
             else:
-                f_color = "DC3545" # red
+                f_color = "DC3545"  # red
         else:
             f_color = "CCCCCC"
-        
+
         if len(chart1.series) > 0:
             chart1.series[0].graphicalProperties.solidFill = f_color
 
@@ -548,14 +591,14 @@ class ExcelExporter:
         chart2.title = "Valuation Comparison (P/E, P/B, EV/EBITDA)"
         chart2.x_axis.title = "Metric"
         chart2.y_axis.title = "Value"
-        
+
         cats2 = Reference(ws_dash, min_col=3, max_col=5, min_row=3, max_row=3)
         data2 = Reference(ws_dash, min_col=3, max_col=5, min_row=4, max_row=4)
         chart2.add_data(data2, from_rows=True)
         chart2.set_categories(cats2)
         if len(chart2.series) > 0:
             chart2.series[0].title = SeriesLabel(strRef=StrRef(f="Dashboard!$A$4"))
-            chart2.series[0].graphicalProperties.solidFill = "6366F1" # Indigo
+            chart2.series[0].graphicalProperties.solidFill = "6366F1"  # Indigo
 
         # Chart 3: BarChart - Revenue CAGR and PAT CAGR
         chart3 = BarChart()
@@ -563,19 +606,19 @@ class ExcelExporter:
         chart3.title = "Growth CAGR Comparison (%)"
         chart3.x_axis.title = "Metric"
         chart3.y_axis.title = "Percentage (%)"
-        
+
         cats3 = Reference(ws_dash, min_col=6, max_col=7, min_row=3, max_row=3)
         data3 = Reference(ws_dash, min_col=6, max_col=7, min_row=4, max_row=4)
         chart3.add_data(data3, from_rows=True)
         chart3.set_categories(cats3)
         if len(chart3.series) > 0:
             chart3.series[0].title = SeriesLabel(strRef=StrRef(f="Dashboard!$A$4"))
-            chart3.series[0].graphicalProperties.solidFill = "10B981" # Emerald
+            chart3.series[0].graphicalProperties.solidFill = "10B981"  # Emerald
 
         # Fetch raw financials to construct line chart for margin trend if multiple periods available
         from telmus.core.loaders import load_financials
         from telmus.core.engines.health import _get_series_fallback
-        
+
         chart4 = None
         chart5 = None
         chart6 = None
@@ -584,9 +627,13 @@ class ExcelExporter:
             financials = load_financials(result.ticker)
             income_stmt = financials.get("income_stmt")
             if income_stmt is not None:
-                operating_income = _get_series_fallback(income_stmt, ["Operating Income", "OperatingIncome", "Ebit", "EBIT"])
-                revenue = _get_series_fallback(income_stmt, ["Total Revenue", "TotalRevenue", "Revenue"])
-                
+                operating_income = _get_series_fallback(
+                    income_stmt, ["Operating Income", "OperatingIncome", "Ebit", "EBIT"]
+                )
+                revenue = _get_series_fallback(
+                    income_stmt, ["Total Revenue", "TotalRevenue", "Revenue"]
+                )
+
                 if operating_income is not None and revenue is not None:
                     # Write margin trend table to Dashboard sheet in Columns K and L
                     # We will sort years ascending so the line chart flows correctly
@@ -597,14 +644,18 @@ class ExcelExporter:
                             op_val = float(operating_income.loc[col])
                             if rev_val != 0:
                                 margin_pct = (op_val / rev_val) * 100.0
-                                year_str = str(col.year) if hasattr(col, "year") else str(col)[:4]
+                                year_str = (
+                                    str(col.year)
+                                    if hasattr(col, "year")
+                                    else str(col)[:4]
+                                )
                                 unsorted_data.append((year_str, margin_pct))
                         except Exception:
                             continue
-                    
+
                     # Sort by year ascending
                     unsorted_data.sort(key=lambda x: x[0])
-                    
+
                     if unsorted_data:
                         ws_dash.cell(row=3, column=11, value="Year")
                         ws_dash.cell(row=3, column=12, value="Margin (%)")
@@ -616,37 +667,42 @@ class ExcelExporter:
                             border=self.border_all,
                             alignment=Alignment(horizontal="center"),
                         )
-                        
+
                         for yr, mrg in unsorted_data:
                             ws_dash.cell(row=row_idx, column=11, value=yr)
                             ws_dash.cell(row=row_idx, column=12, value=mrg)
                             row_idx += 1
-                        
+
                         self._style_range(
                             ws_dash,
-                            f"K4:L{row_idx-1}",
+                            f"K4:L{row_idx - 1}",
                             font=self.font_data,
                             fill=self.fill_white,
                             border=self.border_all,
                             alignment=Alignment(horizontal="center"),
                         )
-                        
+
                         # Set up LineChart
                         chart4 = LineChart()
                         chart4.title = "Operating Margin Trend (%)"
                         chart4.y_axis.title = "Margin (%)"
                         chart4.x_axis.title = "Year"
                         chart4.legend = None
-                        
-                        cats4 = Reference(ws_dash, min_col=11, min_row=4, max_row=row_idx-1)
-                        data4 = Reference(ws_dash, min_col=12, min_row=3, max_row=row_idx-1)
+
+                        cats4 = Reference(
+                            ws_dash, min_col=11, min_row=4, max_row=row_idx - 1
+                        )
+                        data4 = Reference(
+                            ws_dash, min_col=12, min_row=3, max_row=row_idx - 1
+                        )
                         chart4.add_data(data4, titles_from_data=True)
                         chart4.set_categories(cats4)
-                        
 
                         if len(chart4.series) > 0:
-                            chart4.series[0].graphicalProperties.line.solidFill = "3B82F6" # Blue
-                        
+                            chart4.series[
+                                0
+                            ].graphicalProperties.line.solidFill = "3B82F6"  # Blue
+
                         # Chart 5: Revenue History
                         chart5 = BarChart()
                         chart5.type = "col"
@@ -659,18 +715,26 @@ class ExcelExporter:
                         for col in revenue.index:
                             try:
                                 r_val = float(revenue.loc[col])
-                                y_str = str(col.year) if hasattr(col, "year") else str(col)[:4]
+                                y_str = (
+                                    str(col.year)
+                                    if hasattr(col, "year")
+                                    else str(col)[:4]
+                                )
                                 rev_data.append((y_str, r_val))
                             except Exception:
                                 pass
                         rev_data.sort(key=lambda x: x[0])
-                        
+
                         if rev_data:
                             ws_dash.cell(row=3, column=14, value="Year")
                             ws_dash.cell(row=3, column=15, value="Revenue")
                             self._style_range(
-                                ws_dash, "N3:O3", font=self.font_data_bold, fill=self.fill_alt,
-                                border=self.border_all, alignment=Alignment(horizontal="center")
+                                ws_dash,
+                                "N3:O3",
+                                font=self.font_data_bold,
+                                fill=self.fill_alt,
+                                border=self.border_all,
+                                alignment=Alignment(horizontal="center"),
                             )
                             r_idx = 4
                             for yr, rval in rev_data:
@@ -678,16 +742,26 @@ class ExcelExporter:
                                 ws_dash.cell(row=r_idx, column=15, value=rval)
                                 r_idx += 1
                             self._style_range(
-                                ws_dash, f"N4:O{r_idx-1}", font=self.font_data, fill=self.fill_white,
-                                border=self.border_all, alignment=Alignment(horizontal="center")
+                                ws_dash,
+                                f"N4:O{r_idx - 1}",
+                                font=self.font_data,
+                                fill=self.fill_white,
+                                border=self.border_all,
+                                alignment=Alignment(horizontal="center"),
                             )
-                            cats5 = Reference(ws_dash, min_col=14, min_row=4, max_row=r_idx-1)
-                            data5 = Reference(ws_dash, min_col=15, min_row=3, max_row=r_idx-1)
+                            cats5 = Reference(
+                                ws_dash, min_col=14, min_row=4, max_row=r_idx - 1
+                            )
+                            data5 = Reference(
+                                ws_dash, min_col=15, min_row=3, max_row=r_idx - 1
+                            )
                             chart5.add_data(data5, titles_from_data=True)
                             chart5.set_categories(cats5)
                             if len(chart5.series) > 0:
-                                chart5.series[0].graphicalProperties.solidFill = "10B981"
-                        
+                                chart5.series[
+                                    0
+                                ].graphicalProperties.solidFill = "10B981"
+
                         # Chart 6: P/E History
                         # Fetch price history to calculate P/E
                         chart6 = LineChart()
@@ -699,27 +773,38 @@ class ExcelExporter:
                         pe_data = []
                         try:
                             import yfinance as yf
+
                             hist = yf.Ticker(result.ticker).history(period="5y")
-                            eps_series = _get_series_fallback(income_stmt, ["Basic EPS", "Diluted EPS"])
+                            eps_series = _get_series_fallback(
+                                income_stmt, ["Basic EPS", "Diluted EPS"]
+                            )
                             if eps_series is not None and not hist.empty:
-                                hist['Year'] = hist.index.year
-                                last_prices = hist.groupby('Year')['Close'].last()
+                                hist["Year"] = hist.index.year
+                                last_prices = hist.groupby("Year")["Close"].last()
                                 for col in eps_series.index:
-                                    y_str = int(col.year) if hasattr(col, "year") else int(str(col)[:4])
+                                    y_str = (
+                                        int(col.year)
+                                        if hasattr(col, "year")
+                                        else int(str(col)[:4])
+                                    )
                                     eps_val = float(eps_series.loc[col])
                                     if eps_val > 0 and y_str in last_prices:
                                         pe_val = last_prices[y_str] / eps_val
                                         pe_data.append((str(y_str), pe_val))
                         except Exception:
                             pass
-                        
+
                         pe_data.sort(key=lambda x: x[0])
                         if pe_data:
                             ws_dash.cell(row=3, column=17, value="Year")
                             ws_dash.cell(row=3, column=18, value="P/E")
                             self._style_range(
-                                ws_dash, "Q3:R3", font=self.font_data_bold, fill=self.fill_alt,
-                                border=self.border_all, alignment=Alignment(horizontal="center")
+                                ws_dash,
+                                "Q3:R3",
+                                font=self.font_data_bold,
+                                fill=self.fill_alt,
+                                border=self.border_all,
+                                alignment=Alignment(horizontal="center"),
                             )
                             p_idx = 4
                             for yr, pval in pe_data:
@@ -727,15 +812,25 @@ class ExcelExporter:
                                 ws_dash.cell(row=p_idx, column=18, value=pval)
                                 p_idx += 1
                             self._style_range(
-                                ws_dash, f"Q4:R{p_idx-1}", font=self.font_data, fill=self.fill_white,
-                                border=self.border_all, alignment=Alignment(horizontal="center")
+                                ws_dash,
+                                f"Q4:R{p_idx - 1}",
+                                font=self.font_data,
+                                fill=self.fill_white,
+                                border=self.border_all,
+                                alignment=Alignment(horizontal="center"),
                             )
-                            cats6 = Reference(ws_dash, min_col=17, min_row=4, max_row=p_idx-1)
-                            data6 = Reference(ws_dash, min_col=18, min_row=3, max_row=p_idx-1)
+                            cats6 = Reference(
+                                ws_dash, min_col=17, min_row=4, max_row=p_idx - 1
+                            )
+                            data6 = Reference(
+                                ws_dash, min_col=18, min_row=3, max_row=p_idx - 1
+                            )
                             chart6.add_data(data6, titles_from_data=True)
                             chart6.set_categories(cats6)
                             if len(chart6.series) > 0:
-                                chart6.series[0].graphicalProperties.line.solidFill = "F59E0B"
+                                chart6.series[
+                                    0
+                                ].graphicalProperties.line.solidFill = "F59E0B"
 
         except Exception as e:
             logger.warning("Failed to fetch financials for Excel line chart: %s", e)
@@ -786,8 +881,16 @@ class ExcelExporter:
             ("Altman Z-Score", res_a.health.altman_z, res_b.health.altman_z),
             ("Debt / Equity", res_a.health.debt_to_equity, res_b.health.debt_to_equity),
             ("Current Ratio", res_a.health.current_ratio, res_b.health.current_ratio),
-            ("Interest Coverage", res_a.health.interest_coverage, res_b.health.interest_coverage),
-            ("Revenue CAGR 3Y", res_a.growth.revenue_cagr_3y, res_b.growth.revenue_cagr_3y),
+            (
+                "Interest Coverage",
+                res_a.health.interest_coverage,
+                res_b.health.interest_coverage,
+            ),
+            (
+                "Revenue CAGR 3Y",
+                res_a.growth.revenue_cagr_3y,
+                res_b.growth.revenue_cagr_3y,
+            ),
             ("PAT CAGR 3Y", res_a.growth.pat_cagr_3y, res_b.growth.pat_cagr_3y),
             ("FCF Yield", res_a.growth.fcf_yield, res_b.growth.fcf_yield),
         ]
@@ -795,7 +898,9 @@ class ExcelExporter:
         for idx, (m, val_a, val_b) in enumerate(metrics, start=2):
             fill = self.fill_alt if idx % 2 == 1 else self.fill_white
 
-            win_code, win_text = self._get_winner_details(m, val_a, val_b, ticker_a, ticker_b)
+            win_code, win_text = self._get_winner_details(
+                m, val_a, val_b, ticker_a, ticker_b
+            )
 
             ws.cell(row=idx, column=1, value=m)
             ws.cell(row=idx, column=2, value=self._val(val_a))
@@ -841,7 +946,12 @@ class ExcelExporter:
         wb.save(path)
 
     def _get_winner_details(
-        self, metric_name: str, val_a: typing.Any, val_b: typing.Any, ticker_a: str, ticker_b: str
+        self,
+        metric_name: str,
+        val_a: typing.Any,
+        val_b: typing.Any,
+        ticker_a: str,
+        ticker_b: str,
     ) -> tuple[str | None, str]:
         if val_a is None and val_b is None:
             return None, "Draw"

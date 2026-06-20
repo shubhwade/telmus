@@ -4,22 +4,28 @@ import typing
 import json
 import datetime
 from telmus.core.result import ScanResult, CompareResult
-from telmus import __version__ as telmus_version
 
 
 def get_company_logo_url(ticker: str, info: dict | None = None) -> str:
     import yfinance as yf
+
     try:
         if info is None:
             t = yf.Ticker(ticker)
-            info = getattr(t, 'info', {}) or {}
+            info = getattr(t, "info", {}) or {}
         website = info.get("website", "")
         if website:
-            domain = website.replace("https://", "").replace("http://", "").split("/")[0].replace("www.", "")
+            domain = (
+                website.replace("https://", "")
+                .replace("http://", "")
+                .split("/")[0]
+                .replace("www.", "")
+            )
             return f"https://logo.clearbit.com/{domain}"
     except Exception:
         pass
     return ""
+
 
 class HtmlDashboardExporter:
     def _fmt(self, val: typing.Any) -> str:
@@ -37,7 +43,12 @@ class HtmlDashboardExporter:
         return str(val)
 
     def _get_winner_details(
-        self, metric_name: str, val_a: typing.Any, val_b: typing.Any, ticker_a: str, ticker_b: str
+        self,
+        metric_name: str,
+        val_a: typing.Any,
+        val_b: typing.Any,
+        ticker_a: str,
+        ticker_b: str,
     ) -> tuple[str | None, str]:
         if val_a is None and val_b is None:
             return None, "Draw"
@@ -52,7 +63,13 @@ class HtmlDashboardExporter:
         except (TypeError, ValueError):
             return None, "Draw"
 
-        lower_better = ["P/E Ratio", "P/B Ratio", "EV/EBITDA", "Debt / Equity", "Debt/Equity"]
+        lower_better = [
+            "P/E Ratio",
+            "P/B Ratio",
+            "EV/EBITDA",
+            "Debt / Equity",
+            "Debt/Equity",
+        ]
         is_lower_better = any(lb.lower() in metric_name.lower() for lb in lower_better)
 
         if a == b:
@@ -301,9 +318,8 @@ class HtmlDashboardExporter:
             border: none;
             border-left: 3px solid var(--teal);
             color: var(--teal);
-            padding: 0.75rem 1rem 0.75rem 1rem;
-            padding-left: 1rem;
-            border-radius: 0;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             gap: 0.75rem;
@@ -413,137 +429,21 @@ class HtmlDashboardExporter:
         .metric-val {{ font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; font-weight: 600; }}
 
         @media print {{
-          @page {{
-            size: A4 landscape;
-            margin: 0;
-          }}
-
-          html, body {{
-            width: 297mm;
-            height: 210mm;
-            overflow: hidden !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }}
-
-          body * {{
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            color-adjust: exact !important;
-          }}
-
+          * {{ -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }}
+          body {{ background: white !important; color: #0d1117 !important; }}
           #printBtn {{ display: none !important; }}
-
-          .dashboard-wrapper {{
-            width: 1400px;
-            transform: scale(0.54);
-            transform-origin: top left;
-            height: 210mm;
-            overflow: hidden;
-          }}
-
-          .header-section {{
-            padding: 8px 16px !important;
-          }}
-
-          .kpi-row {{
-            display: grid !important;
-            grid-template-columns: repeat(4, 1fr) !important;
-            gap: 6px !important;
-            padding: 6px !important;
-          }}
-
-          .kpi-card {{
-            padding: 8px !important;
-            min-height: 0 !important;
-          }}
-
-          .kpi-value {{ font-size: 20px !important; }}
-          .kpi-label {{ font-size: 8px !important; }}
-          .kpi-desc {{ font-size: 7px !important; }}
-
-          .gauge-row {{
-            display: grid !important;
-            grid-template-columns: repeat(3, 1fr) !important;
-            gap: 6px !important;
-            padding: 6px !important;
-          }}
-
-          .gauge-card {{
-            padding: 8px !important;
-            height: 160px !important;
-            overflow: hidden !important;
-          }}
-
-          .gauge-wrap {{
-            height: 100px !important;
-          }}
-
-          .charts-row {{
-            display: grid !important;
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 6px !important;
-            padding: 6px !important;
-          }}
-
-          .chart-card {{
-            padding: 8px !important;
-            height: 180px !important;
-            overflow: hidden !important;
-          }}
-
-          .chart-card canvas {{
-            height: 130px !important;
-            max-height: 130px !important;
-          }}
-
-          .gauge-card canvas {{
-            height: 90px !important;
-            max-height: 90px !important;
-          }}
-
-          .analyst-section {{
-            padding: 8px 16px !important;
-            margin: 4px !important;
-          }}
-
-          .brief-text {{
-            font-size: 9px !important;
-            line-height: 1.4 !important;
-          }}
-
-          .piotroski-checklist, .grid-3 {{
-            display: grid !important;
-            grid-template-columns: repeat(3, 1fr) !important;
-            gap: 2px !important;
-            padding: 6px !important;
-            font-size: 8px !important;
-          }}
-
-          .check-item {{
-            padding: 2px 4px !important;
-            font-size: 8px !important;
-          }}
-
-          .flags-section {{
-            padding: 6px 16px !important;
-            font-size: 8px !important;
-          }}
-
-          .section-title {{
-            font-size: 9px !important;
-            margin-bottom: 4px !important;
-          }}
-
-          .radar-section {{
-            height: 200px !important;
-            overflow: hidden !important;
-          }}
-
-          .radar-section canvas, .chart-box canvas {{
-            height: 160px !important;
-            max-height: 160px !important;
-          }}
+          .dashboard-container {{ background: white !important; padding: 1rem !important; }}
+          .kpi-card {{ background: #f8f9fa !important; border: 1px solid #dee2e6 !important; break-inside: avoid; }}
+          .chart-card {{ background: #f8f9fa !important; border: 1px solid #dee2e6 !important; break-inside: avoid; }}
+          .gauge-card {{ background: #f8f9fa !important; border: 1px solid #dee2e6 !important; break-inside: avoid; }}
+          .analyst-brief {{ background: #f0fdf4 !important; border-left: 4px solid #00d4aa !important; break-inside: avoid; }}
+          .header-section {{ background: #0d1117 !important; color: white !important; -webkit-print-color-adjust: exact !important; }}
+          canvas {{ max-width: 100% !important; }}
+          @page {{ size: A4 landscape; margin: 1cm; }}
+          .kpi-row {{ page-break-inside: avoid; }}
+          .gauge-row {{ page-break-inside: avoid; }}
+          .charts-row {{ page-break-inside: avoid; }}
+          .piotroski-checklist {{ page-break-inside: avoid; }}
         }}
     </style>
 </head>"""
@@ -568,11 +468,11 @@ class HtmlDashboardExporter:
                 return default
 
         scan_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        pe = _safe_get(result.valuation, 'pe_ratio', 0.0)
-        pio = _safe_get(result.health, 'piotroski_f', 0)
-        altman = _safe_get(result.health, 'altman_z', 0.0)
-        rev_cagr = _safe_get(result.growth, 'revenue_cagr_3y', 0.0)
-        fcf_yield = _safe_get(result.growth, 'fcf_yield', 0.0)
+        pe = _safe_get(result.valuation, "pe_ratio", 0.0)
+        pio = _safe_get(result.health, "piotroski_f", 0)
+        altman = _safe_get(result.health, "altman_z", 0.0)
+        rev_cagr = _safe_get(result.growth, "revenue_cagr_3y", 0.0)
+        fcf_yield = _safe_get(result.growth, "fcf_yield", 0.0)
         m_score = result.beneish_m if result.beneish_m is not None else 0.0
 
         # ── Color logic ──
@@ -622,11 +522,7 @@ class HtmlDashboardExporter:
             cagr_color = "var(--coral)"
 
         # ── Piotroski individual signals ──
-        from telmus.core.loaders import load_financials
-        from telmus.core.engines.health import HealthEngine
-        import pandas as pd
 
-        
         signals_desc = {
             "ROA Positive": "Company is profitable",
             "CFO Positive": "Operations generate cash",
@@ -644,7 +540,7 @@ class HtmlDashboardExporter:
         piotroski_signals = getattr(result.health, "piotroski_signals", {})
         if not piotroski_signals:
             piotroski_signals = {k: False for k in signals_desc}
-            
+
         for name, desc in signals_desc.items():
             passed = piotroski_signals.get(name, False)
             css = "check-pass" if passed else "check-fail"
@@ -661,11 +557,9 @@ class HtmlDashboardExporter:
 
         # Radar chart data (1 for pass, 0 for fail)
         signal_names = list(signals_desc.keys())
-        signal_values = [1 if piotroski_signals.get(s, False) else 0 for s in signal_names]
-
-        radar_labels = signal_names  # fallback alias
-        radar_data = signal_values  # fallback alias
-        chart_labels = signal_names  # fallback alias
+        signal_values = [
+            1 if piotroski_signals.get(s, False) else 0 for s in signal_names
+        ]
 
 
         # Analyst brief badges
@@ -752,8 +646,8 @@ class HtmlDashboardExporter:
 
         # Chart values
         pe_val = pe if pe is not None else 0.0
-        pb_val = _safe_get(result.valuation, 'pb_ratio', 0.0)
-        ev_val = _safe_get(result.valuation, 'ev_ebitda', 0.0)
+        pb_val = _safe_get(result.valuation, "pb_ratio", 0.0)
+        ev_val = _safe_get(result.valuation, "ev_ebitda", 0.0)
         rev_cagr_pct = (rev_cagr or 0.0) * 100.0
         pat_cagr_pct = (result.growth.pat_cagr_3y or 0.0) * 100.0
         fcf_yield_pct = (fcf_yield or 0.0) * 100.0
@@ -768,48 +662,61 @@ class HtmlDashboardExporter:
             if val is None:
                 return "var(--text-dim)"
             return "var(--teal)" if good_fn(val) else "var(--coral)"
+
         de_color = _metric_color(de_val, lambda v: v < 1.5)
         cr_color = _metric_color(cr_val, lambda v: v > 1.0)
         ic_color = _metric_color(ic_val, lambda v: v > 3.0)
 
-        pio_gauge_label = f"{pio_score}/9 — {'Strong fundamentals' if pio_score >= 7 else ('Adequate fundamentals' if pio_score >= 5 else 'Weak fundamentals')}"
-        altman_gauge_label = 'Safe zone (Z > 2.6)' if (altman or 0) > 2.6 else ('Grey zone (1.1–2.6)' if (altman or 0) >= 1.1 else 'Distress zone (Z < 1.1)')
-        fcf_gauge_label = 'High yield' if (fcf_yield or 0.0) >= 0.08 else ('Adequate yield' if (fcf_yield or 0.0) >= 0.02 else 'Weak/Negative yield')
         logo_url = get_company_logo_url(result.ticker)
         html_content = f"""{self._head_block(f"telmus — {result.company} ({result.ticker}) Analysis")}
+<style>
+@media print {{
+  @page {{
+    size: A4 landscape;
+    margin: 0.5cm;
+  }}
+  #printBtn {{ display: none !important; }}
+  body {{
+    zoom: 50%;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }}
+}}
+</style>
 <body>
-<div class="dashboard-wrapper">
     <div class="container stack">
 
         <!-- ═══ HEADER ═══ -->
         <header class="header-section" style="position:relative; padding:1.5rem; border-radius:12px; border:1px solid var(--border);">
-            <div style="display:flex;align-items:center;gap:1.5rem;">
+
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:1.5rem;">
                 <img src="{logo_url}" 
                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
                      style="width:56px;height:56px;border-radius:50%;object-fit:contain;background:white;padding:4px;">
-                <div style="display:{'none' if logo_url else 'flex'};align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:var(--teal-10);border:1px solid var(--teal-20);color:var(--teal);font-family:'JetBrains Mono', monospace;font-weight:700;font-size:1.5rem;" class="letter-avatar">{result.ticker[0]}</div>
+                <div style="display:{"none" if logo_url else "flex"};align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:var(--teal-10);border:1px solid var(--teal-20);color:var(--teal);font-family:'JetBrains Mono', monospace;font-weight:700;font-size:1.5rem;" class="letter-avatar">{result.ticker[0]}</div>
                 <div style="flex:1;">
                     <h1 style="margin-bottom:0;font-size:2rem;line-height:1.2;">{result.company}</h1>
                     <div class="header-sub" style="margin-top:0.25rem;">{result.ticker} · {result.exchange} · Last scanned: {scan_date}</div>
                     <div class="header-quote" style="margin-top:0.5rem;color:var(--text-dim);font-style:italic;">"{result.analyst_brief}"</div>
                 </div>
-                <div style="display:flex;align-items:center;gap:1rem;">
-                    <span class="font-mono" style="font-size:1.375rem;font-weight:800;color:#fff;">
-                        <span style="color:var(--teal);">telmus</span> v{telmus_version}
-                    </span>
-                    <button onclick="window.print()" id="printBtn"
-                    style="background:transparent;
-                    color:var(--teal);
-                    border:1px solid var(--teal);
-                    padding:0.3rem 0.9rem;
-                    border-radius:4px;
-                    font-size:0.8rem;
-                    font-weight:600;
-                    cursor:pointer;
-                    font-family:'JetBrains Mono',monospace;
-                    letter-spacing:0.03em;">
-                    Print Report
-                    </button>
+                <div style="display:flex;align-items:center;gap:1rem;
+                margin-left:auto;">
+                  <span style="color:#00d4aa;
+                  font-family:'JetBrains Mono',monospace;
+                  font-weight:700;font-size:0.85rem;">telmus v0.2.3</span>
+                  <button id="printBtn" onclick="window.print()"
+                  style="background:transparent;
+                  color:#ffffff;
+                  border:1px solid #ffffff;
+                  padding:0.3rem 1rem;
+                  border-radius:4px;
+                  font-size:0.8rem;
+                  font-weight:600;
+                  cursor:pointer;
+                  font-family:'JetBrains Mono',monospace;
+                  letter-spacing:0.05em;">
+                  PRINT REPORT
+                  </button>
                 </div>
             </div>
         </header>
@@ -817,23 +724,23 @@ class HtmlDashboardExporter:
         <!-- ═══ KPI ROW ═══ -->
         <div>
             <div class="section-label">Key Metrics</div>
-            <div class="grid-4 kpi-row">
-                <div class="card kpi-card">
+            <div class="grid-4">
+                <div class="card">
                     <div class="kpi-value" style="color:{pe_color}">{pe_text}</div>
                     <div class="kpi-label">P/E Ratio</div>
                     <div class="kpi-desc">Price per unit of earnings</div>
                 </div>
-                <div class="card kpi-card">
+                <div class="card">
                     <div class="kpi-value" style="color:{pio_color}">{pio_text}</div>
                     <div class="kpi-label">Piotroski F-Score</div>
                     <div class="kpi-desc">Financial health (higher = stronger)</div>
                 </div>
-                <div class="card kpi-card">
+                <div class="card">
                     <div class="kpi-value" style="color:{altman_color}">{altman_text}</div>
                     <div class="kpi-label">Altman Z-Score</div>
                     <div class="kpi-desc">Bankruptcy risk (&gt;2.6 = safe)</div>
                 </div>
-                <div class="card kpi-card">
+                <div class="card">
                     <div class="kpi-value" style="color:{cagr_color}">{cagr_text}</div>
                     <div class="kpi-label">Revenue CAGR (3Y)</div>
                     <div class="kpi-desc">3-year revenue growth rate</div>
@@ -842,9 +749,9 @@ class HtmlDashboardExporter:
         </div>
 
         <!-- ═══ RADAR + VALUATION ═══ -->
-        <div class="grid-2 charts-row">
+        <div class="grid-2">
             <!-- Piotroski Radar -->
-            <div class="card chart-card radar-section">
+            <div class="card">
                 <div class="section-label">Signal Analysis</div>
                 <div class="section-title" style="margin-bottom:0.5rem;">
                     <span class="dot" style="background:var(--teal);"></span>Piotroski Radar — {pio_score}/9
@@ -857,7 +764,7 @@ class HtmlDashboardExporter:
                 </div>
             </div>
             <!-- Valuation Benchmarks -->
-            <div class="card chart-card">
+            <div class="card">
                 <div class="section-label">Valuation</div>
                 <div class="section-title" style="margin-bottom:0.5rem;">
                     <span class="dot" style="background:var(--teal);"></span>Valuation Benchmarks
@@ -881,20 +788,20 @@ class HtmlDashboardExporter:
             <!-- 3 Gauges in a row -->
             <div class="card">
                 <div class="section-label">Score Gauges</div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;" class="gauge-row">
-                    <div class="gauge-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;">
+                    <div style="text-align:center;">
                         <div class="gauge-wrap"><canvas id="gaugePio"></canvas>
                             <div class="gauge-center"><span class="gauge-value" style="font-size:1rem;">{pio_text}</span></div>
                         </div>
                         <div class="section-label" style="margin-top:0.25rem;">Piotroski F</div>
                     </div>
-                    <div class="gauge-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+                    <div style="text-align:center;">
                         <div class="gauge-wrap"><canvas id="gaugeAltman" style="height:200px;"></canvas>
                             <div class="gauge-center"><span class="gauge-value" style="font-size:1rem;">{altman_text}</span></div>
                         </div>
                         <div class="section-label" style="margin-top:0.25rem;">Altman Z</div>
                     </div>
-                    <div class="gauge-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+                    <div style="text-align:center;">
                         <div class="gauge-wrap"><canvas id="gaugeFCF" style="height:200px;"></canvas>
                             <div class="gauge-center"><span class="gauge-value" style="font-size:1rem;">{self._fmt_pct(fcf_yield)}</span></div>
                         </div>
@@ -906,7 +813,7 @@ class HtmlDashboardExporter:
                 </div>
             </div>
             <!-- Growth Metrics -->
-            <div class="card chart-card">
+            <div class="card">
                 <div class="section-label">Growth</div>
                 <div class="section-title" style="margin-bottom:0.5rem;">
                     <span class="dot" style="background:var(--indigo);"></span>Growth Metrics (3Y CAGR)
@@ -925,7 +832,7 @@ class HtmlDashboardExporter:
         </div>
 
         <!-- ═══ PIOTROSKI BREAKDOWN ═══ -->
-        <div class="card checklist-section">
+        <div class="card">
             <div class="section-label">Breakdown</div>
             <div class="section-title" style="margin-bottom:1rem;">
                 <span class="dot" style="background:var(--teal);"></span>Piotroski F-Score — {pio_score}/9 Signals Passed
@@ -990,7 +897,7 @@ class HtmlDashboardExporter:
         </div>
 
         <!-- ═══ ANALYST BRIEF ═══ -->
-        <div class="brief-card analyst-section">
+        <div class="brief-card">
             <div class="section-label">Analysis</div>
             <div class="section-title" style="margin-bottom:0.75rem;">AI Analyst Brief</div>
             <p class="brief-text">{result.analyst_brief}</p>
@@ -1002,15 +909,12 @@ class HtmlDashboardExporter:
         </div>
 
         <!-- ═══ RED FLAGS ═══ -->
-        <div class="flags-section">
-            {flags_html}
-        </div>
+        {flags_html}
 
         <!-- ═══ FOOTER ═══ -->
         {self._footer_block()}
 
     </div>
-</div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {{
@@ -1097,7 +1001,7 @@ class HtmlDashboardExporter:
                     backgroundColor: 'rgba(0,212,170,0.08)',
                     borderColor: '#00d4aa',
                     borderWidth: 1.5,
-                    pointBackgroundColor: {json.dumps(['#00d4aa' if v else '#f78166' for v in signal_values])},
+                    pointBackgroundColor: {json.dumps(["#00d4aa" if v else "#f78166" for v in signal_values])},
                     pointBorderColor: '#0c0c0c',
                     pointBorderWidth: 2,
                     pointRadius: 4,
@@ -1250,20 +1154,57 @@ class HtmlDashboardExporter:
         metrics = [
             ("P/E Ratio", res_a.valuation.pe_ratio, res_b.valuation.pe_ratio, "ratio"),
             ("P/B Ratio", res_a.valuation.pb_ratio, res_b.valuation.pb_ratio, "ratio"),
-            ("EV/EBITDA", res_a.valuation.ev_ebitda, res_b.valuation.ev_ebitda, "ratio"),
-            ("Piotroski F-Score", res_a.health.piotroski_f, res_b.health.piotroski_f, "score"),
+            (
+                "EV/EBITDA",
+                res_a.valuation.ev_ebitda,
+                res_b.valuation.ev_ebitda,
+                "ratio",
+            ),
+            (
+                "Piotroski F-Score",
+                res_a.health.piotroski_f,
+                res_b.health.piotroski_f,
+                "score",
+            ),
             ("Altman Z-Score", res_a.health.altman_z, res_b.health.altman_z, "score"),
-            ("Debt/Equity", res_a.health.debt_to_equity, res_b.health.debt_to_equity, "ratio"),
-            ("Current Ratio", res_a.health.current_ratio, res_b.health.current_ratio, "score"),
-            ("Interest Coverage", res_a.health.interest_coverage, res_b.health.interest_coverage, "score"),
-            ("Revenue CAGR (3Y)", res_a.growth.revenue_cagr_3y, res_b.growth.revenue_cagr_3y, "percent"),
-            ("PAT CAGR (3Y)", res_a.growth.pat_cagr_3y, res_b.growth.pat_cagr_3y, "percent"),
+            (
+                "Debt/Equity",
+                res_a.health.debt_to_equity,
+                res_b.health.debt_to_equity,
+                "ratio",
+            ),
+            (
+                "Current Ratio",
+                res_a.health.current_ratio,
+                res_b.health.current_ratio,
+                "score",
+            ),
+            (
+                "Interest Coverage",
+                res_a.health.interest_coverage,
+                res_b.health.interest_coverage,
+                "score",
+            ),
+            (
+                "Revenue CAGR (3Y)",
+                res_a.growth.revenue_cagr_3y,
+                res_b.growth.revenue_cagr_3y,
+                "percent",
+            ),
+            (
+                "PAT CAGR (3Y)",
+                res_a.growth.pat_cagr_3y,
+                res_b.growth.pat_cagr_3y,
+                "percent",
+            ),
             ("FCF Yield", res_a.growth.fcf_yield, res_b.growth.fcf_yield, "percent"),
         ]
 
         table_rows = []
         for name, val_a, val_b, fmt_type in metrics:
-            win_code, win_text = self._get_winner_details(name, val_a, val_b, ticker_a, ticker_b)
+            win_code, win_text = self._get_winner_details(
+                name, val_a, val_b, ticker_a, ticker_b
+            )
             if fmt_type == "percent":
                 str_a = self._fmt_pct(val_a)
                 str_b = self._fmt_pct(val_b)
@@ -1271,8 +1212,16 @@ class HtmlDashboardExporter:
                 str_a = self._fmt(val_a)
                 str_b = self._fmt(val_b)
 
-            style_a = 'style="color:var(--teal);font-weight:700;"' if win_code == "A" else 'style="color:var(--text-dim);"'
-            style_b = 'style="color:var(--teal);font-weight:700;"' if win_code == "B" else 'style="color:var(--text-dim);"'
+            style_a = (
+                'style="color:var(--teal);font-weight:700;"'
+                if win_code == "A"
+                else 'style="color:var(--text-dim);"'
+            )
+            style_b = (
+                'style="color:var(--teal);font-weight:700;"'
+                if win_code == "B"
+                else 'style="color:var(--text-dim);"'
+            )
 
             if win_code in ("A", "B"):
                 win_display = f'<span class="winner-badge badge-teal">{win_text}</span>'
@@ -1288,63 +1237,131 @@ class HtmlDashboardExporter:
                 </tr>""")
 
         # Chart data
-        val_labels = ['P/E Ratio', 'P/B Ratio', 'EV/EBITDA']
-        val_a_data = [res_a.valuation.pe_ratio or 0.0, res_a.valuation.pb_ratio or 0.0, res_a.valuation.ev_ebitda or 0.0]
-        val_b_data = [res_b.valuation.pe_ratio or 0.0, res_b.valuation.pb_ratio or 0.0, res_b.valuation.ev_ebitda or 0.0]
+        val_labels = ["P/E Ratio", "P/B Ratio", "EV/EBITDA"]
+        val_a_data = [
+            res_a.valuation.pe_ratio or 0.0,
+            res_a.valuation.pb_ratio or 0.0,
+            res_a.valuation.ev_ebitda or 0.0,
+        ]
+        val_b_data = [
+            res_b.valuation.pe_ratio or 0.0,
+            res_b.valuation.pb_ratio or 0.0,
+            res_b.valuation.ev_ebitda or 0.0,
+        ]
 
-        health_labels = ['Piotroski F', 'Altman Z', 'Debt/Equity', 'Current Ratio', 'Interest Cov.']
-        health_a = [res_a.health.piotroski_f or 0.0, res_a.health.altman_z or 0.0, res_a.health.debt_to_equity or 0.0, res_a.health.current_ratio or 0.0, res_a.health.interest_coverage or 0.0]
-        health_b = [res_b.health.piotroski_f or 0.0, res_b.health.altman_z or 0.0, res_b.health.debt_to_equity or 0.0, res_b.health.current_ratio or 0.0, res_b.health.interest_coverage or 0.0]
+        health_labels = [
+            "Piotroski F",
+            "Altman Z",
+            "Debt/Equity",
+            "Current Ratio",
+            "Interest Cov.",
+        ]
+        health_a = [
+            res_a.health.piotroski_f or 0.0,
+            res_a.health.altman_z or 0.0,
+            res_a.health.debt_to_equity or 0.0,
+            res_a.health.current_ratio or 0.0,
+            res_a.health.interest_coverage or 0.0,
+        ]
+        health_b = [
+            res_b.health.piotroski_f or 0.0,
+            res_b.health.altman_z or 0.0,
+            res_b.health.debt_to_equity or 0.0,
+            res_b.health.current_ratio or 0.0,
+            res_b.health.interest_coverage or 0.0,
+        ]
 
-        growth_labels = ['Revenue CAGR %', 'PAT CAGR %', 'FCF Yield %']
-        growth_a = [(res_a.growth.revenue_cagr_3y or 0.0) * 100.0, (res_a.growth.pat_cagr_3y or 0.0) * 100.0, (res_a.growth.fcf_yield or 0.0) * 100.0]
-        growth_b = [(res_b.growth.revenue_cagr_3y or 0.0) * 100.0, (res_b.growth.pat_cagr_3y or 0.0) * 100.0, (res_b.growth.fcf_yield or 0.0) * 100.0]
+        growth_labels = ["Revenue CAGR %", "PAT CAGR %", "FCF Yield %"]
+        growth_a = [
+            (res_a.growth.revenue_cagr_3y or 0.0) * 100.0,
+            (res_a.growth.pat_cagr_3y or 0.0) * 100.0,
+            (res_a.growth.fcf_yield or 0.0) * 100.0,
+        ]
+        growth_b = [
+            (res_b.growth.revenue_cagr_3y or 0.0) * 100.0,
+            (res_b.growth.pat_cagr_3y or 0.0) * 100.0,
+            (res_b.growth.fcf_yield or 0.0) * 100.0,
+        ]
 
         # Radar data for comparison
-        signal_names_cmp = ['P/E', 'P/B', 'Piotroski', 'Altman Z', 'Rev CAGR']
+        signal_names_cmp = ["P/E", "P/B", "Piotroski", "Altman Z", "Rev CAGR"]
+
         # Normalize each metric to 0-1 for radar overlay
         def _norm(vals):
             mx = max(abs(v) for v in vals) if any(v != 0 for v in vals) else 1
             return [abs(v) / mx for v in vals]
 
-        radar_raw_a = [res_a.valuation.pe_ratio or 0, res_a.valuation.pb_ratio or 0, res_a.health.piotroski_f or 0, res_a.health.altman_z or 0, (res_a.growth.revenue_cagr_3y or 0) * 100]
-        radar_raw_b = [res_b.valuation.pe_ratio or 0, res_b.valuation.pb_ratio or 0, res_b.health.piotroski_f or 0, res_b.health.altman_z or 0, (res_b.growth.revenue_cagr_3y or 0) * 100]
+        radar_raw_a = [
+            res_a.valuation.pe_ratio or 0,
+            res_a.valuation.pb_ratio or 0,
+            res_a.health.piotroski_f or 0,
+            res_a.health.altman_z or 0,
+            (res_a.growth.revenue_cagr_3y or 0) * 100,
+        ]
+        radar_raw_b = [
+            res_b.valuation.pe_ratio or 0,
+            res_b.valuation.pb_ratio or 0,
+            res_b.health.piotroski_f or 0,
+            res_b.health.altman_z or 0,
+            (res_b.growth.revenue_cagr_3y or 0) * 100,
+        ]
         combined = [max(abs(radar_raw_a[i]), abs(radar_raw_b[i])) for i in range(5)]
-        radar_norm_a = [abs(radar_raw_a[i]) / combined[i] if combined[i] != 0 else 0 for i in range(5)]
-        radar_norm_b = [abs(radar_raw_b[i]) / combined[i] if combined[i] != 0 else 0 for i in range(5)]
+        radar_norm_a = [
+            abs(radar_raw_a[i]) / combined[i] if combined[i] != 0 else 0
+            for i in range(5)
+        ]
+        radar_norm_b = [
+            abs(radar_raw_b[i]) / combined[i] if combined[i] != 0 else 0
+            for i in range(5)
+        ]
         logo_url_a = get_company_logo_url(ticker_a)
         logo_url_b = get_company_logo_url(ticker_b)
 
         html_content = f"""{self._head_block(f"telmus — {ticker_a} vs {ticker_b} Comparison")}
+<style>
+@media print {{
+  @page {{
+    size: A4 landscape;
+    margin: 0.5cm;
+  }}
+  #printBtn {{ display: none !important; }}
+  body {{
+    zoom: 50%;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }}
+}}
+</style>
 <body>
-<div class="dashboard-wrapper">
     <div class="container stack">
 
         <!-- Header -->
         <header class="header-section" style="position:relative; padding:1.5rem; border-radius:12px; border:1px solid var(--border);">
+
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <div>
                     <h1 style="margin-bottom:0;">{ticker_a} vs {ticker_b} — Head to Head</h1>
                     <div class="header-sub" style="margin-top:0.25rem;">Comparison scan · {scan_date}</div>
                 </div>
-                    <div style="display:flex;align-items:center;gap:1rem;">
-                        <span class="font-mono" style="font-size:0.875rem;font-weight:600;color:var(--text-dim);">
-                            <span style="color:var(--teal);">telmus</span> v{telmus_version}
-                        </span>
-                        <button onclick="window.print()" id="printBtn"
-                        style="background:transparent;
-                        color:var(--teal);
-                        border:1px solid var(--teal);
-                        padding:0.3rem 0.9rem;
-                        border-radius:4px;
-                        font-size:0.8rem;
-                        font-weight:600;
-                        cursor:pointer;
-                        font-family:'JetBrains Mono',monospace;
-                        letter-spacing:0.03em;">
-                        Print Report
-                        </button>
-                    </div>
+                <div style="display:flex;align-items:center;gap:1rem;
+                margin-left:auto;">
+                  <span style="color:#00d4aa;
+                  font-family:'JetBrains Mono',monospace;
+                  font-weight:700;font-size:0.85rem;">telmus v0.2.3</span>
+                  <button id="printBtn" onclick="window.print()"
+                  style="background:transparent;
+                  color:#ffffff;
+                  border:1px solid #ffffff;
+                  padding:0.3rem 1rem;
+                  border-radius:4px;
+                  font-size:0.8rem;
+                  font-weight:600;
+                  cursor:pointer;
+                  font-family:'JetBrains Mono',monospace;
+                  letter-spacing:0.05em;">
+                  PRINT REPORT
+                  </button>
+                </div>
             </div>
         </header>
 
@@ -1353,7 +1370,7 @@ class HtmlDashboardExporter:
             <div class="card">
                 <div class="company-header">
                     <img src="{logo_url_a}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:3rem;height:3rem;border-radius:50%;object-fit:contain;background:white;padding:4px;">
-                    <div class="company-avatar" style="display:{'none' if logo_url_a else 'flex'};background:var(--teal-10);border:1px solid var(--teal-20);color:var(--teal);">{ticker_a[0]}</div>
+                    <div class="company-avatar" style="display:{"none" if logo_url_a else "flex"};background:var(--teal-10);border:1px solid var(--teal-20);color:var(--teal);">{ticker_a[0]}</div>
                     <div>
                         <div style="font-weight:700;color:#fff;">{res_a.company}</div>
                         <div class="font-mono" style="font-size:0.75rem;color:var(--text-dim);">{ticker_a} · {res_a.exchange}</div>
@@ -1363,7 +1380,7 @@ class HtmlDashboardExporter:
             <div class="card">
                 <div class="company-header">
                     <img src="{logo_url_b}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" style="width:3rem;height:3rem;border-radius:50%;object-fit:contain;background:white;padding:4px;">
-                    <div class="company-avatar" style="display:{'none' if logo_url_b else 'flex'};background:var(--coral-10);border:1px solid var(--coral-20);color:var(--coral);">{ticker_b[0]}</div>
+                    <div class="company-avatar" style="display:{"none" if logo_url_b else "flex"};background:var(--coral-10);border:1px solid var(--coral-20);color:var(--coral);">{ticker_b[0]}</div>
                     <div>
                         <div style="font-weight:700;color:#fff;">{res_b.company}</div>
                         <div class="font-mono" style="font-size:0.75rem;color:var(--text-dim);">{ticker_b} · {res_b.exchange}</div>
@@ -1373,7 +1390,7 @@ class HtmlDashboardExporter:
         </div>
 
         <!-- Radar Overlay -->
-        <div class="card radar-section">
+        <div class="card">
             <div class="section-label">Overview</div>
             <div class="section-title" style="margin-bottom:1rem;">
                 <span class="dot" style="background:var(--teal);"></span>Radar Comparison
@@ -1384,18 +1401,18 @@ class HtmlDashboardExporter:
         </div>
 
         <!-- Grouped Bar Charts -->
-        <div class="grid-3 charts-row">
-            <div class="card chart-card">
+        <div class="grid-3">
+            <div class="card">
                 <div class="section-label">Valuation</div>
                 <div class="chart-box" style="height:220px;"><canvas id="chartValuation" style="height:220px;"></canvas></div>
                 <div class="chart-explain">P/E, P/B and EV/EBITDA side by side. Lower bars usually mean cheaper valuation. Teal = {ticker_a}, coral = {ticker_b}.</div>
             </div>
-            <div class="card chart-card">
+            <div class="card">
                 <div class="section-label">Health</div>
                 <div class="chart-box" style="height:220px;"><canvas id="chartHealth"></canvas></div>
                 <div class="chart-explain">Piotroski F (higher = stronger), Altman Z (higher = safer), Debt/Equity (lower = less risky), Current Ratio (>1 = liquid), Interest Coverage (higher = safer).</div>
             </div>
-            <div class="card chart-card">
+            <div class="card">
                 <div class="section-label">Growth</div>
                 <div class="chart-box" style="height:220px;"><canvas id="chartGrowth" style="height:220px;"></canvas></div>
                 <div class="chart-explain">Revenue and profit growth rates over 3 years, plus free cash flow yield. Taller bars indicate stronger growth momentum.</div>
@@ -1560,23 +1577,45 @@ class HtmlDashboardExporter:
         scan_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         n = len(results)
 
-        pio_values = [r.health.piotroski_f for r in results if r.health.piotroski_f is not None]
-        pe_values = [r.valuation.pe_ratio for r in results if r.valuation.pe_ratio is not None]
+        pio_values = [
+            r.health.piotroski_f for r in results if r.health.piotroski_f is not None
+        ]
+        pe_values = [
+            r.valuation.pe_ratio for r in results if r.valuation.pe_ratio is not None
+        ]
         no_flags_count = sum(1 for r in results if not r.red_flags)
 
         avg_pio = sum(pio_values) / len(pio_values) if pio_values else 0.0
         avg_pe = sum(pe_values) / len(pe_values) if pe_values else 0.0
 
         tickers = [r.ticker for r in results]
-        pio_scores = [r.health.piotroski_f if r.health.piotroski_f is not None else 0 for r in results]
-        pe_ratios = [r.valuation.pe_ratio if r.valuation.pe_ratio is not None else 0.0 for r in results]
-        altman_scores = [r.health.altman_z if r.health.altman_z is not None else 0.0 for r in results]
+        pio_scores = [
+            r.health.piotroski_f if r.health.piotroski_f is not None else 0
+            for r in results
+        ]
+        pe_ratios = [
+            r.valuation.pe_ratio if r.valuation.pe_ratio is not None else 0.0
+            for r in results
+        ]
+        altman_scores = [
+            r.health.altman_z if r.health.altman_z is not None else 0.0 for r in results
+        ]
 
         table_rows = []
         for idx, r in enumerate(results, start=1):
-            pe_str = f"{r.valuation.pe_ratio:,.2f}" if r.valuation.pe_ratio is not None else "n/a"
-            alt_str = f"{r.health.altman_z:,.2f}" if r.health.altman_z is not None else "n/a"
-            rev_str = f"{(r.growth.revenue_cagr_3y or 0.0) * 100:,.2f}%" if r.growth.revenue_cagr_3y is not None else "n/a"
+            pe_str = (
+                f"{r.valuation.pe_ratio:,.2f}"
+                if r.valuation.pe_ratio is not None
+                else "n/a"
+            )
+            alt_str = (
+                f"{r.health.altman_z:,.2f}" if r.health.altman_z is not None else "n/a"
+            )
+            rev_str = (
+                f"{(r.growth.revenue_cagr_3y or 0.0) * 100:,.2f}%"
+                if r.growth.revenue_cagr_3y is not None
+                else "n/a"
+            )
 
             concern_lvl = (r.highest_concern or "LOW").upper()
             if concern_lvl == "HIGH":
@@ -1595,46 +1634,72 @@ class HtmlDashboardExporter:
                     <td style="color:#fff;font-weight:600;" data-val="{r.company}">{r.company}</td>
                     <td class="mono c-teal" style="font-weight:700;" data-val="{r.ticker}">{r.ticker}</td>
                     <td class="mono c-dim" data-val="{r.valuation.pe_ratio or 9999}">{pe_str}</td>
-                    <td class="mono c-dim" data-val="{r.health.piotroski_f or -1}">{r.health.piotroski_f if r.health.piotroski_f is not None else 'n/a'}</td>
+                    <td class="mono c-dim" data-val="{r.health.piotroski_f or -1}">{r.health.piotroski_f if r.health.piotroski_f is not None else "n/a"}</td>
                     <td class="mono c-dim" data-val="{r.health.altman_z or -99}">{alt_str}</td>
                     <td class="mono c-dim" data-val="{r.growth.revenue_cagr_3y or -99}">{rev_str}</td>
                     <td data-val="{concern_lvl}"><span class="badge {concern_cls}">{concern_lvl}</span></td>
                 </tr>""")
 
         html_content = f"""{self._head_block("telmus — Sector Screen Results")}
+<style>
+@media print {{
+  @page {{
+    size: A4 landscape;
+    margin: 0.5cm;
+  }}
+  #printBtn {{ display: none !important; }}
+  body {{
+    zoom: 50%;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }}
+}}
+</style>
 <body>
-<div class="dashboard-wrapper">
     <div class="container stack">
 
         <!-- Header -->
-        <header>
+        <header style="display:flex;justify-content:space-between;align-items:center;">
             <div>
                 <h1>Sector Screen — {n} companies analysed</h1>
                 <div class="header-sub">Screening report · {scan_date}</div>
             </div>
-            <div style="text-align:right;">
-                <div class="section-label">System</div>
-                <span class="font-mono" style="font-size:0.875rem;font-weight:600;color:var(--text-dim);">
-                    <span style="color:var(--teal);">telmus</span> v{telmus_version}
-                </span>
+            <div style="display:flex;align-items:center;gap:1rem;
+            margin-left:auto;">
+              <span style="color:#00d4aa;
+              font-family:'JetBrains Mono',monospace;
+              font-weight:700;font-size:0.85rem;">telmus v0.2.3</span>
+              <button id="printBtn" onclick="window.print()"
+              style="background:transparent;
+              color:#ffffff;
+              border:1px solid #ffffff;
+              padding:0.3rem 1rem;
+              border-radius:4px;
+              font-size:0.8rem;
+              font-weight:600;
+              cursor:pointer;
+              font-family:'JetBrains Mono',monospace;
+              letter-spacing:0.05em;">
+              PRINT REPORT
+              </button>
             </div>
         </header>
 
         <!-- KPI Row -->
-        <div class="grid-4 kpi-row">
-            <div class="card kpi-card">
+        <div class="grid-4">
+            <div class="card">
                 <div class="kpi-value c-teal">{n}</div>
                 <div class="kpi-label">Stocks Screened</div>
             </div>
-            <div class="card kpi-card">
+            <div class="card">
                 <div class="kpi-value" style="color:var(--teal);">{avg_pio:,.2f}</div>
                 <div class="kpi-label">Average Piotroski F</div>
             </div>
-            <div class="card kpi-card">
+            <div class="card">
                 <div class="kpi-value" style="color:var(--indigo);">{avg_pe:,.2f}</div>
                 <div class="kpi-label">Average P/E Ratio</div>
             </div>
-            <div class="card kpi-card">
+            <div class="card">
                 <div class="kpi-value" style="color:var(--amber);">{no_flags_count}</div>
                 <div class="kpi-label">No Red Flag Stocks</div>
             </div>
@@ -1693,7 +1758,6 @@ class HtmlDashboardExporter:
 
         {self._footer_block()}
     </div>
-</div>
 
     <script>
         Chart.defaults.color = '#525252';

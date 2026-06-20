@@ -90,7 +90,8 @@ class GrowthEngine:
             return None
         start = _safe_value(revenue.iloc[3])
         end = _safe_value(revenue.iloc[0])
-        if start is None or end is None: return None
+        if start is None or end is None:
+            return None
         return _cagr(float(start), float(end), 3.0)
 
     def _pat_cagr(self, income_stmt: pd.DataFrame) -> float | None:
@@ -100,7 +101,8 @@ class GrowthEngine:
             return None
         start = _safe_value(net_income.iloc[3])
         end = _safe_value(net_income.iloc[0])
-        if start is None or end is None: return None
+        if start is None or end is None:
+            return None
         return _cagr(float(start), float(end), 3.0)
 
     def _margin_trend(self, income_stmt: pd.DataFrame) -> str | None:

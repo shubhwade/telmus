@@ -4,6 +4,7 @@ import typing
 import logging
 import sys
 import warnings
+
 warnings.filterwarnings(
     "ignore",
     message=r".*Eventlet is deprecated.*",
@@ -79,64 +80,86 @@ def _render_section(
     return table
 
 
-
 def _get_bar_char() -> str:
     import sys
+
     try:
-        if sys.stdout and sys.stdout.encoding and "utf-8" in sys.stdout.encoding.lower():
+        if (
+            sys.stdout
+            and sys.stdout.encoding
+            and "utf-8" in sys.stdout.encoding.lower()
+        ):
             return "█"
     except Exception:
         pass
     return "X"
 
-def _render_bar_chart(title: str, metrics: typing.Sequence[tuple[str, object | None, str | None]], color: str = "cyan") -> Table:
+
+def _render_bar_chart(
+    title: str,
+    metrics: typing.Sequence[tuple[str, object | None, str | None]],
+    color: str = "cyan",
+) -> Table:
     table = Table(title=title, show_header=False, box=None)
     table.add_column("Label", style="bold")
     table.add_column("Value", justify="right")
     table.add_column("Bar")
-    
-    valid_data = [abs(v) for _, v, _ in metrics if v is not None and isinstance(v, (int, float))]
+
+    valid_data = [
+        abs(v) for _, v, _ in metrics if v is not None and isinstance(v, (int, float))
+    ]
     max_val = max(valid_data + [0.001])
-    
+
     for metric, value, flag in metrics:
         if value is None or not isinstance(value, (int, float)):
             table.add_row(metric, "n/a", "")
             continue
-            
+
         bar_len = int((abs(value) / max_val) * 20)
         bar_str = _get_bar_char() * max(1, bar_len)
         if value < 0:
             bar_str = f"[red]{bar_str}[/red]"
         else:
             bar_str = f"[{color}]{bar_str}[/{color}]"
-            
+
         table.add_row(metric, f"{value:,.2f}", bar_str)
-        
+
     return table
 
-def _render_compare_chart(title: str, ticker_a: str, ticker_b: str, metrics: list[tuple[str, object|None, object|None]]) -> Table:
+
+def _render_compare_chart(
+    title: str,
+    ticker_a: str,
+    ticker_b: str,
+    metrics: list[tuple[str, object | None, object | None]],
+) -> Table:
     table = Table(title=title, show_header=True, header_style="bold magenta", box=None)
     table.add_column("Metric", style="bold")
     table.add_column(f"{ticker_a} (cyan)", justify="right")
     table.add_column(f"{ticker_b} (magenta)", justify="right")
-    
+
     all_vals = []
     for _, a, b in metrics:
-        if a is not None and isinstance(a, (int, float)): all_vals.append(abs(a))
-        if b is not None and isinstance(b, (int, float)): all_vals.append(abs(b))
+        if a is not None and isinstance(a, (int, float)):
+            all_vals.append(abs(a))
+        if b is not None and isinstance(b, (int, float)):
+            all_vals.append(abs(b))
     max_val = max(all_vals + [0.001])
-    
+
     for metric, val_a, val_b in metrics:
+
         def make_bar(v, c):
-            if v is None or not isinstance(v, (int, float)): return "n/a"
+            if v is None or not isinstance(v, (int, float)):
+                return "n/a"
             bar_len = int((abs(v) / max_val) * 15)
             bar_str = _get_bar_char() * max(1, bar_len)
             col = "red" if v < 0 else c
             return f"{v:,.2f} [{col}]{bar_str}[/{col}]"
-            
+
         table.add_row(metric, make_bar(val_a, "cyan"), make_bar(val_b, "magenta"))
-        
+
     return table
+
 
 def _print_scan(result: ScanResult) -> None:
     console.rule(
@@ -191,36 +214,130 @@ def scan(
         if export:
             if export.endswith(".xlsx"):
                 from telmus.exporters.excel import ExcelExporter
+
                 ExcelExporter().export(result, export)
             elif export.endswith(".csv"):
                 import csv
+
                 with open(export, "w", newline="", encoding="utf-8") as f:
                     writer = csv.writer(f)
                     writer.writerow(["Category", "Metric", "Value", "Status"])
                     writer.writerow(["Summary", "Company Name", result.company, ""])
                     writer.writerow(["Summary", "Ticker", result.ticker, ""])
                     writer.writerow(["Summary", "Exchange", result.exchange, ""])
-                    writer.writerow(["Summary", "Scan Duration (ms)", result.scan_duration_ms, ""])
-                    writer.writerow(["Summary", "Highest Concern", result.highest_concern, ""])
-                    writer.writerow(["Summary", "Analyst Brief", result.analyst_brief, ""])
-                    
-                    writer.writerow(["Valuation", "P/E ratio", result.valuation.pe_ratio or "n/a", result.valuation.flag or "ok"])
-                    writer.writerow(["Valuation", "P/B ratio", result.valuation.pb_ratio or "n/a", result.valuation.flag or "ok"])
-                    writer.writerow(["Valuation", "EV/EBITDA", result.valuation.ev_ebitda or "n/a", result.valuation.flag or "ok"])
-                    
-                    writer.writerow(["Health", "Piotroski F-score", result.health.piotroski_f or "n/a", result.health.flag or "ok"])
-                    writer.writerow(["Health", "Altman Z-score", result.health.altman_z or "n/a", result.health.flag or "ok"])
-                    writer.writerow(["Health", "Debt / Equity", result.health.debt_to_equity or "n/a", result.health.flag or "ok"])
-                    writer.writerow(["Health", "Current ratio", result.health.current_ratio or "n/a", result.health.flag or "ok"])
-                    writer.writerow(["Health", "Interest coverage", result.health.interest_coverage or "n/a", result.health.flag or "ok"])
-                    
-                    writer.writerow(["Growth", "Revenue CAGR 3y", result.growth.revenue_cagr_3y or "n/a", result.growth.flag or "ok"])
-                    writer.writerow(["Growth", "PAT CAGR 3y", result.growth.pat_cagr_3y or "n/a", result.growth.flag or "ok"])
-                    writer.writerow(["Growth", "Margin trend", result.growth.margin_trend or "n/a", result.growth.flag or "ok"])
-                    writer.writerow(["Growth", "FCF yield", result.growth.fcf_yield or "n/a", result.growth.flag or "ok"])
-                    
+                    writer.writerow(
+                        ["Summary", "Scan Duration (ms)", result.scan_duration_ms, ""]
+                    )
+                    writer.writerow(
+                        ["Summary", "Highest Concern", result.highest_concern, ""]
+                    )
+                    writer.writerow(
+                        ["Summary", "Analyst Brief", result.analyst_brief, ""]
+                    )
+
+                    writer.writerow(
+                        [
+                            "Valuation",
+                            "P/E ratio",
+                            result.valuation.pe_ratio or "n/a",
+                            result.valuation.flag or "ok",
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "Valuation",
+                            "P/B ratio",
+                            result.valuation.pb_ratio or "n/a",
+                            result.valuation.flag or "ok",
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "Valuation",
+                            "EV/EBITDA",
+                            result.valuation.ev_ebitda or "n/a",
+                            result.valuation.flag or "ok",
+                        ]
+                    )
+
+                    writer.writerow(
+                        [
+                            "Health",
+                            "Piotroski F-score",
+                            result.health.piotroski_f or "n/a",
+                            result.health.flag or "ok",
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "Health",
+                            "Altman Z-score",
+                            result.health.altman_z or "n/a",
+                            result.health.flag or "ok",
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "Health",
+                            "Debt / Equity",
+                            result.health.debt_to_equity or "n/a",
+                            result.health.flag or "ok",
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "Health",
+                            "Current ratio",
+                            result.health.current_ratio or "n/a",
+                            result.health.flag or "ok",
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "Health",
+                            "Interest coverage",
+                            result.health.interest_coverage or "n/a",
+                            result.health.flag or "ok",
+                        ]
+                    )
+
+                    writer.writerow(
+                        [
+                            "Growth",
+                            "Revenue CAGR 3y",
+                            result.growth.revenue_cagr_3y or "n/a",
+                            result.growth.flag or "ok",
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "Growth",
+                            "PAT CAGR 3y",
+                            result.growth.pat_cagr_3y or "n/a",
+                            result.growth.flag or "ok",
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "Growth",
+                            "Margin trend",
+                            result.growth.margin_trend or "n/a",
+                            result.growth.flag or "ok",
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "Growth",
+                            "FCF yield",
+                            result.growth.fcf_yield or "n/a",
+                            result.growth.flag or "ok",
+                        ]
+                    )
+
                     for flag in result.red_flags:
-                        writer.writerow(["Red Flags", flag.type, flag.value, flag.severity])
+                        writer.writerow(
+                            ["Red Flags", flag.type, flag.value, flag.severity]
+                        )
             else:
                 with open(export, "w", encoding="utf-8") as handle:
                     handle.write(result.to_json())
@@ -231,15 +348,16 @@ def scan(
             ticker_clean = ticker.replace(".NS", "").replace(".BO", "")
             excel_path = f"{ticker_clean}_analysis.xlsx"
             html_path = f"{ticker_clean}_dashboard.html"
-            
+
             from telmus.exporters.excel import ExcelExporter
             from telmus.exporters.html_dashboard import HtmlDashboardExporter
-            
+
             ExcelExporter().export(result, excel_path)
             HtmlDashboardExporter().export_scan(result, html_path)
             print(f"Saved: {excel_path} and {html_path}")
-            
+
             import webbrowser
+
             webbrowser.open(html_path)
 
     except Exception as exc:
@@ -256,6 +374,7 @@ def comp(
     ),
 ) -> None:
     compare(ticker_a, ticker_b, export)
+
 
 @app.command()
 def compare(
@@ -274,7 +393,9 @@ def compare(
         table.add_column(comparison.result_a.ticker)
         table.add_column(comparison.result_b.ticker)
 
-        def row(metric: str, a_value: typing.Any | None, b_value: typing.Any | None) -> None:
+        def row(
+            metric: str, a_value: typing.Any | None, b_value: typing.Any | None
+        ) -> None:
             a_text = _format_metric(a_value)
             b_text = _format_metric(b_value)
             if a_value is None or b_value is None:
@@ -331,13 +452,22 @@ def compare(
         if export:
             if export.endswith(".xlsx"):
                 from telmus.exporters.excel import ExcelExporter
+
                 ExcelExporter().export_compare(comparison, export)
             elif export.endswith(".csv"):
                 import csv
+
                 with open(export, "w", newline="", encoding="utf-8") as f:
                     writer = csv.writer(f)
-                    writer.writerow(["Metric", comparison.result_a.ticker, comparison.result_b.ticker, "Winner"])
-                    
+                    writer.writerow(
+                        [
+                            "Metric",
+                            comparison.result_a.ticker,
+                            comparison.result_b.ticker,
+                            "Winner",
+                        ]
+                    )
+
                     def get_winner(metric_name, val_a, val_b):
                         if val_a is None and val_b is None:
                             return "Draw"
@@ -350,47 +480,145 @@ def compare(
                             b = float(val_b)
                         except (TypeError, ValueError):
                             return "Draw"
-                            
-                        lower_better = ["P/E ratio", "P/B ratio", "EV/EBITDA", "Debt / Equity"]
-                        is_lower_better = any(lb.lower() in metric_name.lower() for lb in lower_better)
-                        
+
+                        lower_better = [
+                            "P/E ratio",
+                            "P/B ratio",
+                            "EV/EBITDA",
+                            "Debt / Equity",
+                        ]
+                        is_lower_better = any(
+                            lb.lower() in metric_name.lower() for lb in lower_better
+                        )
+
                         if a == b:
                             return "Tie"
-                            
+
                         if is_lower_better:
-                            if "ratio" in metric_name.lower() or "ebitda" in metric_name.lower():
+                            if (
+                                "ratio" in metric_name.lower()
+                                or "ebitda" in metric_name.lower()
+                            ):
                                 if a < 0 and b >= 0:
                                     return comparison.result_b.ticker
                                 if b < 0 and a >= 0:
                                     return comparison.result_a.ticker
-                            return comparison.result_a.ticker if a < b else comparison.result_b.ticker
+                            return (
+                                comparison.result_a.ticker
+                                if a < b
+                                else comparison.result_b.ticker
+                            )
                         else:
-                            return comparison.result_a.ticker if a > b else comparison.result_b.ticker
+                            return (
+                                comparison.result_a.ticker
+                                if a > b
+                                else comparison.result_b.ticker
+                            )
 
-                    writer.writerow(["P/E ratio", comparison.result_a.valuation.pe_ratio or "n/a", comparison.result_b.valuation.pe_ratio or "n/a", get_winner("P/E ratio", comparison.result_a.valuation.pe_ratio, comparison.result_b.valuation.pe_ratio)])
-                    writer.writerow(["P/B ratio", comparison.result_a.valuation.pb_ratio or "n/a", comparison.result_b.valuation.pb_ratio or "n/a", get_winner("P/B ratio", comparison.result_a.valuation.pb_ratio, comparison.result_b.valuation.pb_ratio)])
-                    writer.writerow(["EV/EBITDA", comparison.result_a.valuation.ev_ebitda or "n/a", comparison.result_b.valuation.ev_ebitda or "n/a", get_winner("EV/EBITDA", comparison.result_a.valuation.ev_ebitda, comparison.result_b.valuation.ev_ebitda)])
-                    writer.writerow(["Piotroski F-score", comparison.result_a.health.piotroski_f or "n/a", comparison.result_b.health.piotroski_f or "n/a", get_winner("Piotroski F-score", comparison.result_a.health.piotroski_f, comparison.result_b.health.piotroski_f)])
-                    writer.writerow(["Altman Z-score", comparison.result_a.health.altman_z or "n/a", comparison.result_b.health.altman_z or "n/a", get_winner("Altman Z-score", comparison.result_a.health.altman_z, comparison.result_b.health.altman_z)])
-                    writer.writerow(["Revenue CAGR 3y", comparison.result_a.growth.revenue_cagr_3y or "n/a", comparison.result_b.growth.revenue_cagr_3y or "n/a", get_winner("Revenue CAGR 3y", comparison.result_a.growth.revenue_cagr_3y, comparison.result_b.growth.revenue_cagr_3y)])
-                    writer.writerow(["FCF yield", comparison.result_a.growth.fcf_yield or "n/a", comparison.result_b.growth.fcf_yield or "n/a", get_winner("FCF yield", comparison.result_a.growth.fcf_yield, comparison.result_b.growth.fcf_yield)])
+                    writer.writerow(
+                        [
+                            "P/E ratio",
+                            comparison.result_a.valuation.pe_ratio or "n/a",
+                            comparison.result_b.valuation.pe_ratio or "n/a",
+                            get_winner(
+                                "P/E ratio",
+                                comparison.result_a.valuation.pe_ratio,
+                                comparison.result_b.valuation.pe_ratio,
+                            ),
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "P/B ratio",
+                            comparison.result_a.valuation.pb_ratio or "n/a",
+                            comparison.result_b.valuation.pb_ratio or "n/a",
+                            get_winner(
+                                "P/B ratio",
+                                comparison.result_a.valuation.pb_ratio,
+                                comparison.result_b.valuation.pb_ratio,
+                            ),
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "EV/EBITDA",
+                            comparison.result_a.valuation.ev_ebitda or "n/a",
+                            comparison.result_b.valuation.ev_ebitda or "n/a",
+                            get_winner(
+                                "EV/EBITDA",
+                                comparison.result_a.valuation.ev_ebitda,
+                                comparison.result_b.valuation.ev_ebitda,
+                            ),
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "Piotroski F-score",
+                            comparison.result_a.health.piotroski_f or "n/a",
+                            comparison.result_b.health.piotroski_f or "n/a",
+                            get_winner(
+                                "Piotroski F-score",
+                                comparison.result_a.health.piotroski_f,
+                                comparison.result_b.health.piotroski_f,
+                            ),
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "Altman Z-score",
+                            comparison.result_a.health.altman_z or "n/a",
+                            comparison.result_b.health.altman_z or "n/a",
+                            get_winner(
+                                "Altman Z-score",
+                                comparison.result_a.health.altman_z,
+                                comparison.result_b.health.altman_z,
+                            ),
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "Revenue CAGR 3y",
+                            comparison.result_a.growth.revenue_cagr_3y or "n/a",
+                            comparison.result_b.growth.revenue_cagr_3y or "n/a",
+                            get_winner(
+                                "Revenue CAGR 3y",
+                                comparison.result_a.growth.revenue_cagr_3y,
+                                comparison.result_b.growth.revenue_cagr_3y,
+                            ),
+                        ]
+                    )
+                    writer.writerow(
+                        [
+                            "FCF yield",
+                            comparison.result_a.growth.fcf_yield or "n/a",
+                            comparison.result_b.growth.fcf_yield or "n/a",
+                            get_winner(
+                                "FCF yield",
+                                comparison.result_a.growth.fcf_yield,
+                                comparison.result_b.growth.fcf_yield,
+                            ),
+                        ]
+                    )
             else:
                 with open(export, "w", encoding="utf-8") as handle:
                     handle.write(comparison.to_json())
             console.print(f"Saved to {export}")
 
         # Auto-generate dashboards
-        name = f"{ticker_a.replace('.NS','').replace('.BO','')}" \
-               f"vs{ticker_b.replace('.NS','').replace('.BO','')}"
-               
+        name = (
+            f"{ticker_a.replace('.NS', '').replace('.BO', '')}"
+            f"vs{ticker_b.replace('.NS', '').replace('.BO', '')}"
+        )
+
         from telmus.exporters.excel import ExcelExporter
         from telmus.exporters.html_dashboard import HtmlDashboardExporter
-        
+
         ExcelExporter().export_compare(comparison, f"{name}_comparison.xlsx")
         HtmlDashboardExporter().export_compare(comparison, f"{name}_dashboard.html")
         print(f"Saved: {name}_comparison.xlsx and {name}_dashboard.html")
-        
+
         import webbrowser
+
         webbrowser.open(f"{name}_dashboard.html")
 
     except Exception as exc:
@@ -410,7 +638,13 @@ def screen(
     """Run a simple sector screener."""
     universe = {
         "IT": ["INFY.NS", "TCS.NS", "WIPRO.NS", "HCLTECH.NS", "TECHM.NS"],
-        "Banking": ["HDFCBANK.NS", "ICICIBANK.NS", "KOTAKBANK.NS", "SBIN.NS", "AXISBANK.NS"],
+        "Banking": [
+            "HDFCBANK.NS",
+            "ICICIBANK.NS",
+            "KOTAKBANK.NS",
+            "SBIN.NS",
+            "AXISBANK.NS",
+        ],
     }
     tickers = universe.get(sector, universe["IT"])
     results: list[ScanResult] = []
@@ -436,68 +670,108 @@ def screen(
     table.add_column("D/E")
     table.add_column("Concern")
     for r in results:
-        table.add_row(r.ticker, str(r.health.piotroski_f), f"{r.health.debt_to_equity:.2f}", r.highest_concern)
+        table.add_row(
+            r.ticker,
+            str(r.health.piotroski_f),
+            f"{r.health.debt_to_equity:.2f}",
+            r.highest_concern,
+        )
     console.print(table)
 
     if export:
         if export.endswith(".xlsx"):
             from telmus.exporters.excel import ExcelExporter
+
             ExcelExporter().export_screen(results, export)
         elif export.endswith(".csv"):
             import csv
+
             with open(export, "w", newline="", encoding="utf-8") as f:
                 writer = csv.writer(f)
-                writer.writerow(["Ticker", "Company", "P/E", "P/B", "EV/EBITDA", "Piotroski F", "Altman Z", "Revenue CAGR", "Margin Trend", "Highest Concern"])
-                pe_vals, pb_vals, ev_vals, pio_vals, alt_vals, rev_vals = [], [], [], [], [], []
+                writer.writerow(
+                    [
+                        "Ticker",
+                        "Company",
+                        "P/E",
+                        "P/B",
+                        "EV/EBITDA",
+                        "Piotroski F",
+                        "Altman Z",
+                        "Revenue CAGR",
+                        "Margin Trend",
+                        "Highest Concern",
+                    ]
+                )
+                pe_vals, pb_vals, ev_vals, pio_vals, alt_vals, rev_vals = (
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                    [],
+                )
                 for r in results:
-                    writer.writerow([
-                        r.ticker,
-                        r.company,
-                        r.valuation.pe_ratio or "n/a",
-                        r.valuation.pb_ratio or "n/a",
-                        r.valuation.ev_ebitda or "n/a",
-                        r.health.piotroski_f or "n/a",
-                        r.health.altman_z or "n/a",
-                        r.growth.revenue_cagr_3y or "n/a",
-                        r.growth.margin_trend or "n/a",
-                        r.highest_concern
-                    ])
-                    if r.valuation.pe_ratio is not None: pe_vals.append(r.valuation.pe_ratio)
-                    if r.valuation.pb_ratio is not None: pb_vals.append(r.valuation.pb_ratio)
-                    if r.valuation.ev_ebitda is not None: ev_vals.append(r.valuation.ev_ebitda)
-                    if r.health.piotroski_f is not None: pio_vals.append(r.health.piotroski_f)
-                    if r.health.altman_z is not None: alt_vals.append(r.health.altman_z)
-                    if r.growth.revenue_cagr_3y is not None: rev_vals.append(r.growth.revenue_cagr_3y)
-                
+                    writer.writerow(
+                        [
+                            r.ticker,
+                            r.company,
+                            r.valuation.pe_ratio or "n/a",
+                            r.valuation.pb_ratio or "n/a",
+                            r.valuation.ev_ebitda or "n/a",
+                            r.health.piotroski_f or "n/a",
+                            r.health.altman_z or "n/a",
+                            r.growth.revenue_cagr_3y or "n/a",
+                            r.growth.margin_trend or "n/a",
+                            r.highest_concern,
+                        ]
+                    )
+                    if r.valuation.pe_ratio is not None:
+                        pe_vals.append(r.valuation.pe_ratio)
+                    if r.valuation.pb_ratio is not None:
+                        pb_vals.append(r.valuation.pb_ratio)
+                    if r.valuation.ev_ebitda is not None:
+                        ev_vals.append(r.valuation.ev_ebitda)
+                    if r.health.piotroski_f is not None:
+                        pio_vals.append(r.health.piotroski_f)
+                    if r.health.altman_z is not None:
+                        alt_vals.append(r.health.altman_z)
+                    if r.growth.revenue_cagr_3y is not None:
+                        rev_vals.append(r.growth.revenue_cagr_3y)
+
                 def avg(vals):
                     return round(sum(vals) / len(vals), 2) if vals else "n/a"
-                writer.writerow([
-                    "Average",
-                    "",
-                    avg(pe_vals),
-                    avg(pb_vals),
-                    avg(ev_vals),
-                    avg(pio_vals),
-                    avg(alt_vals),
-                    avg(rev_vals),
-                    "",
-                    ""
-                ])
+
+                writer.writerow(
+                    [
+                        "Average",
+                        "",
+                        avg(pe_vals),
+                        avg(pb_vals),
+                        avg(ev_vals),
+                        avg(pio_vals),
+                        avg(alt_vals),
+                        avg(rev_vals),
+                        "",
+                        "",
+                    ]
+                )
         else:
             with open(export, "w", encoding="utf-8") as handle:
                 import json
+
                 json.dump([r.to_dict() for r in results], handle, indent=2)
             console.print(f"Saved to {export}")
 
     # Auto-generate dashboards
     from telmus.exporters.excel import ExcelExporter
     from telmus.exporters.html_dashboard import HtmlDashboardExporter
-    
+
     ExcelExporter().export_screen(results, "screen_results.xlsx")
     HtmlDashboardExporter().export_screen(results, "screen_dashboard.html")
-    print(f"Saved: screen_results.xlsx and screen_dashboard.html")
-    
+    print("Saved: screen_results.xlsx and screen_dashboard.html")
+
     import webbrowser
+
     webbrowser.open("screen_dashboard.html")
 
 
@@ -548,9 +822,15 @@ def check(ticker: str) -> None:
 @app.command()
 def powerbi(
     extra_tickers: list[str] = typer.Argument(None, help="Additional tickers to scan."),
-    tickers: list[str] = typer.Option(None, "--tickers", help="List of tickers to scan."),
+    tickers: list[str] = typer.Option(
+        None, "--tickers", help="List of tickers to scan."
+    ),
     export: str = typer.Option(..., "--export", help="Save results to a CSV file."),
-    flags: bool = typer.Option(False, "--flags", help="Export red flags details instead of standard portfolio metrics."),
+    flags: bool = typer.Option(
+        False,
+        "--flags",
+        help="Export red flags details instead of standard portfolio metrics.",
+    ),
 ) -> None:
     """Export portfolio metrics formatted for Power BI."""
     try:
@@ -573,16 +853,20 @@ def powerbi(
                 clean_tickers.append(t)
 
         from telmus.exporters.powerbi import PowerBIExporter
+
         exporter = PowerBIExporter()
         if flags:
             exporter.export_flags(clean_tickers, export)
             console.print(f"Saved to {export}")
         else:
             exporter.export_portfolio(clean_tickers, export)
-            html_export = export[:-4] + "_report.html" if export.lower().endswith(".csv") else export + "_report.html"
+            html_export = (
+                export[:-4] + "_report.html"
+                if export.lower().endswith(".csv")
+                else export + "_report.html"
+            )
             console.print(f"Saved to {export}")
             console.print(f"Saved to {html_export}")
     except Exception as exc:
         console.print(f"[bold red]Error:[/] {exc}")
         raise typer.Exit(code=1)
-

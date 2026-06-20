@@ -46,29 +46,31 @@ class PowerBIExporter:
             writer.writerow(headers)
 
             for res in scanned_results:
-                writer.writerow([
-                    today,
-                    res.ticker,
-                    res.company,
-                    res.exchange,
-                    self._csv_val(res.valuation.pe_ratio),
-                    self._csv_val(res.valuation.pb_ratio),
-                    self._csv_val(res.valuation.ev_ebitda),
-                    self._csv_val(res.valuation.vs_sector),
-                    self._csv_val(res.health.piotroski_f),
-                    self._csv_val(res.health.altman_z),
-                    self._csv_val(res.health.debt_to_equity),
-                    self._csv_val(res.health.current_ratio),
-                    self._csv_val(res.health.interest_coverage),
-                    self._csv_val(res.growth.revenue_cagr_3y),
-                    self._csv_val(res.growth.pat_cagr_3y),
-                    self._csv_val(res.growth.margin_trend),
-                    self._csv_val(res.growth.fcf_yield),
-                    self._csv_val(res.beneish_m),
-                    len(res.red_flags),
-                    res.highest_concern,
-                    res.analyst_brief,
-                ])
+                writer.writerow(
+                    [
+                        today,
+                        res.ticker,
+                        res.company,
+                        res.exchange,
+                        self._csv_val(res.valuation.pe_ratio),
+                        self._csv_val(res.valuation.pb_ratio),
+                        self._csv_val(res.valuation.ev_ebitda),
+                        self._csv_val(res.valuation.vs_sector),
+                        self._csv_val(res.health.piotroski_f),
+                        self._csv_val(res.health.altman_z),
+                        self._csv_val(res.health.debt_to_equity),
+                        self._csv_val(res.health.current_ratio),
+                        self._csv_val(res.health.interest_coverage),
+                        self._csv_val(res.growth.revenue_cagr_3y),
+                        self._csv_val(res.growth.pat_cagr_3y),
+                        self._csv_val(res.growth.margin_trend),
+                        self._csv_val(res.growth.fcf_yield),
+                        self._csv_val(res.beneish_m),
+                        len(res.red_flags),
+                        res.highest_concern,
+                        res.analyst_brief,
+                    ]
+                )
 
         # Now generate HTML report
         if path.lower().endswith(".csv"):
@@ -94,13 +96,15 @@ class PowerBIExporter:
                     writer.writerow([today, res.ticker, "none", "", ""])
                 else:
                     for flag in res.red_flags:
-                        writer.writerow([
-                            today,
-                            res.ticker,
-                            flag.type,
-                            self._csv_val(flag.value),
-                            flag.severity,
-                        ])
+                        writer.writerow(
+                            [
+                                today,
+                                res.ticker,
+                                flag.type,
+                                self._csv_val(flag.value),
+                                flag.severity,
+                            ]
+                        )
 
     def _csv_val(self, val: typing.Any) -> any:
         if val is None:
@@ -113,38 +117,61 @@ class PowerBIExporter:
             badge_class = f"badge badge-{r['highest_concern']}"
             html.append(f"""
                 <tr>
-                    <td style="font-weight: 600;">{r['ticker']}</td>
-                    <td>{r['company']}</td>
-                    <td>{r['pe']}</td>
-                    <td>{r['pb']}</td>
-                    <td>{r['piotroski']}</td>
-                    <td>{r['altman']}</td>
-                    <td><span class="{badge_class}">{r['highest_concern']}</span></td>
-                    <td class="brief-cell" title="{r['brief']}">{r['brief']}</td>
+                    <td style="font-weight: 600;">{r["ticker"]}</td>
+                    <td>{r["company"]}</td>
+                    <td>{r["pe"]}</td>
+                    <td>{r["pb"]}</td>
+                    <td>{r["piotroski"]}</td>
+                    <td>{r["altman"]}</td>
+                    <td><span class="{badge_class}">{r["highest_concern"]}</span></td>
+                    <td class="brief-cell" title="{r["brief"]}">{r["brief"]}</td>
                 </tr>
             """)
         return "\n".join(html)
 
     def _generate_html_report(self, results: list[ScanResult], html_path: str) -> None:
         import json
-        
+
         # Extract data for simple charts
         tickers = [r.ticker for r in results]
-        piotroski_f = [r.health.piotroski_f if r.health.piotroski_f is not None else 0 for r in results]
-        pe_ratios = [r.valuation.pe_ratio if r.valuation.pe_ratio is not None else 0 for r in results]
-        altman_z = [r.health.altman_z if r.health.altman_z is not None else 0 for r in results]
-        
+        piotroski_f = [
+            r.health.piotroski_f if r.health.piotroski_f is not None else 0
+            for r in results
+        ]
+        pe_ratios = [
+            r.valuation.pe_ratio if r.valuation.pe_ratio is not None else 0
+            for r in results
+        ]
+        altman_z = [
+            r.health.altman_z if r.health.altman_z is not None else 0 for r in results
+        ]
+
         # Normalize scores for Radar chart
         radar_datasets = []
         vibrant_colors = [
-            {"border": "rgba(99, 102, 241, 1)", "bg": "rgba(99, 102, 241, 0.2)"},    # Indigo
-            {"border": "rgba(236, 72, 153, 1)", "bg": "rgba(236, 72, 153, 0.2)"},    # Pink
-            {"border": "rgba(16, 185, 129, 1)", "bg": "rgba(16, 185, 129, 0.2)"},    # Emerald
-            {"border": "rgba(245, 158, 11, 1)", "bg": "rgba(245, 158, 11, 0.2)"},    # Amber
-            {"border": "rgba(6, 182, 212, 1)", "bg": "rgba(6, 182, 212, 0.2)"},      # Cyan
-            {"border": "rgba(139, 92, 246, 1)", "bg": "rgba(139, 92, 246, 0.2)"},    # Purple
+            {
+                "border": "rgba(99, 102, 241, 1)",
+                "bg": "rgba(99, 102, 241, 0.2)",
+            },  # Indigo
+            {
+                "border": "rgba(236, 72, 153, 1)",
+                "bg": "rgba(236, 72, 153, 0.2)",
+            },  # Pink
+            {
+                "border": "rgba(16, 185, 129, 1)",
+                "bg": "rgba(16, 185, 129, 0.2)",
+            },  # Emerald
+            {
+                "border": "rgba(245, 158, 11, 1)",
+                "bg": "rgba(245, 158, 11, 0.2)",
+            },  # Amber
+            {"border": "rgba(6, 182, 212, 1)", "bg": "rgba(6, 182, 212, 0.2)"},  # Cyan
+            {
+                "border": "rgba(139, 92, 246, 1)",
+                "bg": "rgba(139, 92, 246, 0.2)",
+            },  # Purple
         ]
-        
+
         for idx, res in enumerate(results):
             f_val = res.health.piotroski_f
             z_val = res.health.altman_z
@@ -155,7 +182,11 @@ class PowerBIExporter:
             # Health (max 9)
             h_score = round((f_val / 9.0) * 10.0, 2) if f_val is not None else 0.0
             # Safety
-            s_score = round(min(max(z_val, 0.0) / 3.0, 1.0) * 10.0, 2) if z_val is not None else 0.0
+            s_score = (
+                round(min(max(z_val, 0.0) / 3.0, 1.0) * 10.0, 2)
+                if z_val is not None
+                else 0.0
+            )
             # Valuation
             if pe_val is not None and pe_val > 0:
                 v_score = round(max(0.0, min(10.0, (40.0 - pe_val) / 3.0)), 2)
@@ -170,30 +201,48 @@ class PowerBIExporter:
                 l_score = 10.0
 
             color_pair = vibrant_colors[idx % len(vibrant_colors)]
-            radar_datasets.append({
-                "label": res.ticker,
-                "data": [h_score, s_score, v_score, g_score, l_score],
-                "borderColor": color_pair["border"],
-                "backgroundColor": color_pair["bg"],
-                "borderWidth": 2,
-                "pointBackgroundColor": color_pair["border"]
-            })
+            radar_datasets.append(
+                {
+                    "label": res.ticker,
+                    "data": [h_score, s_score, v_score, g_score, l_score],
+                    "borderColor": color_pair["border"],
+                    "backgroundColor": color_pair["bg"],
+                    "borderWidth": 2,
+                    "pointBackgroundColor": color_pair["border"],
+                }
+            )
 
         table_rows = []
         for r in results:
-            pe_str = f"{r.valuation.pe_ratio:.2f}" if r.valuation.pe_ratio is not None else "n/a"
-            pb_str = f"{r.valuation.pb_ratio:.2f}" if r.valuation.pb_ratio is not None else "n/a"
-            alt_str = f"{r.health.altman_z:.2f}" if r.health.altman_z is not None else "n/a"
-            table_rows.append({
-                "ticker": r.ticker,
-                "company": r.company,
-                "pe": pe_str,
-                "pb": pb_str,
-                "piotroski": r.health.piotroski_f if r.health.piotroski_f is not None else "n/a",
-                "altman": alt_str,
-                "highest_concern": r.highest_concern.lower() if r.highest_concern else "low",
-                "brief": r.analyst_brief or ""
-            })
+            pe_str = (
+                f"{r.valuation.pe_ratio:.2f}"
+                if r.valuation.pe_ratio is not None
+                else "n/a"
+            )
+            pb_str = (
+                f"{r.valuation.pb_ratio:.2f}"
+                if r.valuation.pb_ratio is not None
+                else "n/a"
+            )
+            alt_str = (
+                f"{r.health.altman_z:.2f}" if r.health.altman_z is not None else "n/a"
+            )
+            table_rows.append(
+                {
+                    "ticker": r.ticker,
+                    "company": r.company,
+                    "pe": pe_str,
+                    "pb": pb_str,
+                    "piotroski": r.health.piotroski_f
+                    if r.health.piotroski_f is not None
+                    else "n/a",
+                    "altman": alt_str,
+                    "highest_concern": r.highest_concern.lower()
+                    if r.highest_concern
+                    else "low",
+                    "brief": r.analyst_brief or "",
+                }
+            )
 
         html_content = f"""<!DOCTYPE html>
 <html lang="en">
@@ -343,7 +392,7 @@ class PowerBIExporter:
         <div class="logo">
             <span class="gradient-text">telmus</span> Portfolio Analysis
         </div>
-        <div class="date">Report Date: {datetime.date.today().strftime('%B %d, %Y')}</div>
+        <div class="date">Report Date: {datetime.date.today().strftime("%B %d, %Y")}</div>
     </header>
 
     <div class="grid-top">

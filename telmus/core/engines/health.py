@@ -64,7 +64,9 @@ class HealthEngine:
             cashflow = pd.DataFrame()
         info = financials.get("info") or {}
 
-        piotroski_f, piotroski_signals = self._compute_piotroski(income_stmt, balance_sheet, cashflow)
+        piotroski_f, piotroski_signals = self._compute_piotroski(
+            income_stmt, balance_sheet, cashflow
+        )
         altman_z = self._compute_altman_z(income_stmt, balance_sheet, info)
         debt_to_equity = self._compute_debt_to_equity(balance_sheet)
         current_ratio = self._compute_current_ratio(balance_sheet)
@@ -101,7 +103,9 @@ class HealthEngine:
         signals["Liquidity Rising"] = self._liquidity_increasing(balance_sheet)
         signals["No Dilution"] = self._no_dilution(balance_sheet)
         signals["Gross Margin Rising"] = self._gross_margin_increasing(income_stmt)
-        signals["Asset Turnover Rising"] = self._asset_turnover_increasing(income_stmt, balance_sheet)
+        signals["Asset Turnover Rising"] = self._asset_turnover_increasing(
+            income_stmt, balance_sheet
+        )
         score = sum(1 for v in signals.values() if v)
         signals = {k: 1 if v else 0 for k, v in signals.items()}
         return score, signals
@@ -109,8 +113,16 @@ class HealthEngine:
     def _roa_positive(
         self, income_stmt: pd.DataFrame, balance_sheet: pd.DataFrame
     ) -> bool:
-        net_income = _series_value(_get_series_fallback(income_stmt, ["Net Income", "NetIncome", "Net Income Common Stockholders"]), 0)
-        total_assets = _series_value(_get_series_fallback(balance_sheet, ["Total Assets", "TotalAssets"]), 0)
+        net_income = _series_value(
+            _get_series_fallback(
+                income_stmt,
+                ["Net Income", "NetIncome", "Net Income Common Stockholders"],
+            ),
+            0,
+        )
+        total_assets = _series_value(
+            _get_series_fallback(balance_sheet, ["Total Assets", "TotalAssets"]), 0
+        )
         roa = _safe_divide(net_income, total_assets)
         if roa is None:
             logger.warning("ROA positive signal missing data")
@@ -118,7 +130,15 @@ class HealthEngine:
         return roa > 0
 
     def _cfo_positive(self, cashflow: pd.DataFrame) -> bool:
-        cfo_series = _get_series_fallback(cashflow, ["Total Cash From Operating Activities", "Cash Flow From Operating Activities", "Operating Cash Flow", "CashFlowFromOperatingActivities"])
+        cfo_series = _get_series_fallback(
+            cashflow,
+            [
+                "Total Cash From Operating Activities",
+                "Cash Flow From Operating Activities",
+                "Operating Cash Flow",
+                "CashFlowFromOperatingActivities",
+            ],
+        )
         cfo = _series_value(cfo_series, 0)
         if cfo is None:
             logger.warning("CFO positive signal missing data")
@@ -128,8 +148,12 @@ class HealthEngine:
     def _roa_increasing(
         self, income_stmt: pd.DataFrame, balance_sheet: pd.DataFrame
     ) -> bool:
-        net_income = _get_series_fallback(income_stmt, ["Net Income", "NetIncome", "Net Income Common Stockholders"])
-        total_assets = _get_series_fallback(balance_sheet, ["Total Assets", "TotalAssets"])
+        net_income = _get_series_fallback(
+            income_stmt, ["Net Income", "NetIncome", "Net Income Common Stockholders"]
+        )
+        total_assets = _get_series_fallback(
+            balance_sheet, ["Total Assets", "TotalAssets"]
+        )
         if net_income is None or total_assets is None:
             logger.warning("ROA increasing signal missing data")
             return False
@@ -148,9 +172,24 @@ class HealthEngine:
         return current_roa > prior_roa
 
     def _accruals(self, income_stmt: pd.DataFrame, cashflow: pd.DataFrame) -> bool:
-        net_income = _series_value(_get_series_fallback(income_stmt, ["Net Income", "NetIncome", "Net Income Common Stockholders"]), 0)
+        net_income = _series_value(
+            _get_series_fallback(
+                income_stmt,
+                ["Net Income", "NetIncome", "Net Income Common Stockholders"],
+            ),
+            0,
+        )
         cfo = _series_value(
-            _get_series_fallback(cashflow, ["Total Cash From Operating Activities", "Cash Flow From Operating Activities", "Operating Cash Flow", "CashFlowFromOperatingActivities"]), 0
+            _get_series_fallback(
+                cashflow,
+                [
+                    "Total Cash From Operating Activities",
+                    "Cash Flow From Operating Activities",
+                    "Operating Cash Flow",
+                    "CashFlowFromOperatingActivities",
+                ],
+            ),
+            0,
         )
         if net_income is None or cfo is None:
             logger.warning("Accruals signal missing data")
@@ -159,8 +198,25 @@ class HealthEngine:
         return accruals < 0
 
     def _leverage_decreasing(self, balance_sheet: pd.DataFrame) -> bool:
-        long_term_debt = _get_series_fallback(balance_sheet, ["Long Term Debt", "Long Term Debt And Capital Lease Obligation", "LongTermDebt"])
-        total_equity = _get_series_fallback(balance_sheet, ["Total Stockholder Equity", "Stockholders Equity", "Total Equity Gross Minority Interest", "Common Stock Equity", "Total Equity", "StockholdersEquity"])
+        long_term_debt = _get_series_fallback(
+            balance_sheet,
+            [
+                "Long Term Debt",
+                "Long Term Debt And Capital Lease Obligation",
+                "LongTermDebt",
+            ],
+        )
+        total_equity = _get_series_fallback(
+            balance_sheet,
+            [
+                "Total Stockholder Equity",
+                "Stockholders Equity",
+                "Total Equity Gross Minority Interest",
+                "Common Stock Equity",
+                "Total Equity",
+                "StockholdersEquity",
+            ],
+        )
         if long_term_debt is None or total_equity is None:
             logger.warning("Leverage signal missing data")
             return False
@@ -179,8 +235,24 @@ class HealthEngine:
         return current_de < prior_de
 
     def _liquidity_increasing(self, balance_sheet: pd.DataFrame) -> bool:
-        current_assets = _get_series_fallback(balance_sheet, ["Total Current Assets", "Current Assets", "TotalCurrentAssets", "CurrentAssets"])
-        current_liabilities = _get_series_fallback(balance_sheet, ["Total Current Liabilities", "Current Liabilities", "TotalCurrentLiabilities", "CurrentLiabilities"])
+        current_assets = _get_series_fallback(
+            balance_sheet,
+            [
+                "Total Current Assets",
+                "Current Assets",
+                "TotalCurrentAssets",
+                "CurrentAssets",
+            ],
+        )
+        current_liabilities = _get_series_fallback(
+            balance_sheet,
+            [
+                "Total Current Liabilities",
+                "Current Liabilities",
+                "TotalCurrentLiabilities",
+                "CurrentLiabilities",
+            ],
+        )
         if current_assets is None or current_liabilities is None:
             logger.warning("Liquidity signal missing data")
             return False
@@ -199,8 +271,13 @@ class HealthEngine:
         return current_ratio > prior_ratio
 
     def _no_dilution(self, balance_sheet: pd.DataFrame) -> bool:
-        common_stock_series = _get_series_fallback(balance_sheet, ["Common Stock", "CommonStock", "Share Issued", "Ordinary Shares Number"])
-        share_issuance_series = _get_series_fallback(balance_sheet, ["Share Issuance", "ShareIssuance"])
+        common_stock_series = _get_series_fallback(
+            balance_sheet,
+            ["Common Stock", "CommonStock", "Share Issued", "Ordinary Shares Number"],
+        )
+        share_issuance_series = _get_series_fallback(
+            balance_sheet, ["Share Issuance", "ShareIssuance"]
+        )
         if common_stock_series is None and share_issuance_series is None:
             logger.warning("No dilution signal missing data")
             return False
@@ -213,8 +290,12 @@ class HealthEngine:
         return False
 
     def _gross_margin_increasing(self, income_stmt: pd.DataFrame) -> bool:
-        revenue = _get_series_fallback(income_stmt, ["Total Revenue", "TotalRevenue", "Revenue"])
-        gross_profit = _get_series_fallback(income_stmt, ["Gross Profit", "GrossProfit"])
+        revenue = _get_series_fallback(
+            income_stmt, ["Total Revenue", "TotalRevenue", "Revenue"]
+        )
+        gross_profit = _get_series_fallback(
+            income_stmt, ["Gross Profit", "GrossProfit"]
+        )
         if revenue is None or gross_profit is None:
             logger.warning("Gross margin signal missing data")
             return False
@@ -235,8 +316,12 @@ class HealthEngine:
     def _asset_turnover_increasing(
         self, income_stmt: pd.DataFrame, balance_sheet: pd.DataFrame
     ) -> bool:
-        revenue = _get_series_fallback(income_stmt, ["Total Revenue", "TotalRevenue", "Revenue"])
-        total_assets = _get_series_fallback(balance_sheet, ["Total Assets", "TotalAssets"])
+        revenue = _get_series_fallback(
+            income_stmt, ["Total Revenue", "TotalRevenue", "Revenue"]
+        )
+        total_assets = _get_series_fallback(
+            balance_sheet, ["Total Assets", "TotalAssets"]
+        )
         if revenue is None or total_assets is None:
             logger.warning("Asset turnover signal missing data")
             return False
@@ -261,7 +346,9 @@ class HealthEngine:
         info: dict[str, typing.Any],
     ) -> float | None:
         total_assets = _safe_value(
-            _series_value(_get_series_fallback(balance_sheet, ["Total Assets", "TotalAssets"]), 0)
+            _series_value(
+                _get_series_fallback(balance_sheet, ["Total Assets", "TotalAssets"]), 0
+            )
         )
         working_capital = None
         retained_earnings = None
@@ -271,32 +358,99 @@ class HealthEngine:
         market_cap = None
 
         current_assets = _series_value(
-            _get_series_fallback(balance_sheet, ["Total Current Assets", "Current Assets", "TotalCurrentAssets", "CurrentAssets"]), 0
+            _get_series_fallback(
+                balance_sheet,
+                [
+                    "Total Current Assets",
+                    "Current Assets",
+                    "TotalCurrentAssets",
+                    "CurrentAssets",
+                ],
+            ),
+            0,
         )
         current_liabilities = _series_value(
-            _get_series_fallback(balance_sheet, ["Total Current Liabilities", "Current Liabilities", "TotalCurrentLiabilities", "CurrentLiabilities"]), 0
+            _get_series_fallback(
+                balance_sheet,
+                [
+                    "Total Current Liabilities",
+                    "Current Liabilities",
+                    "TotalCurrentLiabilities",
+                    "CurrentLiabilities",
+                ],
+            ),
+            0,
         )
         if current_assets is not None and current_liabilities is not None:
             working_capital = _safe_value(current_assets - current_liabilities)
 
         retained_earnings = _safe_value(
-            _series_value(_get_series_fallback(balance_sheet, ["Retained Earnings", "RetainedEarnings"]), 0)
+            _series_value(
+                _get_series_fallback(
+                    balance_sheet, ["Retained Earnings", "RetainedEarnings"]
+                ),
+                0,
+            )
         )
         if retained_earnings is None:
             retained_earnings = _safe_value(
-                _series_value(_get_series_fallback(balance_sheet, ["Total Stockholder Equity", "Stockholders Equity", "Total Equity Gross Minority Interest", "Common Stock Equity", "Total Equity", "StockholdersEquity"]), 0)
+                _series_value(
+                    _get_series_fallback(
+                        balance_sheet,
+                        [
+                            "Total Stockholder Equity",
+                            "Stockholders Equity",
+                            "Total Equity Gross Minority Interest",
+                            "Common Stock Equity",
+                            "Total Equity",
+                            "StockholdersEquity",
+                        ],
+                    ),
+                    0,
+                )
             )
         if retained_earnings is None:
             retained_earnings = 0.0
 
-        ebit = _safe_value(_series_value(_get_series_fallback(income_stmt, ["Ebit", "EBIT", "Operating Income", "OperatingIncome", "Ebitda", "EBITDA"]), 0))
+        ebit = _safe_value(
+            _series_value(
+                _get_series_fallback(
+                    income_stmt,
+                    [
+                        "Ebit",
+                        "EBIT",
+                        "Operating Income",
+                        "OperatingIncome",
+                        "Ebitda",
+                        "EBITDA",
+                    ],
+                ),
+                0,
+            )
+        )
 
         total_liabilities = _safe_value(
-            _series_value(_get_series_fallback(balance_sheet, ["Total Liab", "Total Liabilities Net Minority Interest", "Total Liabilities", "TotalLiabilities"]), 0)
+            _series_value(
+                _get_series_fallback(
+                    balance_sheet,
+                    [
+                        "Total Liab",
+                        "Total Liabilities Net Minority Interest",
+                        "Total Liabilities",
+                        "TotalLiabilities",
+                    ],
+                ),
+                0,
+            )
         )
 
         revenue = _safe_value(
-            _series_value(_get_series_fallback(income_stmt, ["Total Revenue", "TotalRevenue", "Revenue"]), 0)
+            _series_value(
+                _get_series_fallback(
+                    income_stmt, ["Total Revenue", "TotalRevenue", "Revenue"]
+                ),
+                0,
+            )
         )
 
         market_cap = _safe_value(info.get("marketCap"))
@@ -305,20 +459,46 @@ class HealthEngine:
         x2 = _safe_divide(retained_earnings, total_assets)
         x3 = _safe_divide(ebit, total_assets)
         x4 = _safe_divide(market_cap, total_liabilities)
-        x5 = _safe_divide(revenue, total_assets)
+        _safe_divide(revenue, total_assets)
 
         if x1 is None or x2 is None or x3 is None or x4 is None:
             logger.warning("Altman Z-score missing required inputs")
             return None
 
-        return float(6.56 * float(x1) + 3.26 * float(x2) + 6.72 * float(x3) + 1.05 * float(x4))
+        return float(
+            6.56 * float(x1) + 3.26 * float(x2) + 6.72 * float(x3) + 1.05 * float(x4)
+        )
 
     def _compute_debt_to_equity(self, balance_sheet: pd.DataFrame) -> float | None:
         total_liab = _safe_value(
-            _series_value(_get_series_fallback(balance_sheet, ["Total Liab", "Total Liabilities Net Minority Interest", "Total Liabilities", "TotalLiabilities"]), 0)
+            _series_value(
+                _get_series_fallback(
+                    balance_sheet,
+                    [
+                        "Total Liab",
+                        "Total Liabilities Net Minority Interest",
+                        "Total Liabilities",
+                        "TotalLiabilities",
+                    ],
+                ),
+                0,
+            )
         )
         total_equity = _safe_value(
-            _series_value(_get_series_fallback(balance_sheet, ["Total Stockholder Equity", "Stockholders Equity", "Total Equity Gross Minority Interest", "Common Stock Equity", "Total Equity", "StockholdersEquity"]), 0)
+            _series_value(
+                _get_series_fallback(
+                    balance_sheet,
+                    [
+                        "Total Stockholder Equity",
+                        "Stockholders Equity",
+                        "Total Equity Gross Minority Interest",
+                        "Common Stock Equity",
+                        "Total Equity",
+                        "StockholdersEquity",
+                    ],
+                ),
+                0,
+            )
         )
         if total_liab is None or total_equity is None:
             logger.warning("Debt-to-equity missing balance sheet values")
@@ -328,10 +508,32 @@ class HealthEngine:
 
     def _compute_current_ratio(self, balance_sheet: pd.DataFrame) -> float | None:
         current_assets = _safe_value(
-            _series_value(_get_series_fallback(balance_sheet, ["Total Current Assets", "Current Assets", "TotalCurrentAssets", "CurrentAssets"]), 0)
+            _series_value(
+                _get_series_fallback(
+                    balance_sheet,
+                    [
+                        "Total Current Assets",
+                        "Current Assets",
+                        "TotalCurrentAssets",
+                        "CurrentAssets",
+                    ],
+                ),
+                0,
+            )
         )
         current_liabilities = _safe_value(
-            _series_value(_get_series_fallback(balance_sheet, ["Total Current Liabilities", "Current Liabilities", "TotalCurrentLiabilities", "CurrentLiabilities"]), 0)
+            _series_value(
+                _get_series_fallback(
+                    balance_sheet,
+                    [
+                        "Total Current Liabilities",
+                        "Current Liabilities",
+                        "TotalCurrentLiabilities",
+                        "CurrentLiabilities",
+                    ],
+                ),
+                0,
+            )
         )
         if current_assets is None or current_liabilities is None:
             logger.warning("Current ratio missing balance sheet values")
@@ -342,13 +544,38 @@ class HealthEngine:
     def _compute_interest_coverage(
         self, income_stmt: pd.DataFrame, balance_sheet: pd.DataFrame
     ) -> float | None:
-        ebit = _safe_value(_series_value(_get_series_fallback(income_stmt, ["Ebit", "EBIT", "Operating Income", "OperatingIncome", "Ebitda", "EBITDA"]), 0))
+        ebit = _safe_value(
+            _series_value(
+                _get_series_fallback(
+                    income_stmt,
+                    [
+                        "Ebit",
+                        "EBIT",
+                        "Operating Income",
+                        "OperatingIncome",
+                        "Ebitda",
+                        "EBITDA",
+                    ],
+                ),
+                0,
+            )
+        )
         interest_expense = _safe_value(
-            _series_value(_get_series_fallback(income_stmt, ["Interest Expense", "InterestExpense", "Interest Expense Net Non Operating", "InterestPaid"]), 0)
+            _series_value(
+                _get_series_fallback(
+                    income_stmt,
+                    [
+                        "Interest Expense",
+                        "InterestExpense",
+                        "Interest Expense Net Non Operating",
+                        "InterestPaid",
+                    ],
+                ),
+                0,
+            )
         )
         if ebit is None or interest_expense is None:
             logger.warning("Interest coverage missing income statement values")
             return None
         coverage = _safe_divide(ebit, abs(interest_expense))
         return coverage if coverage is not None else None
-

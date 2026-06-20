@@ -1,8 +1,13 @@
-## v0.2.3
+## v0.2.3 - Final Production Release
 ### Fixed
-- Fixed print layout to fit exactly on one A4 landscape page using CSS transform
-- Fixed gauge alignment issues in print and screen layouts
-- Wrapped content in dashboard-wrapper for uniform scaling
+- Gauge alignment corrected, all 3 gauges same height
+- Print button white JetBrains Mono positioned top right
+- Analyst brief background removed
+- Red flags banner background removed
+- One page A4 landscape print layout
+### Security
+- 0 HIGH issues confirmed by bandit
+- All dependencies clean via pip-audit
 
 ## v0.2.2
 ### Fixed
