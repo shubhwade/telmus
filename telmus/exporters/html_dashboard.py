@@ -406,12 +406,12 @@ class HtmlDashboardExporter:
     # ═══════════════════════════════════════════════════════════════════════════
     def export_scan(self, result: ScanResult, path: str) -> None:
         scan_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        pe = result.valuation.pe_ratio
-        pio = result.health.piotroski_f
-        altman = result.health.altman_z
-        rev_cagr = result.growth.revenue_cagr_3y
-        fcf_yield = result.growth.fcf_yield
-        m_score = result.beneish_m if result.beneish_m is not None else -2.22
+        pe = result.valuation.pe_ratio or 0.0
+        pio = result.health.piotroski_f or 0
+        altman = result.health.altman_z or 0.0
+        rev_cagr = result.growth.revenue_cagr_3y or 0.0
+        fcf_yield = result.growth.fcf_yield or 0.0
+        m_score = result.beneish_m if result.beneish_m is not None else 0.0
 
         # ── Color logic ──
         def _kpi_color(val, thresholds):
@@ -593,9 +593,9 @@ class HtmlDashboardExporter:
         fcf_yield_pct = (fcf_yield or 0.0) * 100.0
 
         # Financial metrics table
-        de_val = result.health.debt_to_equity
-        cr_val = result.health.current_ratio
-        ic_val = result.health.interest_coverage
+        de_val = result.health.debt_to_equity or 0.0
+        cr_val = result.health.current_ratio or 0.0
+        ic_val = result.health.interest_coverage or 0.0
         margin_trend = result.growth.margin_trend or "n/a"
 
         def _metric_color(val, good_fn):
@@ -902,7 +902,7 @@ class HtmlDashboardExporter:
         new Chart(document.getElementById('radarPio'), {{
             type: 'radar',
             data: {{
-                labels: {json.dumps(radar_labels)},
+                labels: {json.dumps(signal_names)},
                 datasets: [{{
                     label: 'Signals',
                     data: {json.dumps(signal_values)},
@@ -1113,7 +1113,7 @@ class HtmlDashboardExporter:
         growth_b = [(res_b.growth.revenue_cagr_3y or 0.0) * 100.0, (res_b.growth.pat_cagr_3y or 0.0) * 100.0, (res_b.growth.fcf_yield or 0.0) * 100.0]
 
         # Radar data for comparison
-        radar_labels_cmp = ['P/E', 'P/B', 'Piotroski', 'Altman Z', 'Rev CAGR']
+        signal_names_cmp = ['P/E', 'P/B', 'Piotroski', 'Altman Z', 'Rev CAGR']
         # Normalize each metric to 0-1 for radar overlay
         def _norm(vals):
             mx = max(abs(v) for v in vals) if any(v != 0 for v in vals) else 1
@@ -1257,7 +1257,7 @@ class HtmlDashboardExporter:
         new Chart(document.getElementById('radarCompare'), {{
             type: 'radar',
             data: {{
-                labels: {json.dumps(radar_labels_cmp)},
+                labels: {json.dumps(signal_names_cmp)},
                 datasets: [
                     {{
                         label: '{ticker_a}',

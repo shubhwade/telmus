@@ -1,3 +1,7 @@
+## v0.1.11 - HTML Dashboard Variable Hardening
+- Safely fallback missing values to 0 to prevent JavaScript errors
+- Fully mapped all radar chart labels and overlay datasets to variables correctly
+
 ## v0.1.10 - Hotfix Dashboard Charts
 - Fixed an f-string rendering issue preventing charts from displaying
 
