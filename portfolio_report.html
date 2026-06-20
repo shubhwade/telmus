@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>telmus - Portfolio Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #09090b;
+            --card-bg: #18181b;
+            --border-color: #27272a;
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --primary: #6366f1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #a78bfa 0%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .date {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .grid-top {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .grid-bottom {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 1.5rem;
+        }
+        @media (max-width: 1024px) {
+            .grid-bottom {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+        .chart-container-large {
+            position: relative;
+            height: 380px;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-low {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+        .badge-medium {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+        .badge-high {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+        .brief-cell {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span class="gradient-text">telmus</span> Portfolio Analysis
+        </div>
+        <div class="date">Report Date: June 20, 2026</div>
+    </header>
+
+    <div class="grid-top">
+        <div class="card">
+            <div class="card-title">Piotroski F-Score Comparison</div>
+            <div class="chart-container">
+                <canvas id="piotroskiChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">P/E Ratio Comparison</div>
+            <div class="chart-container">
+                <canvas id="peChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">Altman Z-Score Comparison</div>
+            <div class="chart-container">
+                <canvas id="altmanChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-bottom">
+        <div class="card">
+            <div class="card-title">Multi-Metric Score Radar</div>
+            <div class="chart-container-large">
+                <canvas id="radarChart"></canvas>
+            </div>
+        </div>
+        <div class="card" style="overflow-x: auto;">
+            <div class="card-title">Portfolio Metrics Table</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Company</th>
+                        <th>P/E</th>
+                        <th>P/B</th>
+                        <th>Piotroski F</th>
+                        <th>Altman Z</th>
+                        <th>Concern</th>
+                        <th>Brief</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                <tr>
+                    <td style="font-weight: 600;">INFY.NS</td>
+                    <td>Infosys Limited</td>
+                    <td>1284.85</td>
+                    <td>434.98</td>
+                    <td>4</td>
+                    <td>390.21</td>
+                    <td><span class="badge badge-low">low</span></td>
+                    <td class="brief-cell" title="weak fundamentals (Piotroski F-score of 4). financially safe (Altman Z-score of 390.21). Revenue growth is 3.4% over three years and operating margins are stable. No significant red flags detected. Suitable for DCF or comparable company analysis.">weak fundamentals (Piotroski F-score of 4). financially safe (Altman Z-score of 390.21). Revenue growth is 3.4% over three years and operating margins are stable. No significant red flags detected. Suitable for DCF or comparable company analysis.</td>
+                </tr>
+            
+
+                <tr>
+                    <td style="font-weight: 600;">TCS.NS</td>
+                    <td>Tata Consultancy Services Limited</td>
+                    <td>15.62</td>
+                    <td>7.17</td>
+                    <td>3</td>
+                    <td>10.18</td>
+                    <td><span class="badge badge-low">low</span></td>
+                    <td class="brief-cell" title="weak fundamentals (Piotroski F-score of 3). financially safe (Altman Z-score of 10.18). Revenue growth is 5.8% over three years and operating margins are stable. No significant red flags detected. Suitable for DCF or comparable company analysis.">weak fundamentals (Piotroski F-score of 3). financially safe (Altman Z-score of 10.18). Revenue growth is 5.8% over three years and operating margins are stable. No significant red flags detected. Suitable for DCF or comparable company analysis.</td>
+                </tr>
+            
+
+                <tr>
+                    <td style="font-weight: 600;">WIPRO.NS</td>
+                    <td>Wipro Limited</td>
+                    <td>14.37</td>
+                    <td>2.14</td>
+                    <td>1</td>
+                    <td>4.22</td>
+                    <td><span class="badge badge-low">low</span></td>
+                    <td class="brief-cell" title="weak fundamentals (Piotroski F-score of 1). financially safe (Altman Z-score of 4.22). Revenue growth is 0.8% over three years and operating margins are stable. No significant red flags detected. Suitable for DCF or comparable company analysis.">weak fundamentals (Piotroski F-score of 1). financially safe (Altman Z-score of 4.22). Revenue growth is 0.8% over three years and operating margins are stable. No significant red flags detected. Suitable for DCF or comparable company analysis.</td>
+                </tr>
+            
+
+                <tr>
+                    <td style="font-weight: 600;">HDFCBANK.NS</td>
+                    <td>HDFC Bank Limited</td>
+                    <td>17.83</td>
+                    <td>1.56</td>
+                    <td>2</td>
+                    <td>n/a</td>
+                    <td><span class="badge badge-low">low</span></td>
+                    <td class="brief-cell" title="weak fundamentals (Piotroski F-score of 2). Revenue growth is 32.5% over three years. No significant red flags detected. Suitable for DCF or comparable company analysis.">weak fundamentals (Piotroski F-score of 2). Revenue growth is 32.5% over three years. No significant red flags detected. Suitable for DCF or comparable company analysis.</td>
+                </tr>
+            
+
+                <tr>
+                    <td style="font-weight: 600;">RELIANCE.NS</td>
+                    <td>Reliance Industries Limited</td>
+                    <td>21.94</td>
+                    <td>1.96</td>
+                    <td>4</td>
+                    <td>1.97</td>
+                    <td><span class="badge badge-low">low</span></td>
+                    <td class="brief-cell" title="weak fundamentals (Piotroski F-score of 4). grey zone credit profile (Altman Z-score of 1.97). Revenue growth is 6.4% over three years and operating margins are stable. No significant red flags detected. Suitable for DCF or comparable company analysis.">weak fundamentals (Piotroski F-score of 4). grey zone credit profile (Altman Z-score of 1.97). Revenue growth is 6.4% over three years and operating margins are stable. No significant red flags detected. Suitable for DCF or comparable company analysis.</td>
+                </tr>
+            
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const tickers = ["INFY.NS", "TCS.NS", "WIPRO.NS", "HDFCBANK.NS", "RELIANCE.NS"];
+        const pioScores = [4, 3, 1, 2, 4];
+        const peRatios = [1284.848610636885, 15.62372593329811, 14.373203724612424, 17.83120825254863, 21.93843753549489];
+        const altmanScores = [390.20721041422127, 10.178605114723432, 4.22402093023515, 0, 1.9698980531628658];
+        const radarDatasets = [{"label": "INFY.NS", "data": [4.44, 10.0, 0.0, 1.72, 10.0], "borderColor": "rgba(99, 102, 241, 1)", "backgroundColor": "rgba(99, 102, 241, 0.2)", "borderWidth": 2, "pointBackgroundColor": "rgba(99, 102, 241, 1)"}, {"label": "TCS.NS", "data": [3.33, 10.0, 8.13, 2.9, 10.0], "borderColor": "rgba(236, 72, 153, 1)", "backgroundColor": "rgba(236, 72, 153, 0.2)", "borderWidth": 2, "pointBackgroundColor": "rgba(236, 72, 153, 1)"}, {"label": "WIPRO.NS", "data": [1.11, 10.0, 8.54, 0.39, 10.0], "borderColor": "rgba(16, 185, 129, 1)", "backgroundColor": "rgba(16, 185, 129, 0.2)", "borderWidth": 2, "pointBackgroundColor": "rgba(16, 185, 129, 1)"}, {"label": "HDFCBANK.NS", "data": [2.22, 0.0, 7.39, 10.0, 10.0], "borderColor": "rgba(245, 158, 11, 1)", "backgroundColor": "rgba(245, 158, 11, 0.2)", "borderWidth": 2, "pointBackgroundColor": "rgba(245, 158, 11, 1)"}, {"label": "RELIANCE.NS", "data": [4.44, 6.57, 6.02, 3.2, 10.0], "borderColor": "rgba(6, 182, 212, 1)", "backgroundColor": "rgba(6, 182, 212, 0.2)", "borderWidth": 2, "pointBackgroundColor": "rgba(6, 182, 212, 1)"}];
+
+        // Color mapper for Piotroski F-scores
+        const getPioColor = (val) => {
+            if (val >= 7) return '#10b981'; // green
+            if (val >= 5) return '#f59e0b'; // orange
+            return '#ef4444'; // red
+        };
+        const pioColors = pioScores.map(getPioColor);
+
+        // Chart 1: Piotroski F
+        new Chart(document.getElementById('piotroskiChart'), {
+            type: 'bar',
+            data: {
+                labels: tickers,
+                datasets: [{
+                    label: 'Piotroski F-Score',
+                    data: pioScores,
+                    backgroundColor: pioColors,
+                    borderRadius: 4,
+                    borderWidth: 0,
+                    barThickness: 15
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#a1a1aa' },
+                        max: 9
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: '#a1a1aa' }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: P/E Ratio
+        new Chart(document.getElementById('peChart'), {
+            type: 'bar',
+            data: {
+                labels: tickers,
+                datasets: [{
+                    label: 'P/E Ratio',
+                    data: peRatios,
+                    backgroundColor: '#6366f1',
+                    borderRadius: 4,
+                    borderWidth: 0,
+                    barThickness: 15
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#a1a1aa' }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: '#a1a1aa' }
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Altman Z-Score
+        new Chart(document.getElementById('altmanChart'), {
+            type: 'bar',
+            data: {
+                labels: tickers,
+                datasets: [{
+                    label: 'Altman Z-Score',
+                    data: altmanScores,
+                    backgroundColor: '#06b6d4',
+                    borderRadius: 4,
+                    borderWidth: 0,
+                    barThickness: 15
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#a1a1aa' }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: '#a1a1aa' }
+                    }
+                }
+            },
+            plugins: [{
+                id: 'altmanLine',
+                afterDraw(chart) {
+                    const {ctx, chartArea: {top, bottom, left, right}, scales: {x}} = chart;
+                    const xPos = x.getPixelForValue(2.99);
+                    if (xPos >= left && xPos <= right) {
+                        ctx.save();
+                        ctx.strokeStyle = '#ef4444';
+                        ctx.lineWidth = 1.5;
+                        ctx.setLineDash([5, 5]);
+                        ctx.beginPath();
+                        ctx.moveTo(xPos, top);
+                        ctx.lineTo(xPos, bottom);
+                        ctx.stroke();
+                        
+                        // Add text label
+                        ctx.fillStyle = '#ef4444';
+                        ctx.font = '10px Inter';
+                        ctx.fillText('Safe (2.99)', xPos + 5, top + 15);
+                        ctx.restore();
+                    }
+                }
+            }]
+        });
+
+        // Chart 4: Radar
+        new Chart(document.getElementById('radarChart'), {
+            type: 'radar',
+            data: {
+                labels: ['Financial Health', 'Credit Safety', 'Valuation Cheapness', 'Growth Rate', 'Debt Safety'],
+                datasets: radarDatasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: '#f4f4f5', font: { family: 'Inter' } }
+                    }
+                },
+                scales: {
+                    r: {
+                        grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                        angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
+                        pointLabels: { color: '#a1a1aa', font: { family: 'Inter', size: 10 } },
+                        ticks: {
+                            backdropColor: 'transparent',
+                            color: '#a1a1aa',
+                            showLabelBackdrop: false,
+                            max: 10,
+                            min: 0,
+                            stepSize: 2
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

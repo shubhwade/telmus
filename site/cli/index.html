@@ -288,6 +288,25 @@
   
   
   
+    <li class="md-tabs__item">
+      <a href="../powerbi/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Power BI
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
     
     
       <li class="md-tabs__item">
@@ -635,10 +654,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#perform-a-scan-and-save-the-result" class="md-nav__link">
+  <a href="#perform-a-scan-and-save-the-result-jsonexcelcsv" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Perform a scan and save the result
+        Perform a scan and save the result (JSON/Excel/CSV)
       
     </span>
   </a>
@@ -646,10 +665,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#compare-two-investment-candidates" class="md-nav__link">
+  <a href="#compare-two-investment-candidates-jsonexcelcsv" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Compare two investment candidates
+        Compare two investment candidates (JSON/Excel/CSV)
       
     </span>
   </a>
@@ -668,10 +687,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#screen-for-stronger-companies-in-a-sector" class="md-nav__link">
+  <a href="#screen-for-stronger-companies-in-a-sector-jsonexcelcsv" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Screen for stronger companies in a sector
+        Screen for stronger companies in a sector (JSON/Excel/CSV)
       
     </span>
   </a>
@@ -761,6 +780,33 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../powerbi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Power BI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
     
     
       
@@ -779,10 +825,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
@@ -800,8 +846,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -909,12 +955,14 @@ Performs a complete financial scan for a single ticker and returns valuation, he
 <pre><code class="language-bash">telmus scan INFY
 telmus scan INFY --json
 telmus scan INFY --export infy-report.json
+telmus scan INFY --export infy-report.xlsx
+telmus scan INFY --export infy-report.csv
 </code></pre>
 <p><strong>Output</strong>
 The default output includes sections for <code>Valuation</code>, <code>Health</code>, <code>Growth</code>, and <code>Analyst brief</code>. When you use <code>--json</code>, the CLI returns a JSON object with nested sections like <code>valuation</code>, <code>health</code>, <code>growth</code>, <code>flags</code>, and <code>analyst_brief</code>.</p>
 <p><strong>Flags</strong>
 - <code>--json</code> return the full structured result as JSON.
-- <code>--export PATH</code> save the scan result to a JSON file at the specified path.</p>
+- <code>--export PATH</code> save the scan result to a file at the specified path. Supports <code>.xlsx</code> (Excel), <code>.csv</code> (CSV), and <code>.json</code> (JSON) file formats.</p>
 <hr />
 <h2 id="telmus-compare-ticker_a-ticker_b"><code>telmus compare TICKER_A TICKER_B</code></h2>
 <p><strong>What it does</strong>
@@ -924,11 +972,16 @@ Compares two tickers side by side across their financial metrics, making it easy
 - You are choosing between alternatives in the same sector.
 - You need a concise view of relative risk and valuation.</p>
 <p><strong>Syntax</strong></p>
-<pre><code class="language-bash">telmus compare TICKER_A TICKER_B
+<pre><code class="language-bash">telmus compare TICKER_A TICKER_B [--export PATH]
 </code></pre>
-<p><strong>Example</strong></p>
+<p><strong>Examples</strong></p>
 <pre><code class="language-bash">telmus compare INFY TCS
+telmus compare INFY TCS --export comparison.xlsx
+telmus compare INFY TCS --export comparison.csv
+telmus compare INFY TCS --export comparison.json
 </code></pre>
+<p><strong>Flags</strong>
+- <code>--export PATH</code> save the comparison results to a file. Supports <code>.xlsx</code> (Excel), <code>.csv</code> (CSV), and <code>.json</code> (JSON) formats.</p>
 <p><strong>Output</strong>
 The comparison table shows metrics such as <code>P/E</code>, <code>P/B</code>, <code>EV/EBITDA</code>, <code>Piotroski F</code>, <code>Altman Z</code>, <code>Revenue CAGR 3y</code>, and <code>Margin Trend</code> for both tickers.</p>
 <hr />
@@ -940,15 +993,19 @@ Filters the ticker universe by sector, Piotroski score, and leverage, returning 
 - You want to enforce minimum earnings quality and maximum leverage rules.
 - You are building a shortlist for deeper analysis.</p>
 <p><strong>Syntax</strong></p>
-<pre><code class="language-bash">telmus screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT]
+<pre><code class="language-bash">telmus screen [--sector TEXT] [--min-piotroski INT] [--max-de FLOAT] [--export PATH]
 </code></pre>
-<p><strong>Example</strong></p>
+<p><strong>Examples</strong></p>
 <pre><code class="language-bash">telmus screen --sector IT --min-piotroski 6 --max-de 1.5
+telmus screen --sector IT --export sector.xlsx
+telmus screen --sector IT --export sector.csv
+telmus screen --sector IT --export sector.json
 </code></pre>
 <p><strong>Available flags</strong>
 - <code>--sector TEXT</code> filter by industry sector.
 - <code>--min-piotroski INT</code> require a minimum Piotroski F-score.
-- <code>--max-de FLOAT</code> require a maximum debt-to-equity ratio.</p>
+- <code>--max-de FLOAT</code> require a maximum debt-to-equity ratio.
+- <code>--export PATH</code> save the screening results to a file. Supports <code>.xlsx</code> (Excel), <code>.csv</code> (CSV), and <code>.json</code> (JSON) formats.</p>
 <hr />
 <h2 id="telmus-check-ticker"><code>telmus check TICKER</code></h2>
 <p><strong>What it does</strong>
@@ -1004,17 +1061,20 @@ available tools: scan, scan_ticker, compare, screen, info
 </code></pre>
 <hr />
 <h2 id="common-workflows">Common workflows</h2>
-<h3 id="perform-a-scan-and-save-the-result">Perform a scan and save the result</h3>
-<pre><code class="language-bash">telmus scan INFY --export infy.json
+<h3 id="perform-a-scan-and-save-the-result-jsonexcelcsv">Perform a scan and save the result (JSON/Excel/CSV)</h3>
+<pre><code class="language-bash">telmus scan INFY --export infy.xlsx
+telmus scan INFY --export infy.csv
+telmus scan INFY --export infy.json
 </code></pre>
-<h3 id="compare-two-investment-candidates">Compare two investment candidates</h3>
-<pre><code class="language-bash">telmus compare INFY TCS
+<h3 id="compare-two-investment-candidates-jsonexcelcsv">Compare two investment candidates (JSON/Excel/CSV)</h3>
+<pre><code class="language-bash">telmus compare INFY TCS --export comparison.xlsx
+telmus compare INFY TCS --export comparison.csv
 </code></pre>
 <h3 id="start-the-mcp-server-for-ai-integration">Start the MCP server for AI integration</h3>
 <pre><code class="language-bash">telmus serve
 </code></pre>
-<h3 id="screen-for-stronger-companies-in-a-sector">Screen for stronger companies in a sector</h3>
-<pre><code class="language-bash">telmus screen --sector IT --min-piotroski 7 --max-de 1.2
+<h3 id="screen-for-stronger-companies-in-a-sector-jsonexcelcsv">Screen for stronger companies in a sector (JSON/Excel/CSV)</h3>
+<pre><code class="language-bash">telmus screen --sector IT --min-piotroski 7 --max-de 1.2 --export quality_it.xlsx
 </code></pre>
 
 

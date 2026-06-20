@@ -460,9 +460,12 @@ def powerbi(
         exporter = PowerBIExporter()
         if flags:
             exporter.export_flags(clean_tickers, export)
+            console.print(f"Saved to {export}")
         else:
             exporter.export_portfolio(clean_tickers, export)
-        console.print(f"Saved to {export}")
+            html_export = export[:-4] + "_report.html" if export.lower().endswith(".csv") else export + "_report.html"
+            console.print(f"Saved to {export}")
+            console.print(f"Saved to {html_export}")
     except Exception as exc:
         console.print(f"[bold red]Error:[/] {exc}")
         raise typer.Exit(code=1)

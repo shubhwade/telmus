@@ -12,6 +12,11 @@ requires-python = ">=3.9"
 authors = [{name = "Shubh Wade", email = "shubhwade@gmail.com"}]
 dependencies = [
     "openpyxl>=3.0",
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "pandas>=2.0.0",
+    "yfinance>=0.2.0",
+    "mcp>=0.1.0",
 ]
 keywords = ["finance", "mcp", "financial-analysis", "piotroski", "altman", "beneish", "yfinance", "ai-agent", "mcp-server", "claude"]
 classifiers = [

@@ -4,6 +4,7 @@ import datetime
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
+from openpyxl.chart import BarChart, LineChart, Reference
 
 from telmus.core.result import ScanResult, CompareResult
 
@@ -450,6 +451,120 @@ class ExcelExporter:
                 )
 
         self._auto_fit_columns(ws_flags)
+
+        # ---------------- DASHBOARD SHEET ----------------
+        ws_dash = wb.create_sheet(title="Dashboard")
+        ws_dash.views.sheetView[0].showGridLines = True
+
+        # Write title block on Dashboard
+        ws_dash.merge_cells("A1:G1")
+        ws_dash["A1"] = f"Financial Statement Analysis Dashboard - {result.ticker}"
+        self._style_range(
+            ws_dash,
+            "A1:G1",
+            font=self.font_header,
+            fill=self.fill_header,
+            border=self.border_all,
+            alignment=Alignment(horizontal="center", vertical="center"),
+        )
+        ws_dash.row_dimensions[1].height = 30
+
+        # We will write a small data table in A3:E4 (leaving row 2 blank as a separator)
+        ws_dash.cell(row=3, column=1, value="Ticker")
+        ws_dash.cell(row=3, column=2, value="Piotroski F-Score")
+        ws_dash.cell(row=3, column=3, value="P/E Ratio")
+        ws_dash.cell(row=3, column=4, value="Altman Z-Score")
+        ws_dash.cell(row=3, column=5, value="Altman Z Threshold")
+
+        self._style_range(
+            ws_dash,
+            "A3:E3",
+            font=self.font_data_bold,
+            fill=self.fill_alt,
+            border=self.border_all,
+            alignment=Alignment(horizontal="center"),
+        )
+
+        # Write formulas pointing to relevant cells in row 4
+        ws_dash.cell(row=4, column=1, value="=Summary!B3")
+        ws_dash.cell(row=4, column=2, value="=Health!B2")
+        ws_dash.cell(row=4, column=3, value="=Valuation!B2")
+        ws_dash.cell(row=4, column=4, value="=Health!B4")
+        ws_dash.cell(row=4, column=5, value=2.99)
+
+        self._style_range(
+            ws_dash,
+            "A4:E4",
+            font=self.font_data,
+            fill=self.fill_white,
+            border=self.border_all,
+            alignment=Alignment(horizontal="center"),
+        )
+
+        # Adjust column widths for Dashboard sheet
+        self._auto_fit_columns(ws_dash)
+
+        # Chart 1: BarChart - Piotroski F score
+        chart1 = BarChart()
+        chart1.type = "col"
+        chart1.title = "Piotroski F-Score Comparison"
+        chart1.y_axis.title = "F-Score"
+        chart1.x_axis.title = "Ticker"
+        chart1.legend = None
+
+        cats = Reference(ws_dash, min_col=1, min_row=4, max_row=4)
+        data_f = Reference(ws_dash, min_col=2, min_row=3, max_row=4)
+        chart1.add_data(data_f, titles_from_data=True)
+        chart1.set_categories(cats)
+
+        # Set color based on value: green if >= 7, orange if 5-6, red if < 5
+        f_val = result.health.piotroski_f
+        if f_val is not None:
+            if f_val >= 7:
+                f_color = "28A745" # green
+            elif f_val >= 5:
+                f_color = "FD7E14" # orange
+            else:
+                f_color = "DC3545" # red
+        else:
+            f_color = "CCCCCC"
+        
+        if len(chart1.series) > 0:
+            chart1.series[0].graphicalProperties.solidFill = f_color
+
+        # Chart 2: BarChart - P/E Ratio
+        chart2 = BarChart()
+        chart2.type = "col"
+        chart2.title = "P/E Ratio Comparison"
+        chart2.y_axis.title = "P/E Ratio"
+        chart2.x_axis.title = "Ticker"
+        chart2.legend = None
+
+        data_pe = Reference(ws_dash, min_col=3, min_row=3, max_row=4)
+        chart2.add_data(data_pe, titles_from_data=True)
+        chart2.set_categories(cats)
+
+        # Chart 3: BarChart - Altman Z score with 2.99 threshold reference line
+        chart3 = BarChart()
+        chart3.type = "col"
+        chart3.title = "Altman Z-Score (Safety Zone)"
+        chart3.y_axis.title = "Z-Score"
+        chart3.x_axis.title = "Ticker"
+
+        data_z = Reference(ws_dash, min_col=4, min_row=3, max_row=4)
+        chart3.add_data(data_z, titles_from_data=True)
+        chart3.set_categories(cats)
+
+        # Create threshold LineChart
+        chart_line = LineChart()
+        data_thresh = Reference(ws_dash, min_col=5, min_row=3, max_row=4)
+        chart_line.add_data(data_thresh, titles_from_data=True)
+        chart3 += chart_line
+
+        # Add charts to Dashboard in a grid layout
+        ws_dash.add_chart(chart1, "B6")
+        ws_dash.add_chart(chart3, "J6")
+        ws_dash.add_chart(chart2, "B22")
 
         wb.save(path)
 
