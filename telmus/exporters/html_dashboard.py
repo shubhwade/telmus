@@ -684,7 +684,7 @@ class HtmlDashboardExporter:
                 <div class="section-title" style="margin-bottom:0.5rem;">
                     <span class="dot" style="background:var(--teal);"></span>Piotroski Radar — {pio_score}/9
                 </div>
-                <div class="chart-box" style="height:260px;">
+                <div class="chart-box" style="height:280px;">
                     <canvas id="radarPio"></canvas>
                 </div>
                 <div class="chart-explain">
@@ -697,11 +697,16 @@ class HtmlDashboardExporter:
                 <div class="section-title" style="margin-bottom:0.5rem;">
                     <span class="dot" style="background:var(--teal);"></span>Valuation Benchmarks
                 </div>
-                <div class="chart-box" style="height:260px;">
+                <div class="chart-box" style="height:280px;">
                     <canvas id="chartValuation"></canvas>
                 </div>
                 <div class="chart-explain">
-                    <strong>P/E</strong> = price per ₹1 of earnings (lower = cheaper). <strong>P/B</strong> = price vs book value of assets. <strong>EV/EBITDA</strong> = enterprise value per unit of operating profit. Dashed lines show typical fair-value benchmarks — bars below the line suggest the stock may be undervalued.
+                    <div style="font-weight:600;margin-bottom:0.5rem;color:#e5e5e5;">What this means:</div>
+                    <div style="display:grid;gap:0.5rem;line-height:1.5;">
+                        <div><strong style="color:var(--teal)">P/E Ratio</strong>: Shows how much investors are paying for ₹1 of earnings. Values under 20 (dashed line) often indicate a bargain.</div>
+                        <div><strong style="color:var(--teal)">P/B Ratio</strong>: Compares market value to the company's actual assets. Lower bars represent cheaper valuations.</div>
+                        <div><strong style="color:var(--teal)">EV/EBITDA</strong>: A pure measure of value that includes debt. Values below 10 are generally considered attractive.</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -741,11 +746,15 @@ class HtmlDashboardExporter:
                 <div class="section-title" style="margin-bottom:0.5rem;">
                     <span class="dot" style="background:var(--indigo);"></span>Growth Metrics (3Y CAGR)
                 </div>
-                <div class="chart-box" style="height:200px;">
+                <div class="chart-box" style="height:220px;">
                     <canvas id="chartGrowth"></canvas>
                 </div>
                 <div class="chart-explain">
-                    <strong>Rev CAGR</strong> = average annual revenue growth over 3 years. <strong>PAT CAGR</strong> = profit-after-tax growth rate. <strong>FCF Yield</strong> = free cash flow as a % of market cap. Green bars = positive growth, red = declining. Higher is better for all three.
+                    <div style="font-weight:600;margin-bottom:0.5rem;color:#e5e5e5;">What this means:</div>
+                    <div style="display:grid;gap:0.5rem;line-height:1.5;">
+                        <div><strong style="color:var(--indigo)">Revenue & PAT CAGR</strong>: The average yearly growth in sales and profits over the last 3 years. Consistent green bars indicate a thriving, expanding business.</div>
+                        <div><strong style="color:var(--indigo)">FCF Yield</strong>: Shows how efficiently the company turns its market cap into hard cash. High values mean the company generates excess cash to reinvest or return to shareholders.</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -992,9 +1001,9 @@ class HtmlDashboardExporter:
                 datasets: [{{
                     data: [peV, pbV, evV],
                     backgroundColor: [
-                        peV < 20 ? 'rgba(0,212,170,0.7)' : (peV <= 35 ? 'rgba(227,179,65,0.7)' : 'rgba(247,129,102,0.7)'),
-                        pbV < 3 ? 'rgba(0,212,170,0.7)' : 'rgba(247,129,102,0.7)',
-                        evV < 10 ? 'rgba(0,212,170,0.7)' : 'rgba(247,129,102,0.7)'
+                        peV < 20 ? ''#00d4aa'' : (peV <= 35 ? ''#e3b341'' : ''#f78166''),
+                        pbV < 3 ? ''#00d4aa'' : ''#f78166'',
+                        evV < 10 ? ''#00d4aa'' : ''#f78166''
                     ],
                     borderColor: [
                         peV < 20 ? '#00d4aa' : (peV <= 35 ? '#e3b341' : '#f78166'),
@@ -1034,9 +1043,9 @@ class HtmlDashboardExporter:
                 datasets: [{{
                     data: [revC, patC, fcfC],
                     backgroundColor: [
-                        revC > 0 ? 'rgba(0,212,170,0.7)' : 'rgba(247,129,102,0.7)',
-                        patC > 0 ? 'rgba(0,212,170,0.7)' : 'rgba(247,129,102,0.7)',
-                        fcfC > 0 ? 'rgba(0,212,170,0.7)' : 'rgba(247,129,102,0.7)'
+                        revC > 0 ? ''#00d4aa'' : ''#f78166'',
+                        patC > 0 ? ''#00d4aa'' : ''#f78166'',
+                        fcfC > 0 ? ''#00d4aa'' : ''#f78166''
                     ],
                     borderColor: [
                         revC > 0 ? '#00d4aa' : '#f78166',
@@ -1104,7 +1113,7 @@ class HtmlDashboardExporter:
             style_b = 'style="color:var(--teal);font-weight:700;"' if win_code == "B" else 'style="color:var(--text-dim);"'
 
             if win_code in ("A", "B"):
-                win_display = f'<span class="winner-badge badge-teal">👑 {win_text}</span>'
+                win_display = f'<span class="winner-badge badge-teal">{win_text}</span>'
             else:
                 win_display = '<span class="winner-badge badge-dim">Draw</span>'
 
@@ -1324,8 +1333,8 @@ class HtmlDashboardExporter:
             data: {{
                 labels: {json.dumps(val_labels)},
                 datasets: [
-                    {{ label: '{ticker_a}', data: {json.dumps(val_a_data)}, backgroundColor: 'rgba(0,212,170,0.7)', borderColor: '#00d4aa', borderWidth: 1, borderSkipped: 'bottom', maxBarThickness: 36 }},
-                    {{ label: '{ticker_b}', data: {json.dumps(val_b_data)}, backgroundColor: 'rgba(247,129,102,0.7)', borderColor: '#f78166', borderWidth: 1, borderSkipped: 'bottom', maxBarThickness: 36 }}
+                    {{ label: '{ticker_a}', data: {json.dumps(val_a_data)}, backgroundColor: ''#00d4aa'', borderWidth: 0, barPercentage: 0.55, categoryPercentage: 0.8, borderRadius: 0 }},
+                    {{ label: '{ticker_b}', data: {json.dumps(val_b_data)}, backgroundColor: ''#f78166'', borderWidth: 0, barPercentage: 0.55, categoryPercentage: 0.8, borderRadius: 0 }}
                 ]
             }},
             options: chartOpts
@@ -1337,8 +1346,8 @@ class HtmlDashboardExporter:
             data: {{
                 labels: {json.dumps(health_labels)},
                 datasets: [
-                    {{ label: '{ticker_a}', data: {json.dumps(health_a)}, backgroundColor: 'rgba(0,212,170,0.7)', borderColor: '#00d4aa', borderWidth: 1, borderSkipped: 'bottom', maxBarThickness: 36 }},
-                    {{ label: '{ticker_b}', data: {json.dumps(health_b)}, backgroundColor: 'rgba(247,129,102,0.7)', borderColor: '#f78166', borderWidth: 1, borderSkipped: 'bottom', maxBarThickness: 36 }}
+                    {{ label: '{ticker_a}', data: {json.dumps(health_a)}, backgroundColor: ''#00d4aa'', borderWidth: 0, barPercentage: 0.55, categoryPercentage: 0.8, borderRadius: 0 }},
+                    {{ label: '{ticker_b}', data: {json.dumps(health_b)}, backgroundColor: ''#f78166'', borderWidth: 0, barPercentage: 0.55, categoryPercentage: 0.8, borderRadius: 0 }}
                 ]
             }},
             options: chartOpts
@@ -1350,8 +1359,8 @@ class HtmlDashboardExporter:
             data: {{
                 labels: {json.dumps(growth_labels)},
                 datasets: [
-                    {{ label: '{ticker_a}', data: {json.dumps(growth_a)}, backgroundColor: 'rgba(0,212,170,0.7)', borderColor: '#00d4aa', borderWidth: 1, borderSkipped: 'bottom', maxBarThickness: 36 }},
-                    {{ label: '{ticker_b}', data: {json.dumps(growth_b)}, backgroundColor: 'rgba(247,129,102,0.7)', borderColor: '#f78166', borderWidth: 1, borderSkipped: 'bottom', maxBarThickness: 36 }}
+                    {{ label: '{ticker_a}', data: {json.dumps(growth_a)}, backgroundColor: ''#00d4aa'', borderWidth: 0, barPercentage: 0.55, categoryPercentage: 0.8, borderRadius: 0 }},
+                    {{ label: '{ticker_b}', data: {json.dumps(growth_b)}, backgroundColor: ''#f78166'', borderWidth: 0, barPercentage: 0.55, categoryPercentage: 0.8, borderRadius: 0 }}
                 ]
             }},
             options: chartOpts
@@ -1568,7 +1577,7 @@ class HtmlDashboardExporter:
 
         const tickers = {json.dumps(tickers)};
         const pioScores = {json.dumps(pio_scores)};
-        const pioColors = pioScores.map(s => s >= 7 ? 'rgba(0,212,170,0.7)' : (s >= 5 ? 'rgba(227,179,65,0.7)' : 'rgba(247,129,102,0.7)'));
+        const pioColors = pioScores.map(s => s >= 7 ? ''#00d4aa'' : (s >= 5 ? ''#e3b341'' : ''#f78166''));
         const pioBorders = pioScores.map(s => s >= 7 ? '#00d4aa' : (s >= 5 ? '#e3b341' : '#f78166'));
 
         const horizOpts = {{
@@ -1586,7 +1595,7 @@ class HtmlDashboardExporter:
         // Piotroski
         new Chart(document.getElementById('chartPio'), {{
             type: 'bar',
-            data: {{ labels: tickers, datasets: [{{ data: pioScores, backgroundColor: pioColors, borderColor: pioBorders, borderWidth: 1, borderSkipped: 'start', maxBarThickness: 20 }}] }},
+            data: {{ labels: tickers, datasets: [{{ data: pioScores, backgroundColor: pioColors, borderWidth: 0, barPercentage: 0.7, categoryPercentage: 0.9, borderRadius: 0 }}] }},
             options: {{
                 ...horizOpts,
                 plugins: {{
@@ -1604,7 +1613,7 @@ class HtmlDashboardExporter:
         // P/E
         new Chart(document.getElementById('chartPE'), {{
             type: 'bar',
-            data: {{ labels: tickers, datasets: [{{ data: {json.dumps(pe_ratios)}, backgroundColor: 'rgba(0,212,170,0.7)', borderColor: '#00d4aa', borderWidth: 1, borderSkipped: 'start', maxBarThickness: 20 }}] }},
+            data: {{ labels: tickers, datasets: [{{ data: {json.dumps(pe_ratios)}, backgroundColor: ''#00d4aa'', borderWidth: 0, barPercentage: 0.55, categoryPercentage: 0.8, borderRadius: 0 }}] }},
             options: {{
                 ...horizOpts,
                 plugins: {{
@@ -1617,7 +1626,7 @@ class HtmlDashboardExporter:
         // Altman Z
         new Chart(document.getElementById('chartAltman'), {{
             type: 'bar',
-            data: {{ labels: tickers, datasets: [{{ data: {json.dumps(altman_scores)}, backgroundColor: 'rgba(129,140,248,0.7)', borderColor: '#818cf8', borderWidth: 1, borderSkipped: 'start', maxBarThickness: 20 }}] }},
+            data: {{ labels: tickers, datasets: [{{ data: {json.dumps(altman_scores)}, backgroundColor: ''#818cf8'', borderWidth: 0, barPercentage: 0.55, categoryPercentage: 0.8, borderRadius: 0 }}] }},
             options: {{
                 ...horizOpts,
                 plugins: {{
