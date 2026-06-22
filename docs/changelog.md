@@ -1,3 +1,7 @@
+## v0.2.5
+### Added
+- Updated package metadata with AI keywords for PyPI/Pepy
+
 ## v0.2.4
 ### Added
 - Added pepy.tech downloads badge to README
