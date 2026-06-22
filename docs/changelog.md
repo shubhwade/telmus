@@ -1,3 +1,7 @@
+## v0.2.4
+### Added
+- Added pepy.tech downloads badge to README
+
 ## v0.2.3 - Final Production Release
 ### Fixed
 - Gauge alignment corrected, all 3 gauges same height
