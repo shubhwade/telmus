@@ -13,3 +13,4 @@ site/
 .coverage
 *.xlsx
 *.html
+!website/index.html

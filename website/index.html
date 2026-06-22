@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>telmus - Financial analysis. One command.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* COLOUR SYSTEM */
+            --bg-color: #09090b;
+            --surface-1: #111113;
+            --surface-2: #18181b;
+            --border-default: #27272a;
+            --border-subtle: #3f3f46;
+            --accent: #e4e4e7;
+            --accent-hover: #ffffff;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --indicator-positive: #4ade80;
+            --indicator-warning: #facc15;
+            --indicator-danger: #f87171;
+            --code-string: #86efac;
+            --code-keyword: #93c5fd;
+            --code-number: #fca5a5;
+
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', sans-serif;
+            --radius: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            line-height: 1.7;
+            font-size: 1rem;
+            font-weight: 400;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            text-align: left;
+        }
+
+        h1, h2, h3, h4 { font-family: var(--font-mono); }
+        h1 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 700; line-height: 1.1; }
+        h2 { font-size: clamp(1.5rem, 3vw, 2.25rem); font-weight: 600; }
+        
+        a { color: var(--text-secondary); text-decoration: none; transition: color 150ms; }
+        a:hover { color: var(--text-primary); }
+
+        /* NAVBAR */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; height: 52px;
+            padding: 0 6%; display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; transition: all 200ms ease; border-bottom: 1px solid transparent;
+        }
+        .navbar.scrolled {
+            background: rgba(9, 9, 11, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-default);
+        }
+        .nav-logo-container { display: flex; align-items: center; gap: 8px; }
+        .nav-logo { font-family: var(--font-mono); font-size: 1.25rem; color: #fff; font-weight: 700; }
+        .nav-version { 
+            background: var(--surface-2); border: 1px solid var(--border-default); color: var(--text-muted); 
+            font-family: var(--font-sans); font-size: 11px; font-weight: 400; 
+            padding: 2px 6px; border-radius: 4px; vertical-align: middle; letter-spacing: 0;
+        }
+        .nav-links { display: flex; gap: 28px; align-items: center; }
+        .nav-links a { 
+            font-family: var(--font-sans); font-size: 13px; font-weight: 400; 
+            letter-spacing: 0.03em; text-transform: none; color: var(--text-secondary); 
+            display: flex; align-items: center; transition: color 150ms;
+        }
+        .nav-links a:hover, .nav-links a.active { color: #fafafa; }
+        
+        .icon-external { width: 12px; height: 12px; color: #52525b; margin-left: 3px; }
+        
+        .mobile-menu-btn {
+            display: none; background: none; border: none; color: var(--text-secondary); 
+            cursor: pointer; padding: 4px;
+        }
+        .mobile-dropdown {
+            display: none; position: absolute; top: 52px; left: 5%; right: 5%;
+            background: var(--surface-1); border: 1px solid var(--border-default); 
+            border-radius: var(--radius); padding: 8px; flex-direction: column;
+        }
+        .mobile-dropdown.active { display: flex; }
+        .mobile-dropdown a { 
+            display: flex; align-items: center; height: 40px; padding: 0 16px; 
+            font-size: 13px; color: var(--text-secondary);
+        }
+        .mobile-dropdown a:hover { color: #fff; }
+
+        /* BUTTONS */
+        .btn-install {
+            background: var(--surface-2); border: 1px solid var(--border-subtle); color: var(--text-primary);
+            font-family: var(--font-mono); font-size: 0.9rem; padding: 0.5rem 1rem; border-radius: var(--radius);
+            display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; transition: border-color 0.2s;
+        }
+        .btn-install:hover { border-color: var(--text-muted); }
+        .btn-github {
+            background: var(--text-primary); color: var(--bg-color); border: none;
+            font-family: var(--font-sans); font-size: 0.9rem; font-weight: 500; padding: 0.5rem 1.25rem; border-radius: var(--radius);
+            display: inline-flex; align-items: center; justify-content: center; transition: background 0.2s;
+        }
+        .btn-github:hover { background: #ffffff; color: #000;}
+
+        /* COPY BUTTON INTERACTION */
+        .copy-btn { 
+            background: none; border: none; cursor: pointer; display: flex; align-items: center; 
+            color: var(--text-muted); transition: color 0.2s, transform 100ms;
+        }
+        .copy-btn:hover { color: var(--text-primary); }
+        .copy-btn:active { transform: scale(0.92); }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 6rem 6% 4rem 6%;
+            position: relative;
+        }
+        .hero-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            width: 100%;
+        }
+        .hero-left { display: flex; flex-direction: column; }
+        .hero-right { display: flex; justify-content: flex-end; }
+        .hero-top-line {
+            color: var(--text-muted); font-size: 13px; font-family: var(--font-mono);
+            margin-bottom: 2rem; opacity: 0; animation: fadeTo60 0s ease-out 0ms forwards;
+        }
+        .hero h1 { color: #fff; margin-bottom: 1.5rem; }
+        .hero-line { display: block; }
+        .hero-line-1 { opacity: 0; transform: translateY(12px); animation: fadeUp 500ms ease-out 0ms forwards; }
+        .hero-line-2 { opacity: 0; transform: translateY(12px); animation: fadeUp 500ms ease-out 120ms forwards; }
+        .hero-subtitle {
+            font-size: 1.05rem; color: var(--text-secondary); max-width: 560px; margin: 0 0 2.5rem;
+            opacity: 0; transform: translateY(12px); animation: fadeUp 500ms ease-out 240ms forwards;
+        }
+        .hero-buttons {
+            display: flex; gap: 1rem; justify-content: flex-start; margin-bottom: 1rem; flex-wrap: wrap;
+            opacity: 0; transform: translateY(12px); animation: fadeUp 500ms ease-out 360ms forwards;
+        }
+        
+        .hero-star { color: var(--text-muted); font-size: 13px; margin-bottom: 4rem; opacity: 0; transform: translateY(12px); animation: fadeUp 500ms ease-out 360ms forwards;}
+
+        /* SCORE CARD */
+        .score-card {
+            background: #111113;
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 28px;
+            width: 100%;
+            max-width: 420px;
+        }
+        .sc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+        .sc-ticker-block { display: flex; flex-direction: column; gap: 2px; }
+        .sc-ticker { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: #fafafa; }
+        .sc-name { font-size: 12px; color: #71717a; font-family: 'Inter', sans-serif; }
+        .sc-badge { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 4px; }
+        .sc-badge-safe { background: rgba(74, 222, 128, 0.1); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.2); }
+        .sc-badge-warn { background: rgba(250, 204, 21, 0.1); color: #facc15; border: 1px solid rgba(250, 204, 21, 0.2); }
+        .sc-scores { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+        .sc-score-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+        .sc-score-label { display: flex; flex-direction: column; gap: 2px; min-width: 120px; }
+        .sc-label-name { font-size: 13px; color: #d4d4d8; font-family: 'Inter', sans-serif; font-weight: 500; }
+        .sc-label-sub { font-size: 11px; color: #52525b; font-family: 'Inter', sans-serif; }
+        .sc-score-right { display: flex; align-items: center; gap: 10px; flex: 1; justify-content: flex-end; }
+        .sc-bar-track { width: 80px; height: 3px; background: #27272a; border-radius: 2px; overflow: hidden; }
+        .sc-bar-fill { height: 100%; border-radius: 2px; }
+        .sc-bar-green { background: #4ade80; }
+        .sc-bar-amber { background: #facc15; }
+        .sc-score-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; min-width: 36px; text-align: right; }
+        .sc-val-green { color: #4ade80; }
+        .sc-val-amber { color: #facc15; }
+        .sc-divider { height: 1px; background: #1f1f23; margin: 16px 0; }
+        .sc-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+        .sc-metric { display: flex; flex-direction: column; gap: 2px; }
+        .sc-m-label { font-size: 11px; color: #52525b; font-family: 'Inter', sans-serif; }
+        .sc-m-val { font-size: 13px; color: #a1a1aa; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+        .sc-brief { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 20px; padding: 12px; background: #0d0d10; border-radius: 6px; border: 1px solid #1f1f23; }
+        .sc-brief-icon { color: #a1a1aa; font-size: 12px; margin-top: 2px; flex-shrink: 0; }
+        .sc-brief p { font-size: 12px; color: #71717a; font-family: 'Inter', sans-serif; line-height: 1.6; margin: 0; }
+        .sc-footer-row { display: flex; justify-content: space-between; }
+        .sc-footer-label { font-size: 11px; color: #3f3f46; font-family: 'Inter', sans-serif; }
+
+        /* TERMINAL */
+        .terminal-wrapper {
+            background: var(--bg-color); border-radius: var(--radius); border: 1px solid var(--border-default);
+            width: 100%; max-width: 100%; margin: 0 auto; margin-top: 3rem; overflow: hidden;
+            opacity: 0; transform: translateY(12px); animation: fadeUp 500ms ease-out 360ms forwards;
+        }
+        .terminal-header {
+            background: var(--surface-2); height: 32px; padding: 0 16px;
+            display: flex; align-items: center; border-bottom: 1px solid var(--border-default);
+            position: relative;
+        }
+        .terminal-dots { display: flex; gap: 6px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-subtle); }
+        .terminal-title { position: absolute; left: 50%; transform: translateX(-50%); color: var(--text-muted); font-size: 12px; font-family: var(--font-sans); }
+        
+        .terminal-body { 
+            padding: 24px; font-family: var(--font-mono); font-size: 13px; line-height: 1.6; 
+            color: var(--text-primary); white-space: pre-wrap; height: 380px; overflow-y: auto;
+        }
+
+        .term-prompt { color: var(--text-muted); }
+        .term-arg { color: #fff; }
+        .term-sep { color: var(--border-subtle); }
+        .term-header { color: var(--text-secondary); text-transform: uppercase; }
+        .term-label { color: #d4d4d8; }
+        .term-val { color: #fff; }
+        .term-ok { color: var(--indicator-positive); }
+        .term-warn { color: var(--indicator-warning); }
+        .term-brief { color: #d4d4d8; font-style: italic; }
+        .term-saved { color: var(--text-secondary); }
+        .term-open { color: var(--indicator-positive); }
+
+        /* STATS DIVIDER */
+        .stats-divider {
+            border-top: 1px solid var(--border-default); border-bottom: 1px solid var(--border-default);
+            padding: 1.5rem 5%; text-align: center;
+        }
+        .stats-chips {
+            display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;
+        }
+        .stat-chip {
+            font-family: var(--font-sans); font-size: 12px; color: var(--text-secondary);
+            border: 1px solid var(--border-default); padding: 4px 12px; border-radius: 16px;
+        }
+
+        /* SECTIONS */
+        section { padding: 3.5rem 5% 3.5rem 6%; max-width: 1400px; margin: 0; }
+        .section-header { margin-bottom: 3rem; text-align: center; }
+        #mcp .section-header { text-align: left; }
+        #how-it-works .section-header { text-align: left; }
+        .section-header h2 { color: #fff; font-weight: 600; margin-bottom: 0.5rem; }
+        .section-header p { color: var(--text-muted); }
+
+        /* FEATURES */
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card {
+            background: var(--surface-1); border: 1px solid var(--border-default); border-radius: var(--radius);
+            padding: 24px; transition: border-color 0.2s;
+        }
+        .fade-up-feat { opacity: 0; transform: translateY(20px); transition: opacity 350ms ease-out, transform 350ms ease-out; }
+        .fade-up-feat.visible { opacity: 1; transform: translateY(0); }
+        
+        .card:hover { border-color: var(--border-subtle); }
+        .card-icon { 
+            background: var(--surface-2); border: 1px solid var(--border-subtle);
+            color: #fff; font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+            width: 36px; height: 36px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;
+        }
+        .card h3 { color: #fff; font-size: 0.95rem; font-weight: 500; margin-bottom: 0.5rem; }
+        .card p { color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6; }
+
+        /* HOW IT WORKS */
+        .steps-list { display: flex; flex-direction: column; }
+        .step-row {
+            display: flex; gap: 2rem; padding: 2rem 0; border-bottom: 1px solid var(--surface-2);
+        }
+        .slide-in-row { opacity: 0; transform: translateX(-16px); transition: opacity 400ms ease-out, transform 400ms ease-out; }
+        .slide-in-row.visible { opacity: 1; transform: translateX(0); }
+        .step-row:last-child { border-bottom: none; }
+        .step-num { font-family: var(--font-mono); font-weight: 700; font-size: 3rem; color: var(--border-default); line-height: 1; width: 40px;}
+        .step-content { flex: 1; }
+        .step-content h3 { color: #fff; font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+        .step-content p { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem; }
+        .step-code {
+            background: var(--surface-1); border: 1px solid var(--border-default);
+            font-family: var(--font-mono); font-size: 0.85rem; color: #d4d4d8;
+            border-radius: 6px; padding: 12px 16px; white-space: pre-wrap;
+            display: inline-block; width: auto; min-width: 240px; max-width: 100%;
+        }
+
+        /* COMMANDS SHOWCASE */
+        .tabs-container { margin-bottom: 1.5rem; }
+        .tabs { 
+            background: var(--surface-1); border: 1px solid var(--border-default); border-radius: var(--radius);
+            padding: 4px; display: inline-flex; gap: 2px; flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: transparent; color: var(--text-secondary); font-family: var(--font-mono); font-size: 12px;
+            padding: 6px 14px; border-radius: 6px; cursor: pointer; border: none; outline: none; transition: all 0.2s;
+        }
+        .tab-btn:hover { color: var(--accent); }
+        .tab-btn.active { background: var(--border-default); color: #fff; }
+        
+        .tab-content { display: none; opacity: 0; transition: opacity 200ms ease-out; }
+        .tab-content.active { display: block; opacity: 1; }
+        
+        .cmd-block-wrapper {
+            position: relative;
+        }
+        .cmd-copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--surface-2);
+            border: 1px solid var(--border-default);
+            border-radius: 4px;
+            padding: 4px 6px;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            transition: color 150ms, border-color 150ms;
+            z-index: 1;
+        }
+        .cmd-copy-btn:hover { 
+            color: var(--text-primary); 
+            border-color: var(--border-subtle); 
+        }
+
+        .cmd-block {
+            background: var(--bg-color); border: 1px solid var(--border-default);
+            font-family: var(--font-mono); font-size: 0.85rem; padding: 16px 20px; border-radius: 6px;
+            margin-bottom: 1.25rem; white-space: pre-wrap; line-height: 1.6;
+        }
+        .c-cmd { color: var(--code-keyword); }
+        .c-arg { color: var(--code-string); }
+        .c-flag { color: var(--text-secondary); }
+        .c-comment { color: var(--text-muted); }
+        
+        .tab-content p { color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem; }
+        .files-wrap { display: flex; gap: 8px; flex-wrap: wrap; }
+        .file-chip {
+            background: var(--surface-2); border: 1px solid var(--border-default);
+            color: #d4d4d8; font-family: var(--font-mono); font-size: 11px;
+            padding: 3px 8px; border-radius: 4px;
+        }
+
+        /* MCP SERVER */
+        .mcp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .mcp-card { background: var(--surface-1); border: 1px solid var(--border-default); border-radius: var(--radius); padding: 24px; }
+        .mcp-card h3 { color: #fff; font-size: 1rem; font-weight: 500; margin-bottom: 1.25rem; }
+        
+        .mcp-code-block { position: relative; }
+        .mcp-copy-btn {
+            position: absolute; top: 8px; right: 8px; padding: 4px; display: flex; align-items: center; justify-content: center;
+        }
+        
+        .prompts-container { margin-top: 3rem; }
+        .prompts-container h4 { color: var(--text-muted); font-family: var(--font-sans); font-size: 0.9rem; font-weight: 400; margin-bottom: 1rem; }
+        .mcp-prompts { display: flex; flex-wrap: wrap; gap: 12px; }
+        .prompt-pill { 
+            background: var(--surface-1); border: 1px solid var(--border-default); 
+            color: #d4d4d8; font-family: var(--font-sans); font-size: 0.85rem; 
+            border-radius: 6px; padding: 6px 14px; transition: all 0.2s;
+        }
+        .prompt-pill:hover { border-color: var(--border-subtle); color: #fff; }
+
+        /* INSTALL SECTION */
+        .install-section { 
+            background: var(--bg-color); border-top: 1px solid var(--border-default); border-bottom: 1px solid var(--border-default); 
+            padding: 5rem 5%; width: 100%; max-width: none;
+        }
+        .install-content { max-width: 1400px; margin: 0; text-align: left; }
+        
+        .install-steps-inline {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .i-step { color: var(--text-secondary); font-size: 14px; }
+        .i-arrow { color: var(--border-subtle); }
+
+        .big-install-cmd {
+            background: var(--surface-1); border: 1px solid var(--border-subtle);
+            display: inline-flex; align-items: center; gap: 16px;
+            padding: 12px 24px; border-radius: var(--radius); margin-bottom: 2rem;
+            transition: border-color 0.2s;
+        }
+        .big-install-cmd:hover { border-color: var(--text-muted); }
+        .bic-text { font-family: var(--font-mono); color: #fff; font-size: 1.1rem; }
+
+        .install-links { display: flex; gap: 24px; flex-wrap: wrap; }
+        .install-links a { font-size: 14px; }
+
+        /* FOOTER */
+        footer { padding: 4rem 5% 2rem; background: var(--bg-color); max-width: 1400px; margin: 0; border-top: 1px solid var(--surface-2); }
+        .footer-top { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; margin-bottom: 4rem; }
+        .f-logo { color: #fff; font-family: var(--font-mono); font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+        .f-by { color: var(--text-muted); font-size: 13px; }
+        
+        .f-links { display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+        .f-links a { color: var(--text-muted); font-size: 13px; }
+        .f-links a:hover { color: var(--accent); }
+        
+        .f-star { color: var(--text-secondary); font-size: 13px; display: inline-block; transition: transform 150ms, color 150ms; }
+        .f-star:hover { color: var(--text-primary); transform: translateX(2px); }
+        
+        .footer-bottom { color: #52525b; font-size: 12px; border-top: 1px solid var(--surface-2); padding-top: 2rem; }
+
+        /* KEYFRAMES */
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeTo60 { to { opacity: 0.6; } }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .hero h1 { font-size: 2.5rem; }
+            .step-row { flex-direction: column; gap: 1rem; }
+            .footer-top { flex-direction: column; }
+            .hero-layout { grid-template-columns: 1fr; gap: 2rem; }
+            .hero-right { justify-content: flex-start; }
+            .score-card { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-logo-container">
+            <a href="#" class="nav-logo">telmus</a>
+            <span class="nav-version">v0.2.3</span>
+        </div>
+        <button class="mobile-menu-btn" onclick="toggleMenu()">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <div class="nav-links" id="desktop-nav">
+            <a href="#features" class="nav-item" data-target="features">Features</a>
+            <a href="#how-it-works" class="nav-item" data-target="how-it-works">How it works</a>
+            <a href="#install" class="nav-item" data-target="install">Install</a>
+            <a href="https://pypi.org/project/telmus/" target="_blank">PyPI</a>
+            <a href="https://shubhwade.github.io/telmus/" target="_blank">Docs</a>
+            <a href="https://github.com/shubhwade/telmus" target="_blank">GitHub <svg class="icon-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a>
+        </div>
+        <div class="mobile-dropdown" id="mobile-nav">
+            <a href="#features" class="nav-item-m" data-target="features">Features</a>
+            <a href="#how-it-works" class="nav-item-m" data-target="how-it-works">How it works</a>
+            <a href="#install" class="nav-item-m" data-target="install">Install</a>
+            <a href="https://pypi.org/project/telmus/" target="_blank">PyPI</a>
+            <a href="https://shubhwade.github.io/telmus/" target="_blank">Docs</a>
+            <a href="https://github.com/shubhwade/telmus" target="_blank">GitHub</a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-layout">
+            <div class="hero-left">
+                <div class="hero-top-line">$ pip install telmus   —   v0.2.3   —   MIT License</div>
+                <h1>
+                    <span class="hero-line hero-line-1">Financial analysis.</span>
+                    <span class="hero-line hero-line-2">One command.</span>
+                </h1>
+                <p class="hero-subtitle">
+                    telmus scans any stock, calculates Piotroski F-score, Altman Z-score,
+                    Beneish M-score, and generates an Excel report + interactive dashboard
+                    — instantly. No API key. No account. Just Python.
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn-install copy-btn" onclick="copyText('pip install telmus', this)">
+                        $ pip install telmus
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                    <a href="https://github.com/shubhwade/telmus" class="btn-github">View on GitHub &rarr;</a>
+                </div>
+                <div class="hero-star">★ Star the repo if you find it useful</div>
+            </div>
+            
+            <div class="hero-right">
+                <div class="score-card" id="score-card"></div>
+            </div>
+        </div>
+
+        <div class="terminal-wrapper">
+            <div class="terminal-header">
+                <div class="terminal-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <div class="terminal-title">telmus — zsh</div>
+            </div>
+            <div class="terminal-body" id="terminal-text"></div>
+        </div>
+    </section>
+
+    <!-- STATS CHIPS -->
+    <div class="stats-divider">
+        <div class="stats-chips">
+            <div class="stat-chip">50,000+ tickers</div>
+            <div class="stat-chip">No API key</div>
+            <div class="stat-chip">4 scoring models</div>
+            <div class="stat-chip">Excel + HTML output</div>
+        </div>
+    </div>
+
+    <!-- FEATURES -->
+    <section id="features" class="nav-section">
+        <div class="section-header">
+            <h2>Everything you need to analyse any stock</h2>
+            <p>Four engines. One command. Instant results.</p>
+        </div>
+        <div class="features-grid">
+            <div class="card fade-up-feat">
+                <div class="card-icon">P</div>
+                <h3>Piotroski F-Score</h3>
+                <p>9-signal financial health check. Profitability, leverage, liquidity, efficiency — all scored in one number out of 9.</p>
+            </div>
+            <div class="card fade-up-feat">
+                <div class="card-icon">Z</div>
+                <h3>Altman Z-Score</h3>
+                <p>Bankruptcy risk prediction using Altman's proven formula. Know if a company is in the safe zone before you invest.</p>
+            </div>
+            <div class="card fade-up-feat">
+                <div class="card-icon">M</div>
+                <h3>Beneish M-Score</h3>
+                <p>8-variable earnings manipulation detector. Catch accounting red flags before they become front page news.</p>
+            </div>
+            <div class="card fade-up-feat">
+                <div class="card-icon">XL</div>
+                <h3>Excel Reports</h3>
+                <p>Every scan generates a formatted multi-sheet Excel workbook with charts, color coding, and a Dashboard sheet.</p>
+            </div>
+            <div class="card fade-up-feat">
+                <div class="card-icon">UI</div>
+                <h3>HTML Dashboard</h3>
+                <p>Interactive browser dashboard with gauges, radar charts, valuation benchmarks. Print to A4 in one click.</p>
+            </div>
+            <div class="card fade-up-feat">
+                <div class="card-icon">MCP</div>
+                <h3>MCP Server</h3>
+                <p>Connect telmus to Claude, Cursor, or Windsurf as an MCP tool. Ask your AI IDE to analyse any stock in plain English.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="how-it-works" class="nav-section">
+        <div class="section-header">
+            <h2>From command to dashboard in seconds</h2>
+        </div>
+        <div class="steps-list">
+            <div class="step-row slide-in-row">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h3>Install</h3>
+                    <p>One command. Python 3.9+ required. No API key needed.</p>
+                    <div class="step-code"><span class="c-cmd">pip</span> install telmus</div>
+                </div>
+            </div>
+            <div class="step-row slide-in-row">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h3>Scan any stock</h3>
+                    <p>Works with 50,000+ global tickers. Add .NS for Indian NSE stocks.</p>
+                    <div class="step-code"><span class="c-cmd">telmus</span> scan <span class="c-arg">AAPL</span>
+<span class="c-cmd">telmus</span> scan <span class="c-arg">INFY.NS</span>
+<span class="c-cmd">telmus</span> scan <span class="c-arg">RELIANCE.NS</span></div>
+                </div>
+            </div>
+            <div class="step-row slide-in-row">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <h3>Get instant analysis</h3>
+                    <p>Piotroski F, Altman Z, Beneish M, valuation ratios, growth metrics, analyst brief — all in seconds.</p>
+                    <div class="step-code"><span class="c-comment"># Terminal shows full analysis table</span></div>
+                </div>
+            </div>
+            <div class="step-row slide-in-row">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                    <h3>Open your dashboard</h3>
+                    <p>TICKER_analysis.xlsx and TICKER_dashboard.html open automatically. Print the dashboard as a one-page A4 report.</p>
+                    <div class="step-code"><span class="c-comment"># Excel + HTML auto-generated</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMMANDS SHOWCASE -->
+    <section id="commands">
+        <div class="section-header">
+            <h2>Six powerful commands</h2>
+            <p>Everything you need for fundamental analysis</p>
+        </div>
+        
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="openTab('tab-scan', this)">scan</button>
+                <button class="tab-btn" onclick="openTab('tab-compare', this)">compare</button>
+                <button class="tab-btn" onclick="openTab('tab-screen', this)">screen</button>
+                <button class="tab-btn" onclick="openTab('tab-check', this)">check</button>
+                <button class="tab-btn" onclick="openTab('tab-powerbi', this)">powerbi</button>
+                <button class="tab-btn" onclick="openTab('tab-serve', this)">serve (MCP)</button>
+            </div>
+        </div>
+
+        <div class="tab-content-wrapper" style="position:relative;">
+            <div id="tab-scan" class="tab-content active">
+                <div class="cmd-block-wrapper">
+                <button class="cmd-copy-btn" onclick="copyCmd(this)">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" 
+                    stroke="currentColor" stroke-width="2" 
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </button>
+                <div class="cmd-block"><span class="c-cmd">telmus</span> scan <span class="c-arg">INFY.NS</span>
+<span class="c-cmd">telmus</span> scan <span class="c-arg">AAPL</span>
+<span class="c-cmd">telmus</span> scan <span class="c-arg">RELIANCE.NS</span> <span class="c-flag">--json</span></div></div>
+                <p>Runs full analysis: valuation, health, growth, and flags engines. Generates analysis workbook and interactive dashboard instantly.</p>
+                <div class="files-wrap">
+                    <span class="file-chip">INFY_analysis.xlsx</span>
+                    <span class="file-chip">INFY_dashboard.html</span>
+                </div>
+            </div>
+
+            <div id="tab-compare" class="tab-content">
+                <div class="cmd-block-wrapper">
+                <button class="cmd-copy-btn" onclick="copyCmd(this)">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" 
+                    stroke="currentColor" stroke-width="2" 
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </button>
+                <div class="cmd-block"><span class="c-cmd">telmus</span> compare <span class="c-arg">INFY.NS TCS.NS</span>
+<span class="c-cmd">telmus</span> compare <span class="c-arg">AAPL MSFT</span></div></div>
+                <p>Side by side comparison of two stocks across all metrics. See which company wins on each metric with color coding.</p>
+                <div class="files-wrap">
+                    <span class="file-chip">INFYvsTCS_comparison.xlsx</span>
+                    <span class="file-chip">INFYvsTCS_dashboard.html</span>
+                </div>
+            </div>
+
+            <div id="tab-screen" class="tab-content">
+                <div class="cmd-block-wrapper">
+                <button class="cmd-copy-btn" onclick="copyCmd(this)">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" 
+                    stroke="currentColor" stroke-width="2" 
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </button>
+                <div class="cmd-block"><span class="c-cmd">telmus</span> screen <span class="c-flag">--sector</span> <span class="c-arg">IT</span>
+<span class="c-cmd">telmus</span> screen <span class="c-flag">--sector</span> <span class="c-arg">Banking</span> <span class="c-flag">--min-piotroski</span> <span class="c-arg">6</span>
+<span class="c-cmd">telmus</span> screen <span class="c-flag">--sector</span> <span class="c-arg">IT</span> <span class="c-flag">--max-de</span> <span class="c-arg">1.5</span></div></div>
+                <p>Scan an entire sector at once with custom filters. Find the strongest stocks in any sector instantly.</p>
+                <div class="files-wrap">
+                    <span class="file-chip">screen_results.xlsx</span>
+                    <span class="file-chip">screen_dashboard.html</span>
+                </div>
+            </div>
+
+            <div id="tab-check" class="tab-content">
+                <div class="cmd-block-wrapper">
+                <button class="cmd-copy-btn" onclick="copyCmd(this)">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" 
+                    stroke="currentColor" stroke-width="2" 
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </button>
+                <div class="cmd-block"><span class="c-cmd">telmus</span> check <span class="c-arg">INFY.NS</span>
+<span class="c-cmd">telmus</span> check <span class="c-arg">AAPL</span></div></div>
+                <p>Quick health check only. Just Piotroski F and Altman Z. Fastest way to check if a stock is worth deeper analysis.</p>
+            </div>
+
+            <div id="tab-powerbi" class="tab-content">
+                <div class="cmd-block-wrapper">
+                <button class="cmd-copy-btn" onclick="copyCmd(this)">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" 
+                    stroke="currentColor" stroke-width="2" 
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </button>
+                <div class="cmd-block"><span class="c-cmd">telmus</span> powerbi <span class="c-flag">--tickers</span> <span class="c-arg">INFY.NS TCS.NS WIPRO.NS</span> <span class="c-flag">--export</span> <span class="c-arg">portfolio.csv</span></div></div>
+                <p>Generates Power BI ready CSV for portfolio analysis. Also creates portfolio_report.html with pre-built charts.</p>
+                <div class="files-wrap">
+                    <span class="file-chip">portfolio.csv</span>
+                    <span class="file-chip">portfolio_report.html</span>
+                </div>
+            </div>
+
+            <div id="tab-serve" class="tab-content">
+                <div class="cmd-block-wrapper">
+                <button class="cmd-copy-btn" onclick="copyCmd(this)">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" 
+                    stroke="currentColor" stroke-width="2" 
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                </button>
+                <div class="cmd-block"><span class="c-cmd">telmus</span> serve</div></div>
+                <p>Starts MCP server for Claude Desktop, Cursor, or Windsurf. Add to your AI IDE config and ask it to analyse stocks in plain English.</p>
+                <div class="cmd-block" style="margin-bottom: 0;">{
+  <span class="c-cmd">"mcpServers"</span>: {
+    <span class="c-cmd">"telmus"</span>: {
+      <span class="c-cmd">"command"</span>: <span class="c-arg">"telmus"</span>,
+      <span class="c-cmd">"args"</span>: [<span class="c-arg">"serve"</span>]
+    }
+  }
+}</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MCP SERVER -->
+    <section id="mcp">
+        <div class="section-header">
+            <h2>Connect telmus to your AI IDE</h2>
+            <p>telmus turns Claude from an opinion machine into a financial analyst with live data</p>
+        </div>
+
+        <div class="mcp-grid">
+            <div class="mcp-card">
+                <h3>Claude Desktop</h3>
+                <div class="mcp-code-block cmd-block" style="margin-bottom:0;">
+                    <button class="mcp-copy-btn copy-btn" onclick="copyText('{\n  &quot;mcpServers&quot;: {\n    &quot;telmus&quot;: {\n      &quot;command&quot;: &quot;telmus&quot;,\n      &quot;args&quot;: [&quot;serve&quot;]\n    }\n  }\n}', this)">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+{
+  <span class="c-cmd">"mcpServers"</span>: {
+    <span class="c-cmd">"telmus"</span>: {
+      <span class="c-cmd">"command"</span>: <span class="c-arg">"telmus"</span>,
+      <span class="c-cmd">"args"</span>: [<span class="c-arg">"serve"</span>]
+    }
+  }
+}</div>
+            </div>
+            <div class="mcp-card">
+                <h3>Cursor</h3>
+                <div class="mcp-code-block cmd-block" style="margin-bottom:0;">
+                    <button class="mcp-copy-btn copy-btn" onclick="copyText('{\n  &quot;mcpServers&quot;: {\n    &quot;telmus&quot;: {\n      &quot;command&quot;: &quot;telmus&quot;,\n      &quot;args&quot;: [&quot;serve&quot;]\n    }\n  }\n}', this)">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+{
+  <span class="c-cmd">"mcpServers"</span>: {
+    <span class="c-cmd">"telmus"</span>: {
+      <span class="c-cmd">"command"</span>: <span class="c-arg">"telmus"</span>,
+      <span class="c-cmd">"args"</span>: [<span class="c-arg">"serve"</span>]
+    }
+  }
+}</div>
+            </div>
+            <div class="mcp-card">
+                <h3>Windsurf</h3>
+                <div class="mcp-code-block cmd-block" style="margin-bottom:0;">
+                    <button class="mcp-copy-btn copy-btn" onclick="copyText('{\n  &quot;mcpServers&quot;: {\n    &quot;telmus&quot;: {\n      &quot;command&quot;: &quot;telmus&quot;,\n      &quot;args&quot;: [&quot;serve&quot;]\n    }\n  }\n}', this)">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+{
+  <span class="c-cmd">"mcpServers"</span>: {
+    <span class="c-cmd">"telmus"</span>: {
+      <span class="c-cmd">"command"</span>: <span class="c-arg">"telmus"</span>,
+      <span class="c-cmd">"args"</span>: [<span class="c-arg">"serve"</span>]
+    }
+  }
+}</div>
+            </div>
+        </div>
+
+        <div class="prompts-container">
+            <h4>Ask your AI anything:</h4>
+            <div class="mcp-prompts">
+                <div class="prompt-pill">"Analyse INFY.NS financials"</div>
+                <div class="prompt-pill">"Compare TCS.NS and Wipro.NS"</div>
+                <div class="prompt-pill">"Screen IT sector stocks with strong balance sheets"</div>
+                <div class="prompt-pill">"Is Zomato's balance sheet healthy?"</div>
+                <div class="prompt-pill">"What is the Beneish M-score for Adani Enterprises?"</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- INSTALL -->
+    <section class="install-section nav-section" id="install">
+        <div class="install-content">
+            <div class="install-steps-inline">
+                <span class="i-step">pip install telmus</span>
+                <span class="i-arrow">&rarr;</span>
+                <span class="i-step">telmus scan AAPL</span>
+                <span class="i-arrow">&rarr;</span>
+                <span class="i-step">Dashboard opens automatically</span>
+            </div>
+
+            <div>
+                <div class="big-install-cmd">
+                    <span class="bic-text">$ pip install telmus</span>
+                    <button class="copy-btn" onclick="copyText('pip install telmus', this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="install-links">
+                <a href="https://pypi.org/project/telmus/">PyPI Package</a>
+                <a href="https://shubhwade.github.io/telmus/">Documentation</a>
+                <a href="https://github.com/shubhwade/telmus">GitHub Repo</a>
+                <a href="https://pypistats.org/packages/telmus">Track Downloads</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="f-logo">telmus</div>
+                <div class="f-by">Built by Shubh Wade</div>
+            </div>
+            <div class="f-links">
+                <a href="https://shubhwade.github.io/telmus/">Docs</a>
+                <a href="https://github.com/shubhwade/telmus">GitHub</a>
+                <a href="https://pypi.org/project/telmus/">PyPI</a>
+                <a href="https://shubhwade.github.io/telmus/changelog/">Changelog</a>
+                <a href="https://github.com/shubhwade/telmus/blob/main/SECURITY.md">Security</a>
+            </div>
+            <div class="footer-action">
+                <a href="https://github.com/shubhwade/telmus" class="f-star">Star on GitHub &nearr;</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2025 telmus &middot; MIT License &middot; Not financial advice &middot; Data via Yahoo Finance
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 20) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile Menu Toggle
+        function toggleMenu() {
+            document.getElementById('mobile-nav').classList.toggle('active');
+        }
+        document.querySelectorAll('.mobile-dropdown a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('mobile-nav').classList.remove('active');
+            });
+        });
+
+        // Terminal Typing Animation
+        const terminalText = `<span class="term-prompt">$</span> <span class="term-arg">telmus scan INFY.NS</span>
+
+<span class="term-sep">───────────</span> Infosys Limited — INFY.NS — NSI <span class="term-sep">───────────</span>
+Scan duration: <span class="term-val">2989 ms</span>
+
+<span class="term-header">Engine    Metric              Value    Status</span>
+<span class="term-label">Valuation</span> P/E ratio           <span class="term-val">13.21</span>    <span class="term-ok">✓ ok</span>
+<span class="term-label">Valuation</span> P/B ratio           <span class="term-val">4.37</span>     <span class="term-ok">✓ ok</span>  
+<span class="term-label">Health</span>    Piotroski F-score   <span class="term-val">6/9</span>      <span class="term-warn">⚠ adequate</span>
+<span class="term-label">Health</span>    Altman Z-score      <span class="term-val">13.48</span>    <span class="term-ok">✓ safe</span>
+<span class="term-label">Growth</span>    Revenue CAGR 3y     <span class="term-val">3.44%</span>    <span class="term-ok">✓ ok</span>
+<span class="term-label">Growth</span>    Margin trend        <span class="term-val">stable</span>   <span class="term-ok">✓ ok</span>
+
+<span class="term-brief">✦ Analyst Brief: Adequate fundamentals. Financially safe.
+  Revenue growing 3.44% CAGR. No red flags detected.</span>
+
+<span class="term-saved">Saved: INFY_analysis.xlsx + INFY_dashboard.html</span>
+<span class="term-open">Opening dashboard in browser...</span>`;
+        
+        const terminalEl = document.getElementById('terminal-text');
+        
+        setTimeout(() => {
+            terminalEl.innerHTML = '<span class="term-prompt">$</span> <span class="term-arg">telmus scan INFY.NS</span>\n<span style="color: #71717a;">...</span>';
+            
+            setTimeout(() => {
+                terminalEl.innerHTML = '';
+                let i = 0;
+                let isHTML = false;
+                let tempStr = '';
+                
+                const typeInterval = setInterval(() => {
+                    if (i < terminalText.length) {
+                        const char = terminalText.charAt(i);
+                        if (char === '<') isHTML = true;
+                        
+                        tempStr += char;
+                        
+                        if (char === '>') {
+                            isHTML = false;
+                            terminalEl.innerHTML = tempStr;
+                        } else if (!isHTML) {
+                            terminalEl.innerHTML = tempStr;
+                        }
+                        
+                        i++;
+                        terminalEl.scrollTop = terminalEl.scrollHeight;
+                    } else {
+                        clearInterval(typeInterval);
+                    }
+                }, 15);
+            }, 800);
+        }, 800);
+
+        // Feature Cards Fade Up Staggered
+        const featObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const cards = entry.target.querySelectorAll('.fade-up-feat');
+                    cards.forEach((card, index) => {
+                        setTimeout(() => {
+                            card.classList.add('visible');
+                        }, index * 60);
+                    });
+                    featObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: "0px 0px -80px 0px" });
+        
+        const featuresGrid = document.querySelector('.features-grid');
+        if(featuresGrid) featObserver.observe(featuresGrid);
+
+        // How it works Rows Slide In Staggered
+        const rowsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const rows = entry.target.querySelectorAll('.slide-in-row');
+                    rows.forEach((row, index) => {
+                        setTimeout(() => {
+                            row.classList.add('visible');
+                        }, index * 80);
+                    });
+                    rowsObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+        
+        const stepsList = document.querySelector('.steps-list');
+        if(stepsList) rowsObserver.observe(stepsList);
+
+        // Copy to clipboard function
+        function copyText(text, btnElement) {
+            navigator.clipboard.writeText(text).then(() => {
+                const icon = btnElement.querySelector('svg');
+                if (icon) {
+                    const originalColor = icon.style.color || '';
+                    const originalHTML = icon.outerHTML;
+                    
+                    // Switch to checkmark
+                    icon.outerHTML = '<svg viewBox="0 0 24 24" width="' + (icon.getAttribute('width') || '18') + '" height="' + (icon.getAttribute('height') || '18') + '" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="' + (icon.getAttribute('style') || '') + '"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                    
+                    setTimeout(() => {
+                        btnElement.innerHTML = btnElement.innerHTML.replace(/<svg.*?<\/svg>/, originalHTML);
+                    }, 2000);
+                }
+            });
+        }
+
+        // Tabs logic with fade out/in
+        let isAnimatingTab = false;
+        function openTab(tabName, btnElement) {
+            if(isAnimatingTab || btnElement.classList.contains('active')) return;
+            isAnimatingTab = true;
+
+            const tabContents = document.querySelectorAll(".tab-content");
+            const tabBtns = document.querySelectorAll(".tab-btn");
+            
+            // Set buttons state
+            tabBtns.forEach(btn => btn.classList.remove("active"));
+            btnElement.classList.add("active");
+
+            // Find current active content
+            let currentActive = null;
+            tabContents.forEach(content => {
+                if(content.classList.contains('active')) {
+                    currentActive = content;
+                }
+            });
+
+            if(currentActive) {
+                // Fade out current
+                currentActive.style.transition = "opacity 120ms ease-out";
+                currentActive.style.opacity = "0";
+                
+                setTimeout(() => {
+                    currentActive.classList.remove("active");
+                    
+                    // Show new
+                    const newActive = document.getElementById(tabName);
+                    newActive.classList.add("active");
+                    newActive.style.opacity = "0";
+                    
+                    // Force reflow
+                    void newActive.offsetWidth;
+                    
+                    // Fade in new
+                    newActive.style.transition = "opacity 200ms ease-out";
+                    newActive.style.opacity = "1";
+                    
+                    setTimeout(() => {
+                        isAnimatingTab = false;
+                        newActive.style.transition = "";
+                    }, 200);
+                }, 120);
+            } else {
+                // Fallback if none active
+                const newActive = document.getElementById(tabName);
+                newActive.classList.add("active");
+                newActive.style.opacity = "1";
+                isAnimatingTab = false;
+            }
+        }
+
+        // Nav Link Active State (Scroll Spy)
+        const sections = document.querySelectorAll(".nav-section");
+        const navItems = document.querySelectorAll(".nav-item");
+        
+        const scrollSpyObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    navItems.forEach(link => {
+                        link.classList.remove('active');
+                        if(link.getAttribute('data-target') === id) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, { rootMargin: "-20% 0px -60% 0px" });
+        
+        sections.forEach(section => scrollSpyObserver.observe(section));
+
+        const stockData = [
+            {
+                ticker: "INFY.NS",
+                name: "Infosys Limited",
+                exchange: "NSE",
+                badge: "SAFE",
+                badgeClass: "sc-badge-safe",
+                piotroski: { val: "6/9", pct: 66, cls: "amber" },
+                altman:    { val: "13.48", pct: 90, cls: "green" },
+                beneish:   { val: "−1.94", pct: 80, cls: "green" },
+                metrics: [
+                    { label: "P/E Ratio",      val: "13.21",  cls: "" },
+                    { label: "P/B Ratio",      val: "4.37",   cls: "" },
+                    { label: "Revenue CAGR",   val: "+3.44%", cls: "green" },
+                    { label: "Margin trend",   val: "Stable", cls: "" }
+                ],
+                brief: "Adequate fundamentals. Financially safe. Revenue growing 3.44% CAGR. No red flags detected."
+            },
+            {
+                ticker: "AAPL",
+                name: "Apple Inc.",
+                exchange: "NASDAQ",
+                badge: "SAFE",
+                badgeClass: "sc-badge-safe",
+                piotroski: { val: "7/9", pct: 78, cls: "green" },
+                altman:    { val: "9.12", pct: 75, cls: "green" },
+                beneish:   { val: "−2.31", pct: 85, cls: "green" },
+                metrics: [
+                    { label: "P/E Ratio",      val: "27.43",  cls: "" },
+                    { label: "P/B Ratio",      val: "46.2",   cls: "" },
+                    { label: "Revenue CAGR",   val: "+5.21%", cls: "green" },
+                    { label: "Margin trend",   val: "Improving", cls: "green" }
+                ],
+                brief: "Strong fundamentals. High valuation justified by margins. Financially very safe. Consistent growth."
+            },
+            {
+                ticker: "RELIANCE.NS",
+                name: "Reliance Industries",
+                exchange: "NSE",
+                badge: "ADEQUATE",
+                badgeClass: "sc-badge-warn",
+                piotroski: { val: "5/9", pct: 55, cls: "amber" },
+                altman:    { val: "4.87", pct: 58, cls: "amber" },
+                beneish:   { val: "−1.61", pct: 72, cls: "green" },
+                metrics: [
+                    { label: "P/E Ratio",      val: "22.10",  cls: "" },
+                    { label: "P/B Ratio",      val: "2.14",   cls: "" },
+                    { label: "Revenue CAGR",   val: "+8.11%", cls: "green" },
+                    { label: "Margin trend",   val: "Stable", cls: "" }
+                ],
+                brief: "Adequate health score. High revenue growth. Leverage elevated but manageable. Monitor debt levels."
+            },
+            {
+                ticker: "MSFT",
+                name: "Microsoft Corp.",
+                exchange: "NASDAQ",
+                badge: "SAFE",
+                badgeClass: "sc-badge-safe",
+                piotroski: { val: "8/9", pct: 89, cls: "green" },
+                altman:    { val: "11.34", pct: 88, cls: "green" },
+                beneish:   { val: "−2.67", pct: 92, cls: "green" },
+                metrics: [
+                    { label: "P/E Ratio",      val: "32.80",  cls: "" },
+                    { label: "P/B Ratio",      val: "12.4",   cls: "" },
+                    { label: "Revenue CAGR",   val: "+9.87%", cls: "green" },
+                    { label: "Margin trend",   val: "Improving", cls: "green" }
+                ],
+                brief: "Excellent fundamentals across all engines. High confidence. Strong moat. No red flags detected."
+            }
+        ];
+
+        function renderCard(d) {
+            const card = document.getElementById('score-card');
+            card.style.opacity = '0';
+            card.style.transition = 'opacity 300ms ease';
+            
+            setTimeout(() => {
+                card.innerHTML = `
+                <div class="sc-header">
+                    <div class="sc-ticker-block">
+                        <span class="sc-ticker">${d.ticker}</span>
+                        <span class="sc-name">${d.name}</span>
+                    </div>
+                    <div class="sc-badge ${d.badgeClass}">${d.badge}</div>
+                </div>
+
+                <div class="sc-scores">
+                    <div class="sc-score-row">
+                        <div class="sc-score-label">
+                            <span class="sc-label-name">Piotroski F</span>
+                            <span class="sc-label-sub">Financial health</span>
+                        </div>
+                        <div class="sc-score-right">
+                            <div class="sc-bar-track">
+                                <div class="sc-bar-fill sc-bar-${d.piotroski.cls}" style="width:${d.piotroski.pct}%"></div>
+                            </div>
+                            <span class="sc-score-val sc-val-${d.piotroski.cls}">${d.piotroski.val}</span>
+                        </div>
+                    </div>
+                    <div class="sc-score-row">
+                        <div class="sc-score-label">
+                            <span class="sc-label-name">Altman Z</span>
+                            <span class="sc-label-sub">Bankruptcy risk</span>
+                        </div>
+                        <div class="sc-score-right">
+                            <div class="sc-bar-track">
+                                <div class="sc-bar-fill sc-bar-${d.altman.cls}" style="width:${d.altman.pct}%"></div>
+                            </div>
+                            <span class="sc-score-val sc-val-${d.altman.cls}">${d.altman.val}</span>
+                        </div>
+                    </div>
+                    <div class="sc-score-row">
+                        <div class="sc-score-label">
+                            <span class="sc-label-name">Beneish M</span>
+                            <span class="sc-label-sub">Earnings manipulation</span>
+                        </div>
+                        <div class="sc-score-right">
+                            <div class="sc-bar-track">
+                                <div class="sc-bar-fill sc-bar-${d.beneish.cls}" style="width:${d.beneish.pct}%"></div>
+                            </div>
+                            <span class="sc-score-val sc-val-${d.beneish.cls}">${d.beneish.val}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sc-divider"></div>
+
+                <div class="sc-metrics">
+                    ${d.metrics.map(m => `
+                    <div class="sc-metric">
+                        <span class="sc-m-label">${m.label}</span>
+                        <span class="sc-m-val ${m.cls ? 'sc-val-'+m.cls : ''}">${m.val}</span>
+                    </div>`).join('')}
+                </div>
+
+                <div class="sc-divider"></div>
+
+                <div class="sc-brief">
+                    <span class="sc-brief-icon">✦</span>
+                    <p>${d.brief}</p>
+                </div>
+
+                <div class="sc-footer-row">
+                    <span class="sc-footer-label">Generated by telmus</span>
+                    <span class="sc-footer-label">${d.exchange} · Yahoo Finance</span>
+                </div>`;
+
+                card.style.opacity = '1';
+            }, 300);
+        }
+
+        let currentStock = 0;
+        renderCard(stockData[0]);
+        setInterval(() => {
+            currentStock = (currentStock + 1) % stockData.length;
+            renderCard(stockData[currentStock]);
+        }, 5000);
+
+        function copyCmd(btn) {
+            const block = btn.nextElementSibling;
+            const text = block.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const svg = btn.querySelector('svg');
+                btn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                setTimeout(() => {
+                    btn.innerHTML = svg.outerHTML.replace('stroke="#4ade80"', 'stroke="currentColor"');
+                }, 2000);
+            });
+        }
+
+    </script>
+</body>
+</html>
